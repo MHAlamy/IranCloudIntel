@@ -1,0 +1,74 @@
+[
+  {
+    "plan_name": "eco-small1",
+    "cpu_raw": "1 CPU",
+    "ram_raw": "1 GB",
+    "disk_raw": "25 GB",
+    "price_raw": "۹۹۷,۷۴۰",
+    "currency_raw": "                                            تومان",
+    "region": "ir-thr-ba1"
+  },
+  {
+    "plan_name": "eco-small2",
+    "cpu_raw": "1 CPU",
+    "ram_raw": "2 GB",
+    "disk_raw": "25 GB",
+    "price_raw": "۱,۱۳۵,۰۸۰",
+    "currency_raw": "                                            تومان",
+    "region": "ir-thr-ba1"
+  },
+  {
+    "plan_name": "eco-small3",
+    "cpu_raw": "1 CPU",
+    "ram_raw": "3 GB",
+    "disk_raw": "30 GB",
+    "price_raw": "۱,۳۶۲,۴۲۰",
+    "currency_raw": "                                            تومان",
+    "region": "ir-thr-ba1"
+  },
+  {
+    "plan_name": "eco-small4",
+    "cpu_raw": "2 CPU",
+    "ram_raw": "2 GB",
+    "disk_raw": "30 GB",
+    "price_raw": "۱,۴۰۱,۴۸۰",
+    "currency_raw": "                                            تومان",
+    "region": "ir-thr-ba1"
+  },
+  {
+    "plan_name": "c1-medium1",
+    "cpu_raw": "2 CPU",
+    "ram_raw": "4 GB",
+    "disk_raw": "25 GB",
+    "price_raw": "۲,۴۱۱,۲۰۰",
+    "currency_raw": "                                            تومان",
+    "region": "eu-west1-a"
+  },
+  {
+    "plan_name": "g1-medium1",
+    "cpu_raw": "4 CPU",
+    "ram_raw": "12 GB",
+    "disk_raw": "75 GB",
+    "price_raw": "۴,۹۴۶,۴۰۰",
+    "currency_raw": "                                            تومان",
+    "region": "ir-thr-fr1"
+  },
+  {
+    "plan_name": "c1-medium2",
+    "cpu_raw": "4 CPU",
+    "ram_raw": "8 GB",
+    "disk_raw": "75 GB",
+    "price_raw": "۵,۰۸۶,۴۰۰",
+    "currency_raw": "                                            تومان",
+    "region": "eu-west1-a"
+  },
+  {
+    "plan_name": "ls1-medium1",
+    "cpu_raw": "4 CPU",
+    "ram_raw": "12 GB",
+    "disk_raw": "128 GB",
+    "price_raw": "۶,۸۲۲,۰۰۰",
+    "currency_raw": "                                            تومان",
+    "region": "ir-thr-fr1"
+  }
+]

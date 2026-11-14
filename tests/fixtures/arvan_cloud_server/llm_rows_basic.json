@@ -1,0 +1,13 @@
+{
+  "_comment": "Simulated LLM extraction output for the basic-tab panel fixture (rows in LLMPlanRow shape). Used with a mocked HTTP transport; no live API in tests.",
+  "rows": [
+    {"plan_name": "eco-small1", "provider_tier_raw": "basic", "region": "ir-thr-ba1", "vcpu": 1, "ram_gb": 1, "disk_gb": 25, "disk_type": null, "price_raw": "۹۹۷,۷۴۰", "currency_raw": "تومان", "billing_period_raw": "ماهانه", "evidence": "eco-small1 | 1 CPU | 1 GB | 25 GB | ۹۹۷,۷۴۰ تومان"},
+    {"plan_name": "eco-small2", "provider_tier_raw": "basic", "region": "ir-thr-ba1", "vcpu": 1, "ram_gb": 2, "disk_gb": 25, "disk_type": null, "price_raw": "۱,۱۳۵,۰۸۰", "currency_raw": "تومان", "billing_period_raw": "ماهانه", "evidence": "eco-small2 | 1 CPU | 2 GB | 25 GB | ۱,۱۳۵,۰۸۰ تومان"},
+    {"plan_name": "eco-small3", "provider_tier_raw": "basic", "region": "ir-thr-ba1", "vcpu": 1, "ram_gb": 3, "disk_gb": 30, "disk_type": null, "price_raw": "۱,۳۶۲,۴۲۰", "currency_raw": "تومان", "billing_period_raw": "ماهانه", "evidence": "eco-small3 | 1 CPU | 3 GB | 30 GB | ۱,۳۶۲,۴۲۰ تومان"},
+    {"plan_name": "eco-small4", "provider_tier_raw": "basic", "region": "ir-thr-ba1", "vcpu": 2, "ram_gb": 2, "disk_gb": 30, "disk_type": null, "price_raw": "۱,۴۰۱,۴۸۰", "currency_raw": "تومان", "billing_period_raw": "ماهانه", "evidence": "eco-small4 | 2 CPU | 2 GB | 30 GB | ۱,۴۰۱,۴۸۰ تومان"},
+    {"plan_name": "c1-medium1", "provider_tier_raw": "basic", "region": "eu-west1-a", "vcpu": 2, "ram_gb": 4, "disk_gb": 25, "disk_type": null, "price_raw": "۲,۴۱۱,۲۰۰", "currency_raw": "تومان", "billing_period_raw": "ماهانه", "evidence": "c1-medium1 | 2 CPU | 4 GB | 25 GB | ۲,۴۱۱,۲۰۰ تومان"},
+    {"plan_name": "g1-medium1", "provider_tier_raw": "basic", "region": "ir-thr-fr1", "vcpu": 4, "ram_gb": 12, "disk_gb": 75, "disk_type": null, "price_raw": "۴,۹۴۶,۴۰۰", "currency_raw": "تومان", "billing_period_raw": "ماهانه", "evidence": "g1-medium1 | 4 CPU | 12 GB | 75 GB | ۴,۹۴۶,۴۰۰ تومان"},
+    {"plan_name": "c1-medium2", "provider_tier_raw": "basic", "region": "eu-west1-a", "vcpu": 4, "ram_gb": 8, "disk_gb": 75, "disk_type": null, "price_raw": "۵,۰۸۶,۴۰۰", "currency_raw": "تومان", "billing_period_raw": "ماهانه", "evidence": "c1-medium2 | 4 CPU | 8 GB | 75 GB | ۵,۰۸۶,۴۰۰ تومان"},
+    {"plan_name": "ls1-medium1", "provider_tier_raw": "basic", "region": "ir-thr-fr1", "vcpu": 4, "ram_gb": 12, "disk_gb": 128, "disk_type": null, "price_raw": "۶,۸۲۲,۰۰۰", "currency_raw": "تومان", "billing_period_raw": "ماهانه", "evidence": "ls1-medium1 | 4 CPU | 12 GB | 128 GB | ۶,۸۲۲,۰۰۰ تومان"}
+  ]
+}

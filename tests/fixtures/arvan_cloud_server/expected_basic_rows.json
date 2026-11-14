@@ -1,0 +1,13 @@
+{
+  "_comment": "Manually verified expected normalization of the basic-tab rows captured 2026-11-14 from arvancloud.ir/fa/pricing/cloud-server. Prices cross-checked against PROJECT_GUIDE.md section 7 tariff table (eco-small4=1401480, c1-medium1=2411200).",
+  "rows": [
+    {"plan_name": "eco-small1", "provider_tier_raw": "basic", "region": "ir-thr-ba1", "vcpu": 1, "ram_gb": 1, "disk_gb": 25, "price_value": "997740", "currency": "toman", "billing_period": "monthly", "validation_status": "valid"},
+    {"plan_name": "eco-small2", "provider_tier_raw": "basic", "region": "ir-thr-ba1", "vcpu": 1, "ram_gb": 2, "disk_gb": 25, "price_value": "1135080", "currency": "toman", "billing_period": "monthly", "validation_status": "valid"},
+    {"plan_name": "eco-small3", "provider_tier_raw": "basic", "region": "ir-thr-ba1", "vcpu": 1, "ram_gb": 3, "disk_gb": 30, "price_value": "1362420", "currency": "toman", "billing_period": "monthly", "validation_status": "valid"},
+    {"plan_name": "eco-small4", "provider_tier_raw": "basic", "region": "ir-thr-ba1", "vcpu": 2, "ram_gb": 2, "disk_gb": 30, "price_value": "1401480", "currency": "toman", "billing_period": "monthly", "validation_status": "valid"},
+    {"plan_name": "c1-medium1", "provider_tier_raw": "basic", "region": "eu-west1-a", "vcpu": 2, "ram_gb": 4, "disk_gb": 25, "price_value": "2411200", "currency": "toman", "billing_period": "monthly", "validation_status": "valid"},
+    {"plan_name": "g1-medium1", "provider_tier_raw": "basic", "region": "ir-thr-fr1", "vcpu": 4, "ram_gb": 12, "disk_gb": 75, "price_value": "4946400", "currency": "toman", "billing_period": "monthly", "validation_status": "valid"},
+    {"plan_name": "c1-medium2", "provider_tier_raw": "basic", "region": "eu-west1-a", "vcpu": 4, "ram_gb": 8, "disk_gb": 75, "price_value": "5086400", "currency": "toman", "billing_period": "monthly", "validation_status": "valid"},
+    {"plan_name": "ls1-medium1", "provider_tier_raw": "basic", "region": "ir-thr-fr1", "vcpu": 4, "ram_gb": 12, "disk_gb": 128, "price_value": "6822000", "currency": "toman", "billing_period": "monthly", "validation_status": "valid"}
+  ]
+}
