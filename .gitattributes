@@ -1,0 +1,23 @@
+# Normalize line endings: LF in repository, native on checkout.
+* text=auto
+
+# Explicit text types
+*.py text
+*.md text
+*.txt text
+*.json text
+*.yaml text
+*.yml text
+*.html text
+*.css text
+*.sql text
+
+# Windows scripts keep CRLF
+*.ps1 text eol=crlf
+*.bat text eol=crlf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.pdf binary
+*.db binary
