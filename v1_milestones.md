@@ -21,11 +21,11 @@ Based on `PROJECT_GUIDE.md`; complete one milestone together at a time. Agreed c
 ## 2. Prove one pricing collector
 
 - [x] Select one provider/service pricing page: **Arvan cloud-server pricing** (agreed; see `price_gathering_guide.md`). Verify Arvan AIaaS endpoint, authentication and available models — done: endpoint and `apikey` auth confirmed, 102 models listed, end-to-end inference tested (~46 tokens); structured-output support still to verify.
-- [ ] Store credentials in ignored `.env`; make one bounded API connectivity test and choose an initial configurable model using manually checked examples.
-- [ ] Implement HTTP fetching, Playwright rendering with independent capture of all three Arvan pricing tabs (per-tab snapshots and content hashes), and LLM extraction into a service-specific schema.
-- [ ] Validate evidence, completeness, numbers, units and currency; normalize Persian numerals and Rial/Toman deterministically using exact money arithmetic.
-- [ ] Test saved fixtures and mocked responses, including malformed output and fetch failures; manually verify every extracted row and record token cost.
-- **Done when:** one page produces accurate, evidence-backed prices and visible failures without invented values.
+- [x] Store credentials in ignored `.env`; make one bounded API connectivity test and choose an initial configurable model using manually checked examples. — Done 2026-11-14: endpoint/auth/models verified, model set to `GPT-5-Mini`, gateway rate limit configured (50 req/5 min).
+- [x] Implement HTTP fetching, Playwright rendering with independent capture of all three Arvan pricing tabs (per-tab snapshots and content hashes), and LLM extraction into a service-specific schema. — Done: JS challenge requires Playwright; all three Alpine panels are server-rendered in one DOM and parsed independently; per-tab snapshots saved.
+- [x] Validate evidence, completeness, numbers, units and currency; normalize Persian numerals and Rial/Toman deterministically using exact money arithmetic. — Done: `normalization/` with Decimal arithmetic; unknown ≠ zero; suspect flagging.
+- [x] Test saved fixtures and mocked responses, including malformed output and fetch failures; manually verify every extracted row and record token cost. — Done: 36 mocked tests; live extraction PASSED 8/8 vs hand-verified rows (2,210 tokens/call, ~4,420 total incl. one rerun after a reporting bug).
+- **Done when:** one page produces accurate, evidence-backed prices and visible failures without invented values. — **Met 2026-11-14. Milestone 2 complete.**
 
 ## 3. Store history and build the dashboard
 
