@@ -2,7 +2,7 @@
 
 Based on `PROJECT_GUIDE.md`; complete one milestone together at a time. Agreed change: develop directly on Windows; defer Linux and Docker execution to the Ubuntu server stage. This overrides the guide's WSL/local Docker setup.
 
-**V1:** a private dashboard comparing official public VM, Object Storage and CDN prices across an agreed small set of Iranian providers, with daily collection, source evidence and price history. The VM provider list is now agreed per `price_gathering_guide.md` (Arvan, Liara, ParsPack, Cloud.ir); model and deployment details remain open until verified.
+**V1:** a private dashboard comparing official public VM, Object Storage and CDN prices across an agreed small set of Iranian providers, with daily collection, source evidence and price history. All prices are displayed and compared as **monthly Toman (Toman/month)**, with original values preserved. The VM provider list is now agreed per `price_gathering_guide.md` (Arvan, Liara, ParsPack, Cloud.ir); model and deployment details remain open until verified.
 
 ## Current PC baseline
 
@@ -29,11 +29,11 @@ Based on `PROJECT_GUIDE.md`; complete one milestone together at a time. Agreed c
 
 ## 3. Store history and build the dashboard
 
-- [ ] Add a versioned SQLite schema for providers, sources, runs, offerings and price observations, with source-evidence references.
+- [x] Add a versioned SQLite schema for providers, sources, runs, offerings and price observations, with source-evidence references. — Done: `storage/` (WAL, Decimal-text money, append-only history, skip-unchanged logic, raw values preserved); 48 tests pass. Dates stored UTC, displayed in Jalali/Tehran via `util/jalali.py`.
 - [ ] Add versioned analyst-maintained YAML configuration (`tiers.yaml`, `benchmarks.yaml`) defining the three normalized VM tiers (Economy/Standard/Premium) and the four reference sizes (1/2/20, 4/8/80, 16/32/320, 32/64/640 GB), validated on startup.
 - [ ] Save valid observations transactionally; retain last valid prices on failure. Track last checked, last successfully verified, errors and extraction versions.
 - [ ] Skip extraction for unchanged successful content under the same extractor configuration; reprocess failed or changed configurations and support forced verification.
-- [ ] Build FastAPI/Jinja2 comparison tables showing specifications, original/normalized prices, units, provider links, timestamps, stale/uncertain/missing states, tier/size selectors and exact-versus-approximate matching distinctions.
+- [ ] Build FastAPI/Jinja2 comparison tables showing specifications, original/normalized prices, units, provider links, timestamps, stale/uncertain/missing states, tier/size selectors and exact-versus-approximate matching distinctions. All prices displayed in monthly Toman (hourly sources converted with the configurable 730-hour month and labeled as standardized equivalents).
 - **Done when:** the local dashboard shows current prices and stored history; failed runs preserve valid data and expose stale status.
 
 ## 4. Complete V1 coverage on Windows

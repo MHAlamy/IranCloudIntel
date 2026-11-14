@@ -156,6 +156,8 @@ Example VM extraction payload (illustrative, not a current pricing assertion):
 
 In production, evidence must be present for accepted prices. Keep original and normalized prices separate. Store money using integer minor/base units or decimal arithmetic, never binary floating-point. Normalize Persian/Arabic numerals, separators, currency and time units deterministically; 1 Toman = 10 Rials. Keep GB/GiB distinct, distinguish advertised monthly charges from hourly rates multiplied by explicitly stated hours, and track whether taxes, discounts, public IPs or bandwidth are included. Preserve region, tier, package type and effective date when available. Do not invent missing fields.
 
+**Canonical display unit:** the dashboard presents and compares every price as **monthly Toman (Toman/month)**. Original values, currencies and billing periods are always preserved alongside for audit; conversion to the canonical unit happens only in deterministic code (monthly prices used directly; hourly rates × a configurable 730-hour month, clearly labeled as a standardized equivalent).
+
 ### 4.4 Comparing services fairly
 
 - **VM:** vCPU, RAM, disk size/type, region, CPU class, plan, hourly/monthly billing, operating system and additional charges such as IPv4 and traffic where disclosed. Compare equivalent resources or show differences explicitly.

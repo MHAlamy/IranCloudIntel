@@ -103,7 +103,7 @@ Use service-specific schemas for Object Storage and CDN rather than forcing thei
 
 Use Pydantic and Python rules after extraction. Validate field types, nonnegative quantities, recognized units, unique plan identities and consistency of pricing context. Preserve the original source representation. Normalize Persian/Arabic digits and separators, and convert Rials to Tomans only when the source currency is explicit (10 Rials = 1 Toman). Preserve GB versus GiB where applicable.
 
-Use published monthly prices directly. For hourly-only quotes, calculate a clearly labeled standardized monthly equivalent using a configurable 730-hour month; retain the original hourly rate and distinguish it from a provider's actual monthly package or billing cap. Do not infer mandatory fees or tax inclusion.
+Use published monthly prices directly. For hourly-only quotes, calculate a clearly labeled standardized monthly equivalent using a configurable 730-hour month; retain the original hourly rate and distinguish it from a provider's actual monthly package or billing cap. Do not infer mandatory fees or tax inclusion. The dashboard's canonical comparison unit is **Toman per month**: Rial amounts convert to Toman only when the source currency is explicit (10 Rials = 1 Toman); original values and units remain preserved alongside the normalized figures.
 
 Flag suspicious changes (e.g., unusually large price jumps, missing plans, changed units or inconsistent evidence) for review. A threshold is a configurable warning, not a rule that silently rejects genuine price changes. Never publish malformed or unverified extractions over the last accepted observation. Recheck or manually adjudicate uncertain records.
 
