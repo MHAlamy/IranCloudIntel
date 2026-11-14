@@ -29,22 +29,21 @@ class Repository:
     # -- identity rows (idempotent) ---------------------------------------
 
     def ensure_provider(self, slug: str, name: str, official_url: str) -> int:
-        cursor = self._connection.execute(
+        self._connection.execute(
             """INSERT INTO providers (slug, name, official_url) VALUES (?, ?, ?)
                ON CONFLICT(slug) DO UPDATE SET name=excluded.name, official_url=excluded.official_url""",
             (slug, name, official_url),
         )
         self._connection.commit()
-        return int(
-            cursor.lastrowid
-            or self._connection.execute("SELECT id FROM providers WHERE slug=?", (slug,)).fetchone()["id"]
-        )
+        # lastrowid is unreliable after ON CONFLICT DO UPDATE; always SELECT.
+        row = self._connection.execute("SELECT id FROM providers WHERE slug=?", (slug,)).fetchone()
+        return int(row["id"])
 
     def ensure_source(
         self, provider_id: int, service_type: str, url: str,
         collection_method: str, region_scope: str = "",
     ) -> int:
-        cursor = self._connection.execute(
+        self._connection.execute(
             """INSERT INTO sources (provider_id, service_type, url, collection_method, region_scope)
                VALUES (?, ?, ?, ?, ?)
                ON CONFLICT(provider_id, service_type, url) DO UPDATE SET
@@ -53,19 +52,17 @@ class Repository:
             (provider_id, service_type, url, collection_method, region_scope),
         )
         self._connection.commit()
-        return int(
-            cursor.lastrowid
-            or self._connection.execute(
-                "SELECT id FROM sources WHERE provider_id=? AND service_type=? AND url=?",
-                (provider_id, service_type, url),
-            ).fetchone()["id"]
-        )
+        row = self._connection.execute(
+            "SELECT id FROM sources WHERE provider_id=? AND service_type=? AND url=?",
+            (provider_id, service_type, url),
+        ).fetchone()
+        return int(row["id"])
 
     def ensure_offering(
         self, provider_id: int, service_type: str, plan_name: str,
         product_family: str = "", provider_tier_raw: str = "", region: str = "",
     ) -> int:
-        cursor = self._connection.execute(
+        self._connection.execute(
             """INSERT INTO offerings (provider_id, service_type, product_family, plan_name,
                                       provider_tier_raw, region)
                VALUES (?, ?, ?, ?, ?, ?)
@@ -74,8 +71,6 @@ class Repository:
             (provider_id, service_type, product_family, plan_name, provider_tier_raw, region),
         )
         self._connection.commit()
-        if cursor.lastrowid:
-            return int(cursor.lastrowid)
         row = self._connection.execute(
             """SELECT id FROM offerings WHERE provider_id=? AND service_type=?
                AND product_family=? AND plan_name=? AND provider_tier_raw=? AND region=?""",

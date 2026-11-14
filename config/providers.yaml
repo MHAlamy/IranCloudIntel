@@ -1,0 +1,23 @@
+# Source registry (price_gathering_guide.md 4.1).
+# URLs are verified starting points; only sources confirmed to exist are enabled.
+# No credentials may ever be stored in this file.
+
+providers:
+  - slug: arvan
+    name: ArvanCloud
+    official_url: https://www.arvancloud.ir/
+    sources:
+      - id: arvan_vm_cloud_server
+        service_type: vm
+        url: https://www.arvancloud.ir/fa/pricing/cloud-server
+        collection_method: playwright   # JS challenge + dynamic tabs
+        region_scope: iran
+        enabled: true
+        navigation:
+          ready_marker: "eco-small"     # text that proves real content rendered
+          tabs: [basic, standard, premium]
+
+  # Pending verification (price_gathering_guide.md section 4):
+  # - slug: liara      name: Liara       official_url: https://liara.ir/
+  # - slug: parspack   name: ParsPack    official_url: https://parspack.com/
+  # - slug: cloud_ir   name: Cloud.ir    official_url: https://cloud.ir/

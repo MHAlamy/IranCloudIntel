@@ -1,0 +1,18 @@
+# Analyst-maintained normalized VM performance tiers (price_gathering_guide.md 6.1).
+# Initial qualitative mapping, NOT verified benchmarks. Changes are versioned in Git
+# and must not rewrite raw price history.
+
+vm:
+  tiers: [economy, standard, premium]
+  providers:
+    arvan:
+      aliases:
+        basic: economy
+        economy: economy
+        standard: standard
+        premium: premium
+        premium_plus: premium
+      unknown_label_policy: review   # unexpected Arvan labels go to analyst review
+    liara: {default: standard}
+    parspack: {default: standard}
+    cloud_ir: {default: standard}

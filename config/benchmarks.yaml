@@ -1,0 +1,17 @@
+# Reference sizes and matching rules for VM comparison (price_gathering_guide.md 6.2-6.4).
+# CPU/RAM values are owner requirements; disk targets are proposed defaults
+# (kept configurable). Canonical display unit: monthly Toman.
+
+vm:
+  monthly_hours: 730          # configurable standardization for hourly-only quotes
+  default_region_scope: iran
+  default_os: linux
+  sizes:
+    small:      {vcpu: 1,  ram_gb: 2,  disk_gb: 20}
+    medium:     {vcpu: 4,  ram_gb: 8,  disk_gb: 80}
+    large:      {vcpu: 16, ram_gb: 32, disk_gb: 320}
+    very_large: {vcpu: 32, ram_gb: 64, disk_gb: 640}
+  matching:
+    require_exact_cpu_ram_for_primary_ranking: true
+    allow_disk_difference: true
+    show_approximate_matches_separately: true
