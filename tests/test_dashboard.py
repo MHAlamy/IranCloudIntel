@@ -89,13 +89,20 @@ def test_vm_foreign_region_plans_hidden_by_default(client_tuple):
 
 
 def test_vm_calculated_discount_note_only_on_economy(client_tuple):
+    """The note tracks the provider's actual factor: Arvan economy (0.7) has it,
+    Arvan standard/premium (1.0) and Kubit economy (1.0) do not."""
     client, _ = client_tuple
-    economy = client.get("/vm?tier=economy&size=medium").text
-    standard = client.get("/vm?tier=standard&size=medium").text
-    premium = client.get("/vm?tier=premium&size=medium").text
-    assert "تخفیف" in economy            # the 0.7 assumption applies to economy only
-    assert "تخفیف" not in standard       # standard/premium use full published rates
-    assert "تخفیف" not in premium
+    arvan_economy = client.get("/vm?tier=economy&size=medium").text
+    arvan_standard = client.get("/vm?tier=standard&size=medium").text
+    arvan_premium = client.get("/vm?tier=premium&size=medium").text
+    assert "تخفیف" in arvan_economy            # Arvan economy factor 0.7
+    assert "تخفیف" not in arvan_standard       # factor 1.0
+    assert "تخفیف" not in arvan_premium        # factor 1.0
+
+    # Kubit uses full published rates (factor 1.0) even in economy tier
+    kubit_economy = client.get("/vm?tier=economy&size=small").text
+    kubit_section = kubit_economy.split("Kubit", 1)[-1]
+    assert "تخفیف" not in kubit_section
 
 
 def test_plan_detail_shows_history_and_verification(client_tuple):

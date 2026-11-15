@@ -243,7 +243,8 @@ def build_vm_view(repo: Repository, tier: str, size_key: str) -> dict:
                 )
         if calculated_price is not None:
             notes = ["محاسبه‌شده از نرخ‌های اعلامی تأمین‌کننده (شامل IPv4)"]
-            if tier == "economy":
+            factor = rate_mappings[slug].calculated_price_factors.get(tier)
+            if factor is not None and factor != Decimal("1"):
                 notes.append("فرض: تخفیف ۳۰٪ خانواده‌ی بسته‌های اقتصادی بر نرخ‌های اعلامی اعمال شده است")
             add_row(
                 slug, calculated_price, "calculated",
