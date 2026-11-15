@@ -150,6 +150,16 @@ def test_vm_foreign_region_plans_hidden_by_default(client_tuple):
     assert "c1-medium2" not in response.text  # eu-west plan excluded by Iran scope
 
 
+def test_vm_calculated_discount_note_only_on_economy(client_tuple):
+    client, _ = client_tuple
+    economy = client.get("/vm?tier=economy&size=medium").text
+    standard = client.get("/vm?tier=standard&size=medium").text
+    premium = client.get("/vm?tier=premium&size=medium").text
+    assert "تخفیف" in economy            # the 0.7 assumption applies to economy only
+    assert "تخفیف" not in standard       # standard/premium use full published rates
+    assert "تخفیف" not in premium
+
+
 def test_plan_detail_shows_history_and_verification(client_tuple):
     client, g3_offering = client_tuple
     response = client.get(f"/plan/{g3_offering}")

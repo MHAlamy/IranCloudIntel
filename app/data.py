@@ -189,12 +189,15 @@ def build_vm_view(repo: Repository, tier: str, size_key: str) -> dict:
                     tier, size.vcpu, Decimal(size.ram_gb), Decimal(size.disk_gb)
                 )
         if calculated_price is not None:
+            notes = ["محاسبه‌شده از نرخ‌های اعلامی تأمین‌کننده (شامل IPv4)"]
+            if tier == "economy":
+                notes.append("فرض: تخفیف ۳۰٪ خانواده‌ی بسته‌های اقتصادی بر نرخ‌های اعلامی اعمال شده است")
             add_row(
                 slug, calculated_price, "calculated",
                 plan_name=f"پیکربندی {SIZE_LABELS_FA[size_key]} {TIER_LABELS_FA[tier]}",
                 vcpu=size.vcpu, ram_gb=Decimal(size.ram_gb), disk_gb=Decimal(size.disk_gb),
                 observed_at=latest_observed_by_provider.get(slug, ""),
-                notes=["محاسبه‌شده از نرخ‌های اعلامی تأمین‌کننده (شامل IPv4)؛ فرض: تخفیف خانواده‌ی بسته‌ها اعمال شده است"],
+                notes=notes,
             )
             continue
 
