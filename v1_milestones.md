@@ -2,21 +2,23 @@
 
 Based on `PROJECT_GUIDE.md`; complete one milestone together at a time. Agreed change: develop directly on Windows; defer Linux and Docker execution to the Ubuntu server stage. This overrides the guide's WSL/local Docker setup.
 
-**V1:** a private dashboard comparing official public VM, Object Storage and CDN prices across an agreed small set of Iranian providers, with daily collection, source evidence and price history. All prices are displayed and compared as **monthly Toman (Toman/month)**, with original values preserved. The VM provider list is now agreed per `price_gathering_guide.md` (Arvan, Liara, ParsPack, Cloud.ir); model and deployment details remain open until verified.
+**V1:** a private dashboard comparing official public VM, Object Storage and CDN prices across an agreed small set of Iranian providers, with daily collection, source evidence and price history. All prices are displayed and compared as **monthly Toman (Toman/month)**, with original values preserved. VM providers as implemented: **Arvan, Liara, ParsPack, Kubit** (Cloud.ir and Hamravesh dropped by owner decision; see `price_gathering_guide.md`).
+
+**Status (2026-11-15):** Milestones 1–4 essentially complete — four VM sources collected/validated (Arvan bundles+rates with deterministic verification, Liara bundles, ParsPack calculator quotes, Kubit rate table; zero-LLM collection for three of four), SQLite history, matching engine, and the Persian RTL dashboard running at `http://localhost:8000`. Remaining for V1: Object Storage + CDN coverage, then deployment (M5) and automation (M6).
 
 ## Current PC baseline
 
-- Windows 11 Enterprise, approximately 24 GB RAM; about 168 GB free on C: at inspection.
-- Git 2.54.0 works; VS Code 1.144.0 is installed. Python app aliases exist, but a usable Python installation remains unverified.
-- WSL installed, but Ubuntu is absent and WSL2 setup encountered Windows component problems. Further WSL troubleshooting and Windows repairs are paused; neither is required for this development path.
-- No application or Git repository exists here. Docker is not available on PATH and will not be installed locally for this plan.
+- Windows 11 Enterprise, ~24 GB RAM; native **Python 3.14.6** (via `py` launcher) with project `.venv`; Git 2.54; VS Code with the `.venv` interpreter configured.
+- WSL2 unusable on this machine — irrelevant: everything (collection incl. Playwright, dashboard, tests) runs natively on Windows. Playwright uses the bundled Chromium (installed via the npmmirror CDN because the official one is geo-blocked) or system Edge via `BROWSER_CHANNEL=msedge`.
+- Private GitHub repository: `https://github.com/MHAlamy/IranCloudIntel` (branch `main`, all work pushed).
+- Local runtime artifacts (never committed): `data/cloud_intel.db` (SQLite), `evidence/` snapshots, `.env` (Arvan AIaaS key).
 
-## 1. Prepare local development
+## 1. Prepare local development — ✅ DONE 2026-11-14
 
-- [ ] Verify or install a supported native Windows Python version; create a project `.venv` and verify `python` and `pip` through it.
-- [ ] Open this Windows workspace in VS Code, select the `.venv` interpreter and verify Git and PowerShell development commands.
-- [ ] Create `.gitignore`, `.env.example`, concise `AGENTS.md` rules and a Python project with pinned dependencies; initialize Git and create/connect a private GitHub repository.
-- **Done when:** Python, dependencies and a smoke test run natively on Windows; VS Code uses `.venv`, and secrets/data are excluded from Git.
+- [x] Verify or install a supported native Windows Python version; create a project `.venv` and verify `python` and `pip` through it. — Native Python 3.14.6 via the `py` launcher; `.venv` created and verified.
+- [x] Open this Windows workspace in VS Code, select the `.venv` interpreter and verify Git and PowerShell development commands. — `.vscode/settings.json` uses a relative interpreter path; Git 2.54 verified.
+- [x] Create `.gitignore`, `.env.example`, concise `AGENTS.md` rules and a Python project with pinned dependencies; initialize Git and create/connect a private GitHub repository. — Private repo `MHAlamy/IranCloudIntel`, all work pushed.
+- **Done when:** Python, dependencies and a smoke test run natively on Windows; VS Code uses `.venv`, and secrets/data are excluded from Git. — **Met 2026-11-14. Milestone 1 complete.**
 
 ## 2. Prove one pricing collector
 
@@ -32,19 +34,19 @@ Based on `PROJECT_GUIDE.md`; complete one milestone together at a time. Agreed c
 - [x] Add a versioned SQLite schema for providers, sources, runs, offerings and price observations, with source-evidence references. — Done: `storage/` (WAL, Decimal-text money, append-only history, skip-unchanged logic, raw values preserved); 48 tests pass. Dates stored UTC, displayed in Jalali/Tehran via `util/jalali.py`.
 - [x] Add versioned analyst-maintained YAML configuration (`tiers.yaml`, `benchmarks.yaml`) defining the three normalized VM tiers (Economy/Standard/Premium) and the four reference sizes (1/2/20, 4/8/80, 16/32/320, 32/64/640 GB), validated on startup. — Done: plus `providers.yaml` source registry and `config/loader.py` startup validation.
 - [x] One-shot collector CLI (`collectors/cli.py`): fetch → clean → combined content hash → skip-unchanged check → per-tab LLM extraction → validation → persistence, with run lock, evidence snapshots, suspect-row review queue and token accounting. Mock-tested (63 tests); first real e2e run pending owner approval.
-- [ ] Save valid observations transactionally; retain last valid prices on failure. Track last checked, last successfully verified, errors and extraction versions.
-- [ ] Skip extraction for unchanged successful content under the same extractor configuration; reprocess failed or changed configurations and support forced verification.
-- [ ] Build FastAPI/Jinja2 comparison tables showing specifications, original/normalized prices, units, provider links, timestamps, stale/uncertain/missing states, tier/size selectors and exact-versus-approximate matching distinctions. All prices displayed in monthly Toman (hourly sources converted with the configurable 730-hour month and labeled as standardized equivalents). — **Done 2026-11-15:** Persian RTL dashboard at `localhost:8000` (`app/`, Vazirmatn font, dark Hamravesh-style theme), VM view with tier/size selectors, plan-detail history and status pages, Jalali dates, pending-provider placeholders.
+- [x] Save valid observations transactionally; retain last valid prices on failure. Track last checked, last successfully verified, errors and extraction versions. — Done: `storage/repository.py` (append-only history; failed runs record attempts but never touch observations).
+- [x] Skip extraction for unchanged successful content under the same extractor configuration; reprocess failed or changed configurations and support forced verification. — Done: content-hash + extractor-config-hash skip logic, verified in production (second Arvan run: 0 tokens, 0 LLM calls).
+- [x] Build FastAPI/Jinja2 comparison tables showing specifications, original/normalized prices, units, provider links, timestamps, stale/uncertain/missing states, tier/size selectors and exact-versus-approximate matching distinctions. All prices displayed in monthly Toman (hourly sources converted with the configurable 730-hour month and labeled as standardized equivalents). — **Done 2026-11-15:** Persian RTL dashboard at `localhost:8000` (`app/`, Vazirmatn font, dark Hamravesh-style theme), VM view with tier/size selectors, plan-detail history and status pages, Jalali dates, pending-provider placeholders.
 - [x] Rate-table extraction + bundle verification (owner decision 2026-11-15): parse Arvan's PAYG rate table deterministically, store as `resource_rates`, verify every bundle against documented rates in code; AIaaS used only for label interpretation and mismatch diagnosis (review-only). Iran regions only; IPv4 not added on top of bundles (already included).
 - **Done when:** the local dashboard shows current prices and stored history; failed runs preserve valid data and expose stale status.
 
 ## 4. Complete V1 coverage on Windows
 
 - [x] Finalize providers (VM: **Arvan, Liara, ParsPack, Kubit** — owner decisions 2026-11-15: Liara unreachable then restored and added; Kubit added as rates-only provider with gen-3→Economy, gen-4→Standard, no premium; **Cloud.ir removed from scope**; Hamravesh dropped earlier per `price_gathering_guide.md`). All four VM sources collected, validated and visualized.
-- [ ] Add all agreed sources, service-specific component comparisons and representative labeled fixtures; show resource, region, tier and included-charge differences explicitly. Display base monthly price in Toman/month. (Owner decision 2026-11-15: Iran regions only — Iranian regions treated as equivalent for comparison with the actual region always displayed; IPv4-inclusive comparable cost **deferred** to a later increment.)
-- [ ] Run the web app and one-shot collector directly with Python; document PowerShell commands and use portable paths/configuration for later Linux deployment.
-- [ ] Test collection and dashboard end to end, failed/partial extraction, concurrent-run locking and SQLite/evidence persistence after process restarts.
-- **Done when:** all agreed sources work natively on Windows and pass a manual pricing accuracy review.
+- [x] Add all agreed VM sources with representative labeled fixtures; show resource, region, tier and included-charge differences explicitly. Display base monthly price in Toman/month. (Owner decisions 2026-11-15: Iran regions only; IPv4 included in the comparable price where the provider charges it separately — Arvan bundles include it, Kubit rates add 173,000, ParsPack quotes add a fixed 150,000, Liara adds its documented 200,000; Arvan's assumed 30% eco discount is labeled on economy rows.)
+- [x] Run the web app and one-shot collector directly with Python; document PowerShell commands and use portable paths/configuration for later Linux deployment. — README documents commands; all paths/config are environment-portable.
+- [x] Test collection and dashboard end to end, failed/partial extraction, concurrent-run locking and SQLite/evidence persistence after process restarts. — 114 tests; real e2e runs for all four providers.
+- **Done when (VM part):** all agreed VM sources work natively on Windows and pass a manual pricing accuracy review. — **Met for VM 2026-11-15. Object Storage/CDN remain open.**
 
 ## 5. Deploy to one VM
 

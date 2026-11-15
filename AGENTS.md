@@ -1,6 +1,9 @@
 # Agent instructions
 
 Read `PROJECT_GUIDE.md` before making architectural or implementation decisions.
+`price_gathering_guide.md` refines the price-gathering/comparison methodology and
+overrides the master guide where they differ. `v1_milestones.md` is the progress
+tracker — read its status header and tick items as milestones complete.
 `v1_milestones.md` defines the V1 milestones and the agreed deviation: develop
 natively on Windows; defer Linux and Docker execution to the VM deployment stage.
 

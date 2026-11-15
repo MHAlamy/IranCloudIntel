@@ -43,16 +43,16 @@ These are logical modules in one application, not microservices. Use Python, Pyd
 
 ### 4.1 Source registry
 
-Start with the following public entry points. URLs are starting points from prior discussion, not newly verified endpoints; confirm redirects, actual pricing views, and applicable terms during implementation.
+VM sources as implemented (2026-11-15) — all four collected, validated and visualized:
 
-| Provider | VM source | Initial collection considerations |
+| Provider | VM source | Collection mode (as built) |
 |---|---|---|
-| Arvan | https://www.arvancloud.ir/fa/pricing/cloud-server | Dynamic tabs, multiple tiers, fixed bundles and potentially PAYG rates; distinguish region and resource class |
-| Liara | https://liara.ir/products/cloud-server/ | Fixed bundles, nonlinear package pricing; retain all published sizes and extras |
-| ParsPack | https://parspack.com/cloud-server | Configurable calculator, distinct VPS/cloud product families, regional differences; inspect official VPS page if in scope |
-| Cloud.ir | https://cloud.ir/price-by-region/ | Regional tariffs, product families and bundled allowances; check Rial/Toman explicitly |
+| Arvan | https://www.arvancloud.ir/fa/pricing/cloud-server | Playwright (JS challenge), three Alpine tabs parsed independently; LLM extraction + PAYG rate table parsed deterministically for bundle verification |
+| Liara | https://liara.ir/products/cloud-server/ | Plain HTTP; deterministic bundle parsing scoped to the IaaS section (planet names repeat in PaaS/DBaaS); documented IPv4 surcharge parsed from the page |
+| ParsPack | https://parspack.com/cloud-server | Playwright drives the interactive calculator (nonlinear sliders reverse-engineered); baseline configs quoted daily |
+| Kubit | https://kubit.cloud/fa/pricing | Plain HTTP; pure per-component rate table (CPU/RAM by generation, disk, IPv4, traffic); no published bundles |
 
-Register separate sources for Object Storage and CDN once their official pricing pages are located. Do not assume every provider offers all three services.
+Cloud.ir was dropped from scope by the owner (2026-11-15). Register separate sources for Object Storage and CDN once their official pricing pages are located. Do not assume every provider offers all three services.
 
 ### 4.2 Collection methods
 
@@ -305,7 +305,8 @@ Read this guide and `PROJECT_GUIDE.md` before implementation. Inspect the curren
 
 ### Remaining verification and decisions
 
-- Actual live provider page behavior, current source URLs, API availability, tariffs and published package labels must be verified during implementation. The guide intentionally contains no hardcoded current price figures.
-- Initial tier assignments are qualitative analyst assumptions, not measured performance equivalence.
-- Reference disk sizes, matching tie-breakers, default region details and Object Storage/CDN benchmark usage scenarios are proposed defaults or pending decisions, not explicit user requirements.
-- Confirm production memory requirements for Playwright and LLM access/cost after local tests; do not increase infrastructure prematurely.
+- ~~Actual live provider page behavior, current source URLs, API availability, tariffs and published package labels must be verified during implementation.~~ **Done for VM (2026-11-15):** all four provider pages verified live; collection methods confirmed (Arvan needs Playwright for its JS challenge and dynamic tabs; Liara/ParsPack/Kubit confirmed as described above). Object Storage/CDN pages still need verification.
+- Initial tier assignments are qualitative analyst assumptions, not measured performance equivalence. — Still true; the Arvan family→rate-class mapping (incl. the undocumented 30% eco discount) is empirically derived and labeled as such in `config/rate_mappings.yaml`.
+- ~~Reference disk sizes, matching tie-breakers, default region details~~ — Reference sizes confirmed as owner requirements; disk targets remain proposed defaults. Region scope decided: Iranian regions only. IPv4 treatment decided per provider (see `v1_milestones.md` milestone 4).
+- Object Storage/CDN benchmark usage scenarios are still pending decisions.
+- Confirm production memory requirements for Playwright and LLM access/cost after local tests; do not increase infrastructure prematurely. — Local runs measured so far: Arvan collection ~3.2K prompt + ~3K completion tokens per full run; skip-unchanged runs cost 0 tokens.

@@ -173,6 +173,8 @@ Build sanitized fixtures from representative pricing pages with manually checked
 
 ## 5. Local development environment
 
+> **Update (2026-11-15):** development is native Windows 11 (no WSL, no local Docker) — see `v1_milestones.md` "Current PC baseline". This section is kept as originally planned for reference; the Windows-first deviation was agreed and works in practice, including Playwright collection and the dashboard.
+
 No VM is needed until a working local prototype is ready for deployment. The owner's PC runs Windows 10; the intended editor is VS Code with Codex.
 
 1. Verify Windows build and WSL2 compatibility, virtualization and available disk/RAM. Windows 10 support/security status and Docker Desktop compatibility must be checked against current official requirements; use a supported Windows installation where feasible.
@@ -400,11 +402,13 @@ or command succeeded unless it actually ran successfully.
 
 ## 12. Open decisions and assumptions
 
-- Final provider list and exact pricing URLs, service-specific comparison schemas, target dashboard appearance and access method are not yet finalized.
-- Confirm current Arvan package sizes, prices, tax, IP/traffic charges, free tiers, endpoint credentials, model availability and API features. The tariff estimates in this guide are carried forward from the planning discussion, not live quotations.
-- Windows 10/WSL2 compatibility, local resources, regional internet access and registry connectivity have not been tested. Use suitable supported tooling and adapt the release workflow if necessary.
-- The 20% page-change rate, token usage and 2 GB VM adequacy are hypotheses to measure. The first run will process all configured sources; subsequent runs can skip unchanged content.
-- SQLite schema, retention duration, monitoring/alerting thresholds and exact deployment scripts need to be designed and tested during the milestones. Keep backups and evidence within the assumed free storage budget; increase the budget only with approval.
-- No code, repositories, paid endpoints or infrastructure have been created as part of preparing this guide. It is a planning artifact, not evidence of deployment or testing.
+Status updates (2026-11-15) — original planning assumptions below are kept for history; resolved items are marked:
 
-**Start here:** Phase 0 locally; Phase 1 with one pricing page. Do not purchase the VM until Phase 4. Keep product V1 LLM-first for extraction, conventional for data validation and persistence, and AI-assisted for software development and operations.
+- ~~Final provider list~~ **Resolved:** VM providers are Arvan, Liara, ParsPack and Kubit (Cloud.ir and Hamravesh dropped by owner decision). Service-specific comparison schemas implemented for VM. Target dashboard appearance implemented (Persian RTL, Vazirmatn, dark Hamravesh-style theme, `localhost:8000`); access method still open (currently local-only).
+- ~~Confirm current Arvan package sizes, prices...~~ **Verified live:** Arvan tariffs confirmed against the guide's table; AIaaS endpoint/models/telemetry verified; GPT-5-Mini chosen as the initial model (configurable via `.env`), full Arvan run ≈ 3.2K prompt + ~3K completion tokens, skip-unchanged runs cost 0.
+- ~~Windows 10/WSL2 compatibility...~~ **Resolved differently:** native Windows development (no WSL, no local Docker) — see `v1_milestones.md`. Playwright's browser CDN is geo-blocked from Iran; resolved via the npmmirror CDN or the system Edge channel.
+- The 20% page-change rate, token usage and 2 GB VM adequacy are hypotheses to measure. — Arvan daily-run token measurements support the 20%-extraction cost model; VM adequacy still untested (Milestone 5).
+- ~~SQLite schema, retention duration, monitoring/alerting thresholds and exact deployment scripts need to be designed and tested during the milestones.~~ Schema (v2) designed and in production use; retention/alerting thresholds and deployment scripts remain open (Milestones 5–6).
+- No code, repositories, paid endpoints or infrastructure have been created as part of preparing this guide. — **Superseded:** the application exists and runs locally; a private GitHub repository holds all code; the only paid resources used are Arvan AIaaS tokens (gateway rate-limited to 50 requests/5 minutes).
+
+**Start here:** Phase 0 locally; Phase 1 with one pricing page. — **Superseded:** Phases 0–4 (local prototype) are complete for VM coverage; continue with `v1_milestones.md` — remaining: Object Storage/CDN coverage, then VM deployment (Phase 4 of the technical milestones) and automated releases.
