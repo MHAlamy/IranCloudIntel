@@ -82,6 +82,7 @@ def run_collection(
     force: bool = False,
     rates_parser: Callable[[str], list] | None = None,
     rate_mappings: dict | None = None,
+    bundle_extraction: bool = True,
 ) -> CollectionOutcome:
     """Collect one source end-to-end. Raises nothing; failures are returned."""
     provider_id = repo.ensure_provider(provider.slug, provider.name, provider.official_url)
@@ -100,22 +101,17 @@ def run_collection(
         cleaned = cleaner(fetch_result.html, source.url, tabs)
         combined_markdown = "\n\n".join(cleaned[tab].markdown for tab in tabs)
         content_hash = sha256_text(combined_markdown)
-        config_hash = extractor_config_hash(_current_model())
+        if bundle_extraction:
+            config_hash = extractor_config_hash(_current_model())
+        else:
+            # rates-only sources: the "extractor" is the deterministic rate parser
+            config_hash = sha256_text(f"rates-parser:{provider.slug}")
 
         stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
         evidence_dir = evidence_root / provider.slug / source.service_type / f"{stamp}_{content_hash[:12]}"
         evidence_dir.mkdir(parents=True, exist_ok=True)
         (evidence_dir / "rendered.html").write_text(fetch_result.html, encoding="utf-8")
         (evidence_dir / "cleaned.md").write_text(combined_markdown, encoding="utf-8")
-
-        # Component rate tables (providers that publish them, e.g. Arvan):
-        # parsed deterministically from the same rendered page, stored for the run.
-        rates_stored = 0
-        rates_lookup = None
-        if rates_parser is not None:
-            rates_stored = repo.record_rates(run_id, provider_id, rates_parser(fetch_result.html))
-            if rate_mappings and provider.slug in rate_mappings:
-                rates_lookup = _tier_rates_from_repo(repo, provider_id, rate_mappings[provider.slug])
 
         if not force and repo.should_skip_extraction(source_id, content_hash, config_hash):
             repo.finish_run(
@@ -126,6 +122,29 @@ def run_collection(
             )
             outcome.status = "success"
             outcome.skipped = True
+            return outcome
+
+        # Component rate tables (providers that publish them, e.g. Arvan, Kubit):
+        # parsed deterministically from the same rendered page, stored for the run.
+        rates_stored = 0
+        rates_lookup = None
+        if rates_parser is not None:
+            rates_stored = repo.record_rates(run_id, provider_id, rates_parser(fetch_result.html))
+            if rate_mappings and provider.slug in rate_mappings:
+                rates_lookup = _tier_rates_from_repo(repo, provider_id, rate_mappings[provider.slug])
+
+        # Rate-table-only sources (no published VM bundles, e.g. Kubit):
+        # store rates and finish; no LLM call, no bundle observations.
+        if not bundle_extraction:
+            repo.finish_run(
+                run_id, "success", http_status=fetch_result.http_status,
+                content_hash=content_hash, extractor_config_hash=config_hash,
+                evidence_path=str(evidence_dir), model=_current_model(),
+                schema_version=SCHEMA_VERSION,
+            )
+            outcome.status = "success"
+            outcome.skipped = False
+            outcome.detail = {"rates_stored": rates_stored}
             return outcome
 
         prompt_tokens = completion_tokens = 0
@@ -266,11 +285,29 @@ def _tier_rates_from_repo(repo: Repository, provider_id: int, mapping: ProviderR
 
 
 def fetch_source(source: SourceConfig) -> FetchResult:
-    """Dispatch fetching by collection method (HTTP fetchers arrive with Liara)."""
+    """Dispatch fetching by collection method (browser for JS/challenge sites,
+    plain HTTP for static pages)."""
     if source.collection_method == "playwright":
         from collectors.arvan_fetch import fetch_with_browser
 
         marker = source.navigation.get("ready_marker", "")
         result = fetch_with_browser(source.url, ready_marker=marker)
         return FetchResult(html=result.html, http_status=result.http_status, final_url=result.final_url)
+    if source.collection_method == "http":
+        import httpx
+
+        response = httpx.get(
+            source.url,
+            headers={
+                "User-Agent": (
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                    "(KHTML, like Gecko) Chrome/126.0 Safari/537.36"
+                ),
+                "Accept-Language": "fa,en;q=0.8",
+            },
+            timeout=30.0,
+            follow_redirects=True,
+        )
+        response.raise_for_status()
+        return FetchResult(html=response.text, http_status=response.status_code, final_url=str(response.url))
     raise FetchError(f"collection method {source.collection_method!r} not implemented yet")

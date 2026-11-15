@@ -8,7 +8,7 @@ rate-table labels and diagnosing mismatches (review-only, never auto-accepted).
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from decimal import Decimal
 from pathlib import Path
 
@@ -32,6 +32,7 @@ class ProviderRateMapping:
     default_storage_rate_toman: Decimal
     families: list[dict]
     calculated_price_factors: dict[str, Decimal]
+    tier_generations: dict = field(default_factory=dict)
 
     def family_for(self, plan_name: str) -> dict | None:
         for family in self.families:
@@ -53,6 +54,7 @@ def load_rate_mappings(path: Path = RATE_MAPPINGS_PATH) -> dict[str, ProviderRat
                 tier: Decimal(str(factor))
                 for tier, factor in cfg["calculated_price_factors"].items()
             },
+            tier_generations=dict(cfg.get("tier_generations", {})),
         )
     return result
 

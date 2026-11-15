@@ -31,3 +31,17 @@ providers:
     name: Cloud.ir
     official_url: https://cloud.ir/
     sources: []   # regional tariffs pending verification
+
+  - slug: kubit
+    name: Kubit
+    official_url: https://kubit.cloud/
+    sources:
+      - id: kubit_vm_pricing
+        service_type: vm
+        url: https://kubit.cloud/fa/pricing
+        collection_method: http   # static page, no challenge
+        region_scope: iran
+        enabled: true
+        navigation:
+          tabs: [rates]
+          bundle_extraction: false   # rate-table-only provider (no published VM bundles)

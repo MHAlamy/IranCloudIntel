@@ -1,5 +1,5 @@
 # Provider family → rate-class mapping for bundle verification and calculated
-# prices (Arvan). Empirically verified on 2026-11-15 against all Iranian-region
+# prices. Empirically verified on 2026-11-15 against all Iranian-region
 # bundles (14/14 exact). This mapping is analyst-maintained: it is derived from
 # observed prices, not documented by the provider — review on any mismatch.
 #
@@ -65,3 +65,23 @@ arvan:
   calculated_notes: >-
     Calculated prices use the tier's published PAYG rates; the economy factor
     matches the empirically-observed eco-family discount and is an assumption.
+
+# Kubit publishes pure component rates (no VM bundles at all): every price the
+# dashboard shows is calculated. Owner decisions 2026-11-15: gen-3 → Economy,
+# gen-4 → Standard, no premium; IPv4 (internet) included in the calculated
+# baseline; VAT and traffic out of comparison scope. Factor is 1.0 — the
+# published rates are used as-is.
+kubit:
+  ipv4_first_toman: "173000"          # آی‌پی اینترنتی IPv4 (monthly)
+  default_storage_rate_toman: "14900"
+  families: []                        # no published bundles to verify
+  tier_generations:
+    economy: "gen-3"
+    standard: "gen-4"
+  calculated_price_factors:
+    economy: "1.0"
+    standard: "1.0"
+    premium: "1.0"
+  calculated_notes: >-
+    All Kubit prices are calculated from its published per-component rates
+    (CPU/RAM by generation, disk, internet IPv4). No bundle discount exists.

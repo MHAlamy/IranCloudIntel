@@ -48,6 +48,16 @@ VERIFICATION_LABELS_FA = {
 
 
 @dataclass
+class _Rates:
+    """Minimal rate bundle consumed by comparison.rate_check.calculated_price."""
+
+    cpu_rate: Decimal
+    ram_rate: Decimal
+    storage_rate: Decimal
+    ipv4_first: Decimal
+
+
+@dataclass
 class VmRow:
     provider_name: str
     plan_name: str
@@ -83,32 +93,58 @@ def build_plan_views(repo: Repository, matcher: VMMatcher) -> list[PlanView]:
 
 
 def _provider_rate_context(repo: Repository, provider_id: int, slug: str, mapping: ProviderRateMapping):
-    """Return a rates lookup helper for calculated prices, or None."""
+    """Return a calculated(tier, vcpu, ram_gb, disk_gb) -> Decimal | None closure
+    for a provider, or None when its rates are unusable."""
     rows = repo.latest_rates(provider_id, region="iran")
     by_key = {(r["category"], r["unit"], r["tier_label"]): Decimal(r["amount_toman"]) for r in rows}
 
     def get(category: str, unit: str, tier_label: str) -> Decimal | None:
         return by_key.get((category, unit, tier_label))
 
-    ipv4 = next((v for (cat, _, label), v in by_key.items() if cat == "ipv4" and "اول" in label), None)
-    if ipv4 is None:
-        return None
-
-    tier_names = {"economy": "Basic", "standard": "Standard", "premium": "Premium"}
-    storage_label = "بلاک استوریج (Eco)"
-
-    def calculated(tier: str, vcpu: int, ram_gb: Decimal, disk_gb: Decimal) -> Decimal | None:
-        cpu = get("cpu", "هر vCore", tier_names.get(tier, ""))
-        ram = get("ram", "هر گیگابایت", tier_names.get(tier, ""))
-        storage = get("storage", "هر گیگابایت", storage_label)
-        if cpu is None or ram is None or storage is None:
+    if slug == "arvan":
+        ipv4 = next(
+            (v for (cat, _, label), v in by_key.items() if cat == "ipv4" and "اول" in label),
+            None,
+        )
+        if ipv4 is None:
             return None
-        return calculated_price(tier, vcpu, ram_gb, disk_gb,
-                                type("R", (), {"cpu_rate": cpu, "ram_rate": ram,
-                                               "storage_rate": storage, "ipv4_first": ipv4})(),
-                                mapping)
+        tier_names = {"economy": "Basic", "standard": "Standard", "premium": "Premium"}
+        storage_label = "بلاک استوریج (Eco)"
 
-    return calculated
+        def calculated(tier: str, vcpu: int, ram_gb: Decimal, disk_gb: Decimal) -> Decimal | None:
+            cpu = get("cpu", "هر vCore", tier_names.get(tier, ""))
+            ram = get("ram", "هر گیگابایت", tier_names.get(tier, ""))
+            storage = get("storage", "هر گیگابایت", storage_label)
+            if cpu is None or ram is None or storage is None:
+                return None
+            return calculated_price(tier, vcpu, ram_gb, disk_gb,
+                                    _Rates(cpu, ram, storage, ipv4), mapping)
+
+        return calculated
+
+    if slug == "kubit":
+        # Pure rate-based provider: every price is calculated. gen-3 → Economy,
+        # gen-4 → Standard, no premium (owner decision 2026-11-15).
+        ipv4 = get("ipv4", "هر آدرس", "internet")
+        if ipv4 is None:
+            return None
+        generations = mapping.tier_generations or {"economy": "gen-3", "standard": "gen-4"}
+
+        def calculated(tier: str, vcpu: int, ram_gb: Decimal, disk_gb: Decimal) -> Decimal | None:
+            gen = generations.get(tier)
+            if not gen:
+                return None  # no offering in this tier
+            cpu = get("cpu", "هر vCPU", gen)
+            ram = get("ram", "هر گیگابایت", gen)
+            storage = get("storage", "هر گیگابایت", "")
+            if cpu is None or ram is None or storage is None:
+                return None
+            return calculated_price(tier, vcpu, ram_gb, disk_gb,
+                                    _Rates(cpu, ram, storage, ipv4), mapping)
+
+        return calculated
+
+    return None
 
 
 def build_vm_view(repo: Repository, tier: str, size_key: str) -> dict:
@@ -135,10 +171,27 @@ def build_vm_view(repo: Repository, tier: str, size_key: str) -> dict:
 
     provider_names = {p.slug: p.name for p in providers_file.providers}
     collected_providers = {p.provider_slug for p in plans}
+    # providers whose rates have been collected count as collected even
+    # without bundle observations (rates-only providers, e.g. Kubit)
+    rates_providers = {
+        row["slug"]
+        for row in repo._connection.execute(
+            "SELECT DISTINCT p.slug AS slug FROM resource_rates r JOIN providers p ON p.id = r.provider_id"
+        ).fetchall()
+    }
     latest_observed_by_provider: dict[str, str] = {}
     for p in plans:
         if p.observed_at > latest_observed_by_provider.get(p.provider_slug, ""):
             latest_observed_by_provider[p.provider_slug] = p.observed_at
+    # rates-only providers (e.g. Kubit) have no bundle observations; their
+    # "last checked" comes from the latest rate collection run
+    for row in repo._connection.execute(
+        """SELECT p.slug AS slug, MAX(r.observed_at) AS m
+           FROM resource_rates r JOIN providers p ON p.id = r.provider_id
+           GROUP BY p.slug"""
+    ).fetchall():
+        if row["m"] and row["m"] > latest_observed_by_provider.get(row["slug"], ""):
+            latest_observed_by_provider[row["slug"]] = row["m"]
 
     primary_by_provider: dict[str, list] = {}
     for match in result.primary:
@@ -172,7 +225,7 @@ def build_vm_view(repo: Repository, tier: str, size_key: str) -> dict:
                 )
             continue
 
-        if slug not in collected_providers:
+        if slug not in collected_providers and slug not in rates_providers:
             add_row(slug, None, "missing", notes=["هنوز گردآوری نشده"])
             continue
 
