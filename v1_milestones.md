@@ -40,7 +40,7 @@ Based on `PROJECT_GUIDE.md`; complete one milestone together at a time. Agreed c
 ## 4. Complete V1 coverage on Windows
 
 - [ ] Finalize providers (VM: **Arvan, Liara, ParsPack, Cloud.ir** — Hamravesh dropped per `price_gathering_guide.md`), official URLs and schemas for VM, Object Storage and CDN; configure only offerings that actually exist.
-- [ ] Add all agreed sources, service-specific component comparisons and representative labeled fixtures; show resource, region, tier and included-charge differences explicitly. Display base monthly price and an optional comparable cost including one public IPv4, with bundled IPv4 never double-charged and unknown totals marked unknown rather than zero.
+- [ ] Add all agreed sources, service-specific component comparisons and representative labeled fixtures; show resource, region, tier and included-charge differences explicitly. Display base monthly price in Toman/month. (Owner decision 2026-11-15: Iran regions only — Iranian regions treated as equivalent for comparison with the actual region always displayed; IPv4-inclusive comparable cost **deferred** to a later increment.)
 - [ ] Run the web app and one-shot collector directly with Python; document PowerShell commands and use portable paths/configuration for later Linux deployment.
 - [ ] Test collection and dashboard end to end, failed/partial extraction, concurrent-run locking and SQLite/evidence persistence after process restarts.
 - **Done when:** all agreed sources work natively on Windows and pass a manual pricing accuracy review.

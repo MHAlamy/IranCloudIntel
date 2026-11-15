@@ -15,3 +15,8 @@ vm:
     require_exact_cpu_ram_for_primary_ranking: true
     allow_disk_difference: true
     show_approximate_matches_separately: true
+  ipv4:
+    include_in_cost: false   # owner decision 2026-11-15: base price only for now; IPv4 toggle comes later
+  regions:
+    scope: iran              # compare Iranian regions only (owner decision 2026-11-15)
+    iranian_prefix: ir-      # regions whose code starts with this are treated as Iranian
