@@ -77,9 +77,10 @@ def test_vm_pending_providers_visible(client_tuple):
     client = client_tuple[0]
     response = client.get("/vm")
     text = response.text
-    for name in ("Liara", "ParsPack", "Cloud.ir"):
+    # Cloud.ir was removed from scope (owner decision 2026-11-15)
+    for name in ("Liara", "ParsPack", "Kubit", "ArvanCloud"):
         assert name in text
-    assert "هنوز گردآوری نشده" in text
+    assert "Cloud.ir" not in text
 
 
 def test_vm_foreign_region_plans_hidden_by_default(client_tuple):
@@ -116,6 +117,22 @@ def test_parspack_rows_present_with_adjustment_note(client_tuple):
     # Small: near-miss quote (1/2/25) -> تقریبی with the same note
     small = client.get("/vm?tier=standard&size=small").text
     assert fa(1227300) in small  # 1,227,300
+
+
+def test_vm_provider_order_consistent_across_views(client_tuple):
+    """Same canonical provider order on every (tier, size) view and the status page."""
+    client, _ = client_tuple
+    expected = ["ArvanCloud", "Liara", "ParsPack", "Kubit"]
+    orders = []
+    for size in ("small", "medium", "large", "very_large"):
+        text = client.get(f"/vm?tier=standard&size={size}").text
+        positions = [text.find(name) for name in expected]
+        assert all(pos >= 0 for pos in positions), f"missing provider on {size}"
+        assert positions == sorted(positions), f"order broken on {size}"
+
+    status = client.get("/status").text
+    positions = [status.find(name) for name in expected]
+    assert positions == sorted(positions)
 
 
 def test_plan_detail_shows_history_and_verification(client_tuple):

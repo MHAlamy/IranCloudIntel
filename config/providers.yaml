@@ -44,11 +44,6 @@ providers:
         navigation:
           bundle_extraction: false
 
-  - slug: cloud_ir
-    name: Cloud.ir
-    official_url: https://cloud.ir/
-    sources: []   # regional tariffs pending verification
-
   - slug: kubit
     name: Kubit
     official_url: https://kubit.cloud/

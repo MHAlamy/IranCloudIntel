@@ -61,6 +61,7 @@ class _Rates:
 
 @dataclass
 class VmRow:
+    provider_slug: str
     provider_name: str
     plan_name: str
     vcpu: int
@@ -155,6 +156,7 @@ def build_vm_view(repo: Repository, tier: str, size_key: str) -> dict:
     providers_file = load_providers()
     matcher = VMMatcher(benchmarks, tiers)
     rate_mappings = load_rate_mappings()
+    provider_order = {p.slug: i for i, p in enumerate(providers_file.providers)}
 
     plans = build_plan_views(repo, matcher)
     result = matcher.match_size(plans, tier, size_key)
@@ -207,6 +209,7 @@ def build_vm_view(repo: Repository, tier: str, size_key: str) -> dict:
                 rate_verification: str = "not_applicable", observed_at: str = "",
                 offering_id: int | None = None, notes: list[str] | None = None):
         view["rows"].append(VmRow(
+            provider_slug=provider_slug,
             provider_name=provider_names.get(provider_slug, provider_slug),
             plan_name=plan_name, vcpu=vcpu or 0, ram_gb=ram_gb or Decimal(0),
             disk_gb=disk_gb or Decimal(0), price_in_toman=price, basis=basis,
@@ -283,9 +286,14 @@ def build_vm_view(repo: Repository, tier: str, size_key: str) -> dict:
         # 4) Collected but nothing usable for this size
         add_row(slug, None, "missing", notes=["پلن منطبق یا قابل‌محاسبه برای این اندازه یافت نشد"])
 
-    # Sort: published cheapest-first, then calculated, then approximate, then missing
+    # Canonical provider order (providers.yaml declaration order) is the
+    # primary sort key so every view lists providers identically.
     order = {"published": 0, "calculated": 1, "approximate": 2, "missing": 3}
-    view["rows"].sort(key=lambda r: (order[r.basis], r.price_in_toman if r.price_in_toman is not None else Decimal("999999999999")))
+    view["rows"].sort(key=lambda r: (
+        provider_order.get(r.provider_slug, 99),
+        order[r.basis],
+        r.price_in_toman if r.price_in_toman is not None else Decimal("999999999999"),
+    ))
     return view
 
 
@@ -316,6 +324,8 @@ def _parspack_adjustment_note(facts) -> str:
 
 
 def build_status_view(repo: Repository) -> dict:
+    # same canonical provider order as the comparison views
+    provider_order = {p.slug: i for i, p in enumerate(load_providers().providers)}
     sources = []
     for source in repo.list_sources():
         runs = repo.source_runs(source["id"])
@@ -336,4 +346,5 @@ def build_status_view(repo: Repository) -> dict:
                 for r in runs
             ],
         })
+    sources.sort(key=lambda s: provider_order.get(s["provider_slug"], 99))
     return {"sources": sources}

@@ -40,7 +40,7 @@ Based on `PROJECT_GUIDE.md`; complete one milestone together at a time. Agreed c
 
 ## 4. Complete V1 coverage on Windows
 
-- [ ] Finalize providers (VM: **Arvan, Kubit** + Liara/ParsPack/Cloud.ir pending — owner decision 2026-11-15: Liara unreachable from the collection host, **Kubit added** as a rates-only provider with gen-3→Economy, gen-4→Standard, no premium), official URLs and schemas for VM, Object Storage and CDN; configure only offerings that actually exist.
+- [x] Finalize providers (VM: **Arvan, Liara, ParsPack, Kubit** — owner decisions 2026-11-15: Liara unreachable then restored and added; Kubit added as rates-only provider with gen-3→Economy, gen-4→Standard, no premium; **Cloud.ir removed from scope**; Hamravesh dropped earlier per `price_gathering_guide.md`). All four VM sources collected, validated and visualized.
 - [ ] Add all agreed sources, service-specific component comparisons and representative labeled fixtures; show resource, region, tier and included-charge differences explicitly. Display base monthly price in Toman/month. (Owner decision 2026-11-15: Iran regions only — Iranian regions treated as equivalent for comparison with the actual region always displayed; IPv4-inclusive comparable cost **deferred** to a later increment.)
 - [ ] Run the web app and one-shot collector directly with Python; document PowerShell commands and use portable paths/configuration for later Linux deployment.
 - [ ] Test collection and dashboard end to end, failed/partial extraction, concurrent-run locking and SQLite/evidence persistence after process restarts.

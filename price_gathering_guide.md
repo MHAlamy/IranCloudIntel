@@ -6,7 +6,7 @@
 
 ## 1. Purpose and scope
 
-Build a reliable, auditable pricing intelligence pipeline for Iranian cloud services. V1 monitors public prices of VM (cloud server), Object Storage and CDN offerings from selected providers. Start with Arvan, Liara, ParsPack and Cloud.ir for VM coverage; confirm the availability of each other service before adding it. Do not invent prices or offerings to fill gaps.
+Build a reliable, auditable pricing intelligence pipeline for Iranian cloud services. V1 monitors public prices of VM (cloud server), Object Storage and CDN offerings from selected providers. VM providers as implemented (2026-11-15): Arvan (rates + bundles), Liara (bundles), ParsPack (calculator quotes), Kubit (rates); Cloud.ir was dropped from scope by the owner. Do not invent prices or offerings to fill gaps.
 
 This document refines the price-gathering and comparison portions of the master project guide. Where it differs on those subjects, follow this document. The broader single-VM deployment, Python application, SQLite, Docker Compose, CI/CD and product roadmap remain unchanged. Local development is now native Windows 11 with VS Code and OpenCode or Codex, without WSL. Production remains Ubuntu on an Arvan VM.
 
