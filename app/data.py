@@ -56,11 +56,9 @@ class VmRow:
     disk_gb: Decimal
     price_in_toman: Decimal | None
     basis: str  # published | calculated | approximate | missing
-    region: str | None
     rate_verification: str
     observed_at: str
     offering_id: int | None
-    disk_difference_gb: Decimal | None = None
     notes: list[str] = field(default_factory=list)
 
 
@@ -137,78 +135,83 @@ def build_vm_view(repo: Repository, tier: str, size_key: str) -> dict:
 
     provider_names = {p.slug: p.name for p in providers_file.providers}
     collected_providers = {p.provider_slug for p in plans}
-
-    def add_row(provider_slug: str, price: Decimal | None, basis: str, *,
-                plan_name: str = "", vcpu: int | None = None,
-                ram_gb: Decimal | None = None, disk_gb: Decimal | None = None,
-                region: str | None = None, rate_verification: str = "not_applicable",
-                observed_at: str = "", offering_id: int | None = None,
-                disk_difference_gb: Decimal | None = None, notes: list[str] | None = None):
-        view["rows"].append(VmRow(
-            provider_name=provider_names.get(provider_slug, provider_slug),
-            plan_name=plan_name, vcpu=vcpu or 0, ram_gb=ram_gb or Decimal(0),
-            disk_gb=disk_gb or Decimal(0), price_in_toman=price, basis=basis,
-            region=region, rate_verification=rate_verification, observed_at=observed_at,
-            offering_id=offering_id, disk_difference_gb=disk_difference_gb,
-            notes=notes or [],
-        ))
+    latest_observed_by_provider: dict[str, str] = {}
+    for p in plans:
+        if p.observed_at > latest_observed_by_provider.get(p.provider_slug, ""):
+            latest_observed_by_provider[p.provider_slug] = p.observed_at
 
     primary_by_provider: dict[str, list] = {}
     for match in result.primary:
         primary_by_provider.setdefault(match.plan.provider_slug, []).append(match)
-    for slug, matches in primary_by_provider.items():
-        for match in matches:
-            p = match.plan
-            notes = []
-            if match.match_type == "disk_difference":
-                diff = match.disk_difference_gb
-                notes.append(
-                    f"دیسک {diff:+} گیگابایت نسبت به مرجع".replace("-", "−")
-                )
-            add_row(
-                slug, p.price_in_toman, "published", plan_name=p.plan_name,
-                vcpu=p.vcpu, ram_gb=p.ram_gb, disk_gb=p.disk_gb, region=p.region,
-                rate_verification=_verification_for(repo, p, offering_lookup=None),
-                observed_at=p.observed_at, offering_id=_offering_id(repo, slug, p),
-                disk_difference_gb=match.disk_difference_gb, notes=notes,
-            )
-
-    # Approximate (nearest larger) rows
+    approximate_by_provider: dict[str, list] = {}
     for match in result.approximate:
-        p = match.plan
-        add_row(
-            p.provider_slug, p.price_in_toman, "approximate", plan_name=p.plan_name,
-            vcpu=p.vcpu, ram_gb=p.ram_gb, disk_gb=p.disk_gb, region=p.region,
-            rate_verification=_verification_for(repo, p, None),
-            observed_at=p.observed_at, offering_id=_offering_id(repo, p.provider_slug, p),
-            notes=["بسته‌ی بزرگ‌تر از مرجع؛ به‌عنوان تقریبی نمایش داده می‌شود"],
-        )
+        approximate_by_provider.setdefault(match.plan.provider_slug, []).append(match)
 
-    # Calculated-from-rates rows for providers without a primary match
-    matched_providers = set(primary_by_provider)
-    for slug in collected_providers:
-        if slug in matched_providers or slug not in rate_mappings:
+    def add_row(provider_slug: str, price: Decimal | None, basis: str, *,
+                plan_name: str = "", vcpu: int | None = None,
+                ram_gb: Decimal | None = None, disk_gb: Decimal | None = None,
+                rate_verification: str = "not_applicable", observed_at: str = "",
+                offering_id: int | None = None, notes: list[str] | None = None):
+        view["rows"].append(VmRow(
+            provider_name=provider_names.get(provider_slug, provider_slug),
+            plan_name=plan_name, vcpu=vcpu or 0, ram_gb=ram_gb or Decimal(0),
+            disk_gb=disk_gb or Decimal(0), price_in_toman=price, basis=basis,
+            rate_verification=rate_verification, observed_at=observed_at,
+            offering_id=offering_id, notes=notes or [],
+        ))
+
+    for slug in sorted(set(collected_providers) | {p.slug for p in providers_file.providers}):
+        # 1) Published bundle exactly matching the reference size (CPU/RAM/disk)
+        if slug in primary_by_provider:
+            for match in primary_by_provider[slug]:
+                p = match.plan
+                add_row(
+                    slug, p.price_in_toman, "published", plan_name=p.plan_name,
+                    vcpu=p.vcpu, ram_gb=p.ram_gb, disk_gb=p.disk_gb,
+                    observed_at=p.observed_at, offering_id=_offering_id(repo, slug, p),
+                )
             continue
-        provider_id = _provider_id(repo, slug)
-        calculated_fn = (
-            _provider_rate_context(repo, provider_id, slug, rate_mappings[slug])
-            if provider_id else None
-        )
-        if calculated_fn is None:
+
+        if slug not in collected_providers:
+            add_row(slug, None, "missing", notes=["هنوز گردآوری نشده"])
             continue
-        price = calculated_fn(tier, size.vcpu, Decimal(size.ram_gb), Decimal(size.disk_gb))
-        if price is not None:
+
+        # 2) Calculated from the provider's documented rates (baseline config)
+        calculated_price = None
+        if slug in rate_mappings:
+            provider_id = _provider_id(repo, slug)
+            calculated_fn = (
+                _provider_rate_context(repo, provider_id, slug, rate_mappings[slug])
+                if provider_id else None
+            )
+            if calculated_fn is not None:
+                calculated_price = calculated_fn(
+                    tier, size.vcpu, Decimal(size.ram_gb), Decimal(size.disk_gb)
+                )
+        if calculated_price is not None:
             add_row(
-                slug, price, "calculated",
+                slug, calculated_price, "calculated",
                 plan_name=f"پیکربندی {SIZE_LABELS_FA[size_key]} {TIER_LABELS_FA[tier]}",
                 vcpu=size.vcpu, ram_gb=Decimal(size.ram_gb), disk_gb=Decimal(size.disk_gb),
+                observed_at=latest_observed_by_provider.get(slug, ""),
                 notes=["محاسبه‌شده از نرخ‌های اعلامی تأمین‌کننده (شامل IPv4)؛ فرض: تخفیف خانواده‌ی بسته‌ها اعمال شده است"],
             )
+            continue
 
-    # Pending providers (agreed but not yet collected)
-    for p in providers_file.providers:
-        if p.slug not in collected_providers:
-            add_row(p.slug, None, "missing", notes=["هنوز گردآوری نشده"])
+        # 3) No rates available: nearest larger published bundle, marked approximate
+        if slug in approximate_by_provider:
+            for match in approximate_by_provider[slug]:
+                p = match.plan
+                add_row(
+                    slug, p.price_in_toman, "approximate", plan_name=p.plan_name,
+                    vcpu=p.vcpu, ram_gb=p.ram_gb, disk_gb=p.disk_gb,
+                    observed_at=p.observed_at, offering_id=_offering_id(repo, slug, p),
+                    notes=["بسته‌ی بزرگ‌تر از مرجع؛ به‌عنوان تقریبی نمایش داده می‌شود"],
+                )
+            continue
+
+        # 4) Collected but nothing usable for this size
+        add_row(slug, None, "missing", notes=["پلن منطبق یا قابل‌محاسبه برای این اندازه یافت نشد"])
 
     # Sort: published cheapest-first, then calculated, then approximate, then missing
     order = {"published": 0, "calculated": 1, "approximate": 2, "missing": 3}
@@ -228,18 +231,6 @@ def _offering_id(repo: Repository, slug: str, plan: PlanView) -> int | None:
         (slug, plan.plan_name, plan.region),
     ).fetchone()
     return int(row["id"]) if row else None
-
-
-def _verification_for(repo: Repository, plan: PlanView, offering_lookup) -> str:
-    row = repo._connection.execute(
-        """SELECT po.rate_verification FROM price_observations po
-           JOIN offerings off ON off.id = po.offering_id
-           JOIN providers p ON p.id = off.provider_id
-           WHERE p.slug=? AND off.plan_name=? AND off.region=?
-           ORDER BY po.observed_at DESC, po.id DESC LIMIT 1""",
-        (plan.provider_slug, plan.plan_name, plan.region),
-    ).fetchone()
-    return row["rate_verification"] if row else "not_applicable"
 
 
 def build_status_view(repo: Repository) -> dict:

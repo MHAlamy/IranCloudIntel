@@ -96,13 +96,30 @@ def test_vm_default_view_is_persian(client_tuple):
     assert "منتشرشده" in text
 
 
-def test_vm_small_standard_shows_exact_matches(client_tuple):
+def test_vm_small_standard_shows_calculated_baseline_only(client_tuple):
     client = client_tuple[0]
     response = client.get("/vm?tier=standard&size=small")
     text = response.text
-    assert "g3-small1" in text
-    assert "2,421,720".translate(str.maketrans("0123456789", "۰۱۲۳۴۵۶۷۸۹")) in text
-    assert "تأیید\u200cشده با نرخ\u200cها" in text
+    # baseline 1/2/20 has no exact bundle (g3-small1 is 1/2/75) -> calculated only
+    expected = 234000 + 327600 + 2 * 255060 + 20 * 18000  # 1,431,720
+    fa = f"{expected:,}".replace(",", "٬").translate(str.maketrans("0123456789", "۰۱۲۳۴۵۶۷۸۹"))
+    assert fa in text
+    assert "محاسبه\u200cشده" in text
+    assert "g3-small1" not in text and "g4-small1" not in text  # near-miss bundles dropped
+
+
+def test_vm_no_verification_badges_or_region_column(client_tuple):
+    client = client_tuple[0]
+    text = client.get("/vm").text
+    assert "تأیید" not in text  # verification belongs to the plan detail page
+    assert "منطقه" not in text  # region column removed; Iran-only noted in header
+    assert "تنها برای مناطق ایران" in text
+
+
+def test_vm_date_only_last_checked(client_tuple):
+    client = client_tuple[0]
+    text = client.get("/vm").text
+    assert "۱۳:۳۰" not in text  # no time-of-day in the table
 
 
 def test_vm_medium_shows_calculated_price_for_economy(client_tuple):
@@ -112,8 +129,10 @@ def test_vm_medium_shows_calculated_price_for_economy(client_tuple):
     text = response.text
     assert "محاسبه\u200cشده" in text
     expected = 234000 + Decimal("0.7") * (4 * 252000 + 8 * 196200) + 80 * 18000  # 3,478,320
-    fa = f"{int(expected):,}".translate(str.maketrans("0123456789", "۰۱۲۳۴۵۶۷۸۹"))
+    fa = f"{int(expected):,}".replace(",", "٬").translate(str.maketrans("0123456789", "۰۱۲۳۴۵۶۷۸۹"))
     assert fa in text
+    # no near-miss approximate bundles for providers with a rate table
+    assert "g1-medium1" not in text
 
 
 def test_vm_pending_providers_visible(client_tuple):

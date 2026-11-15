@@ -39,6 +39,7 @@ templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 templates.env.filters["toman"] = lambda v: format_toman(v) if v is not None else "—"
 templates.env.filters["pnum"] = format_number
 templates.env.filters["jalali"] = lambda v: format_jalali(v) if v else "—"
+templates.env.filters["jalali_date"] = lambda v: format_jalali(v, with_time=False) if v else "—"
 
 
 def create_app(db_path: str | Path | None = None) -> FastAPI:

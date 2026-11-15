@@ -75,18 +75,25 @@ def test_region_scope_prefix():
     assert not is_iranian_region("")
 
 
-def test_small_size_matches_exact_cpu_ram_with_disk_difference(matcher):
-    # Small = 1 vCPU / 2 GB / 20 GB target
+def test_small_size_no_exact_baseline_bundle_means_no_primary(matcher):
+    # Small = 1 vCPU / 2 GB / 20 GB target; eco-small2 is 1/2/25 (disk differs)
+    # -> per owner decision (2026-11-15) it is NOT a primary match; the app
+    # layer will show a calculated baseline price instead.
     economy = matcher.match_size(REAL_PLANS, "economy", "small")
-    assert [m.plan.plan_name for m in economy.primary] == ["eco-small2"]
-    m = economy.primary[0]
-    assert m.match_type == "disk_difference"
-    assert m.disk_difference_gb == Decimal(5)  # 25 GB actual vs 20 GB target
+    assert economy.primary == []
+    # nearest larger fallback remains available for providers without rates
+    assert [m.plan.plan_name for m in economy.approximate] == ["eco-small3"]
 
     standard = matcher.match_size(REAL_PLANS, "standard", "small")
+    assert standard.primary == []
+    assert [m.plan.plan_name for m in standard.approximate] == ["c2-medium1"]
+
+
+def test_exact_disk_required_for_primary(matcher):
+    # g3-small1 (1/2/75) shares CPU/RAM with Small (1/2/20) but is not exact
+    standard = matcher.match_size(REAL_PLANS, "standard", "small")
     names = [m.plan.plan_name for m in standard.primary]
-    assert names == ["g3-small1", "g4-small1"]  # identical price; stable order
-    assert all(m.match_type == "disk_difference" for m in standard.primary)
+    assert "g3-small1" not in names and "g4-small1" not in names
 
 
 def test_medium_size_iran_scope_excludes_foreign_and_finds_nothing_exact(matcher):
@@ -134,17 +141,22 @@ def test_same_plan_in_multiple_iranian_regions_deduped_with_flag(matcher):
     ]
     flags: list[str] = []
     result = matcher.match_size(duplicated, "economy", "small")
-    flags.extend(result.review_flags)
-    names = [m.plan.plan_name for m in result.primary]
-    assert names.count("eco-small2") == 1  # deduped
-    assert any("eco-small4" in f for f in flags)  # divergent price flagged for review
+    flags = list(result.review_flags)
+    names = [m.plan.plan_name for m in result.primary + result.approximate]
+    # eco-small4 exists in two Iranian regions with diverging prices:
+    # deduped to one row (cheapest) and flagged for analyst review
+    assert names.count("eco-small4") == 1
+    assert any("eco-small4" in f for f in flags)
 
 
 def test_region_scope_all_includes_foreign(matcher):
-    # c1-medium2 (4/8/75, eu-west) is Economy tier (from Arvan's basic tab)
+    # c1-medium2 (4/8/75, eu-west) is Economy tier (from Arvan's basic tab);
+    # disk 75 != target 80 so it is not an exact primary match, and it is not
+    # larger than the target either -> excluded entirely (baseline-only rule).
     economy = matcher.match_size(REAL_PLANS, "economy", "medium", region_scope="all")
-    assert [m.plan.plan_name for m in economy.primary] == ["c1-medium2"]
-    assert economy.primary[0].disk_difference_gb == Decimal(-5)
+    assert economy.primary == []
+    all_names = [m.plan.plan_name for m in economy.approximate]
+    assert "c1-medium2" not in all_names
 
 
 def test_unknown_tier_goes_to_review_not_silently_assigned(matcher):
@@ -156,13 +168,12 @@ def test_unknown_tier_goes_to_review_not_silently_assigned(matcher):
 
 
 def test_multiple_eligible_rank_cheapest_first(matcher):
-    # Synthetic: two exact CPU/RAM matches with different disks/prices
+    # Only the plan whose full CPU/RAM/disk equals the target is a primary match
     two = [
         plan("a-4-8-90", "standard", "ir-thr-ba1", 4, 8, 90, 5000000),
         plan("b-4-8-70", "standard", "ir-thr-ba1", 4, 8, 70, 4000000),
-        plan("c-4-8-80", "standard", "ir-thr-ba1", 4, 8, 80, 4500000),  # exact disk
+        plan("c-4-8-80", "standard", "ir-thr-ba1", 4, 8, 80, 4500000),  # exact
     ]
     result = matcher.match_size(two, "standard", "medium")
-    assert [m.plan.plan_name for m in result.primary] == ["c-4-8-80", "b-4-8-70", "a-4-8-90"]
+    assert [m.plan.plan_name for m in result.primary] == ["c-4-8-80"]
     assert result.primary[0].match_type == "exact"
-    assert result.primary[1].match_type == "disk_difference"

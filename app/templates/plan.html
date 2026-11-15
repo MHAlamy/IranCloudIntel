@@ -6,7 +6,7 @@
   <h1>{{ offering.plan_name }} <small class="muted">({{ offering.provider_name }})</small></h1>
   <p class="muted">
     سطح: {{ offering.provider_tier_raw or '—' }} · منطقه: {{ offering.region or '—' }} ·
-    {{ offering.vcpu|pnum if offering.vcpu else '—' }} vCPU ·
+    {{ offering.vcpu|pnum if offering.vcpu else '—' }} <span dir="ltr">vCPU</span> ·
     {{ offering.ram_gb|pnum if offering.ram_gb else '—' }} گیگابایت رم ·
     {{ offering.disk_gb|pnum if offering.disk_gb else '—' }} گیگابایت دیسک
   </p>

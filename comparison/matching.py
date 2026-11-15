@@ -121,20 +121,17 @@ class VMMatcher:
             scoped = list(tier_plans)
         scoped = self._dedupe_iranian_regions(scoped, result.review_flags)
 
-        # Primary ranking: exact CPU/RAM only; disk may differ from the target.
-        exact_cpu_ram = [p for p in scoped if p.vcpu == target_vcpu and p.ram_gb == target_ram]
-        for plan in exact_cpu_ram:
-            diff = plan.disk_gb - target_disk
-            result.primary.append(
-                Match(
-                    plan=plan,
-                    match_type="exact" if diff == 0 else "disk_difference",
-                    disk_difference_gb=diff,
-                )
-            )
-        result.primary.sort(
-            key=lambda m: (m.match_type != "exact", abs(m.disk_difference_gb or 0), m.plan.price_in_toman)
-        )
+        # Primary ranking: exact CPU/RAM/disk match with the reference size only.
+        # Per owner decision (2026-11-15) the dashboard reports one price per
+        # provider per (tier, size): the exact baseline bundle if published,
+        # otherwise a calculated price from documented rates (app layer).
+        exact = [
+            p for p in scoped
+            if p.vcpu == target_vcpu and p.ram_gb == target_ram and p.disk_gb == target_disk
+        ]
+        for plan in exact:
+            result.primary.append(Match(plan=plan, match_type="exact"))
+        result.primary.sort(key=lambda m: m.plan.price_in_toman)
 
         if not result.primary:
             larger = [p for p in scoped if p.vcpu > target_vcpu or p.ram_gb > target_ram]
