@@ -17,7 +17,17 @@ providers:
           ready_marker: "eco-small"     # text that proves real content rendered
           tabs: [basic, standard, premium]
 
-  # Pending verification (price_gathering_guide.md section 4):
-  # - slug: liara      name: Liara       official_url: https://liara.ir/
-  # - slug: parspack   name: ParsPack    official_url: https://parspack.com/
-  # - slug: cloud_ir   name: Cloud.ir    official_url: https://cloud.ir/
+  - slug: liara
+    name: Liara
+    official_url: https://liara.ir/
+    sources: []   # pricing page pending verification (price_gathering_guide.md 4)
+
+  - slug: parspack
+    name: ParsPack
+    official_url: https://parspack.com/
+    sources: []   # calculator behavior pending verification
+
+  - slug: cloud_ir
+    name: Cloud.ir
+    official_url: https://cloud.ir/
+    sources: []   # regional tariffs pending verification

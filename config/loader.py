@@ -81,6 +81,19 @@ class BenchmarkSize(BaseModel):
     disk_gb: int = Field(ge=1)
 
 
+class IPV4Config(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    include_in_cost: bool = False
+
+
+class RegionConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    scope: Literal["iran", "all"] = "iran"
+    iranian_prefix: str = "ir-"
+
+
 class VMBenchmarks(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -89,6 +102,8 @@ class VMBenchmarks(BaseModel):
     default_os: str
     sizes: dict[str, BenchmarkSize] = Field(min_length=1)
     matching: dict[str, bool] = Field(default_factory=dict)
+    ipv4: IPV4Config = IPV4Config()
+    regions: RegionConfig = RegionConfig()
 
 
 class BenchmarksFile(BaseModel):

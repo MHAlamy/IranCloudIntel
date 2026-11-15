@@ -21,6 +21,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from config.loader import ProviderConfig, SourceConfig  # noqa: E402
 from collectors.arvan_clean import TabContent, build_cleaned_markdown, sha256_text  # noqa: E402
+from comparison.rate_check import STORAGE_CLASS_LABELS, ProviderRateMapping, TierRates, verify_bundle  # noqa: E402
+from comparison.matching import is_iranian_region  # noqa: E402
+from decimal import Decimal  # noqa: E402
 from extractors.llm import LLMClient, LLMError  # noqa: E402
 from extractors.prompts import SYSTEM_PROMPT, build_extraction_messages  # noqa: E402
 from extractors.schema import LLMPlanRow, SCHEMA_VERSION  # noqa: E402
@@ -77,6 +80,8 @@ def run_collection(
     cleaner: Cleaner,
     evidence_root: Path = EVIDENCE_ROOT,
     force: bool = False,
+    rates_parser: Callable[[str], list] | None = None,
+    rate_mappings: dict | None = None,
 ) -> CollectionOutcome:
     """Collect one source end-to-end. Raises nothing; failures are returned."""
     provider_id = repo.ensure_provider(provider.slug, provider.name, provider.official_url)
@@ -102,6 +107,15 @@ def run_collection(
         evidence_dir.mkdir(parents=True, exist_ok=True)
         (evidence_dir / "rendered.html").write_text(fetch_result.html, encoding="utf-8")
         (evidence_dir / "cleaned.md").write_text(combined_markdown, encoding="utf-8")
+
+        # Component rate tables (providers that publish them, e.g. Arvan):
+        # parsed deterministically from the same rendered page, stored for the run.
+        rates_stored = 0
+        rates_lookup = None
+        if rates_parser is not None:
+            rates_stored = repo.record_rates(run_id, provider_id, rates_parser(fetch_result.html))
+            if rate_mappings and provider.slug in rate_mappings:
+                rates_lookup = _tier_rates_from_repo(repo, provider_id, rate_mappings[provider.slug])
 
         if not force and repo.should_skip_extraction(source_id, content_hash, config_hash):
             repo.finish_run(
@@ -154,10 +168,28 @@ def run_collection(
                         product_family="", provider_tier_raw=normalized.provider_tier_raw,
                         region=normalized.region or "",
                     )
-                    repo.record_observation(
+                    latest_observation_id = repo.record_observation(
                         run_id, offering_id, plan_row, normalized, evidence=plan_row.evidence
                     )
                     observations += 1
+
+                    # Bundle-vs-rates verification (deterministic, zero tokens)
+                    if rate_mappings and provider.slug in rate_mappings and rates_stored:
+                        mapping = rate_mappings[provider.slug]
+                        tier_rates = rates_lookup.rates_for(normalized.plan_name)
+                        if not is_iranian_region(normalized.region or ""):
+                            status, detail = (
+                                "review", "non-Iranian region; not verified against Iranian rates"
+                            )
+                        elif tier_rates is not None and normalized.vcpu is not None:
+                            status, detail = verify_bundle(
+                                normalized.plan_name, normalized.vcpu,
+                                Decimal(str(normalized.ram_gb)), Decimal(str(normalized.disk_gb)),
+                                normalized.price_in_toman, tier_rates, mapping,
+                            )
+                        else:
+                            status, detail = "review", "rates or resources incomplete for verification"
+                        repo.set_rate_verification(latest_observation_id, status, detail)
 
         if review_entries:
             (evidence_dir / "review_queue.json").write_text(
@@ -188,6 +220,49 @@ def _current_model() -> str:
     import os
 
     return os.getenv("AIaaS_MODEL", "")
+
+
+def _tier_rates_from_repo(repo: Repository, provider_id: int, mapping: ProviderRateMapping):
+    """Build a per-plan rate lookup from the provider's stored Iran rates.
+
+    Returns an object with .rates_for(plan_name) -> TierRates | None, or None
+    when the provider's rate table is unusable for verification.
+    """
+    rows = repo.latest_rates(provider_id, region="iran")
+    by_key = {(r["category"], r["unit"], r["tier_label"]): r for r in rows}
+    ipv4_row = next((r for (cat, _, label), r in by_key.items() if cat == "ipv4" and "اول" in label), None)
+    if ipv4_row is None:
+        return None
+
+    tier_labels = {"basic": "Basic", "standard": "Standard", "premium": "Premium"}
+    cache: dict[tuple[str, str], TierRates] = {}
+
+    def build(tier_label: str, storage_label: str) -> TierRates | None:
+        key = (tier_label, storage_label)
+        if key in cache:
+            return cache[key]
+        cpu = by_key.get(("cpu", "هر vCore", tier_label))
+        ram = by_key.get(("ram", "هر گیگابایت", tier_label))
+        storage = by_key.get(("storage", "هر گیگابایت", storage_label))
+        if cpu is None or ram is None or storage is None:
+            return None
+        rates = TierRates(
+            cpu_rate=Decimal(cpu["amount_toman"]),
+            ram_rate=Decimal(ram["amount_toman"]),
+            storage_rate=Decimal(storage["amount_toman"]),
+            ipv4_first=Decimal(ipv4_row["amount_toman"]),
+        )
+        cache[key] = rates
+        return rates
+
+    class _Lookup:
+        def rates_for(self, plan_name: str) -> TierRates | None:
+            family = mapping.family_for(plan_name)
+            if family is None:
+                return None
+            return build(tier_labels[family["rate_tier"]], STORAGE_CLASS_LABELS[family["storage_class"]])
+
+    return _Lookup()
 
 
 def fetch_source(source: SourceConfig) -> FetchResult:

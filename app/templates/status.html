@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}وضعیت منابع{% endblock %}
+{% block content %}
+<section class="page-head">
+  <h1>وضعیت گردآوری منابع</h1>
+  <p class="muted">آخرین وضعیت هر منبع قیمت، خطاها و شمارش نرخ‌های ذخیره‌شده</p>
+</section>
+
+{% for source in view.sources %}
+<section class="card status-card">
+  <div class="status-head">
+    <strong>{{ source.provider_name }}</strong>
+    <span class="muted">· {{ source.url }}</span>
+    <span class="badge badge-{{ 'published' if source.enabled else 'missing' }}">
+      {{ 'فعال' if source.enabled else 'غیرفعال' }}
+    </span>
+    <span class="badge badge-calculated">{{ source.rates_stored|pnum }} نرخ ذخیره‌شده</span>
+  </div>
+  <table class="price-table">
+    <thead>
+      <tr><th>زمان (شمسی)</th><th>وضعیت</th><th>توکن (ورودی/خروجی)</th><th>خطا</th></tr>
+    </thead>
+    <tbody>
+      {% for run in source.runs %}
+      <tr>
+        <td>{{ run.started_jalali }}</td>
+        <td>
+          <span class="badge badge-{{ 'verified' if run.status == 'success' else 'mismatch' }}">
+            {{ 'موفق' if run.status == 'success' else ('ناموفق' if run.status == 'failed' else run.status) }}
+          </span>
+        </td>
+        <td>{{ run.tokens|pnum }}</td>
+        <td class="error-cell">{{ run.error or '—' }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="4" class="muted">هنوز اجرایی ثبت نشده است</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endfor %}
+{% endblock %}

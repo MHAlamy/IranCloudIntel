@@ -158,7 +158,7 @@ Apply matching deterministically for each provider, normalized tier, region and 
 
 1. Prefer an exact CPU/RAM/disk configuration if offered, retaining its actual quote or bundle price.
 2. Otherwise prefer an exact CPU/RAM match with a different disk size. Show the actual disk and its difference from the target. Do not silently adjust prices using made-up per-GB rates.
-3. If resources are configurable, collect an actual quote for the reference configuration, or calculate it only from documented additive resource tariffs and applicable fees. Label calculated prices and avoid adding storage already included in a package.
+3. If resources are configurable, collect an actual quote for the reference configuration, or calculate it only from documented additive resource tariffs and applicable fees. Label calculated prices and avoid adding storage already included in a package. — **Active for Arvan since 2026-11-15:** the PAYG rate table (per-vCore, per-GB RAM, per-GB storage classes, IPv4) is parsed deterministically, stored as rate observations, and every bundle is verified against it in code (14/14 exact on first verification). Where no bundle exists for a reference size, the dashboard shows a clearly-labeled calculated price using the tier's rates; the eco-family 0.7× compute factor is empirically derived (no documented discount found on-page — the LLM interpretation call confirmed this) and must be re-verified on mismatches.
 4. If exact CPU/RAM is not available, show no exact match in the primary ranking. Optionally show the nearest larger package separately, clearly marked approximate and with its actual specifications. Never present undersized or interpolated packages as equivalent.
 5. If multiple eligible plans remain, expose the cheapest comparable plan by default (same mandatory cost assumptions), with other eligible plans available in details. Do not silently select a different product family or location to win a price comparison.
 
@@ -211,7 +211,7 @@ Cloud.ir    ...     ...                    ...          ...
 * Tier equivalence is an initial analyst assumption.
 ```
 
-Object Storage and CDN should have their own views. Distinguish missing coverage, failed collection, stale data, unknown prices and genuine absence of a matching plan. Never use zero as a missing-price placeholder.
+Object Storage and CDN should have their own views. Distinguish missing coverage, failed collection, stale data, unknown prices and genuine absence of a matching plan. Never use zero as a missing-price placeholder. The dashboard is fully in Persian (RTL), uses a common Persian web font (Vazirmatn, styled after Hamravesh's dark theme), displays all dates in the Jalali calendar, and labels each price's basis: منتشرشده (published bundle) / محاسبه‌شده (calculated from documented rates) / تقریبی (nearest larger bundle).
 
 ## 9. Configuration files and code organization
 

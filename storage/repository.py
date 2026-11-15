@@ -178,6 +178,80 @@ class Repository:
             (offering_id,),
         ).fetchall()
 
+    # -- resource rates ----------------------------------------------------
+
+    def record_rates(
+        self, run_id: int, provider_id: int, rates: list,
+        observed_at: str | None = None,
+    ) -> int:
+        """Store parsed component rate rows (providers that publish them)."""
+        count = 0
+        for rate in rates:
+            self._connection.execute(
+                """INSERT INTO resource_rates (
+                       provider_id, run_id, category, region, unit, tier_label,
+                       amount_toman, billing_period, observed_at, evidence)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, 'monthly', ?, ?)""",
+                (
+                    provider_id, run_id, rate.category, rate.region, rate.unit,
+                    rate.tier_label, rate.amount_toman, observed_at or utc_now_iso(),
+                    rate.evidence,
+                ),
+            )
+            count += 1
+        self._connection.commit()
+        return count
+
+    def latest_rates(self, provider_id: int, region: str = "iran") -> list[sqlite3.Row]:
+        """Newest rate row per (category, unit, tier_label) for a provider/region."""
+        return self._connection.execute(
+            """SELECT r.* FROM resource_rates r
+               JOIN (
+                   SELECT category, unit, tier_label, MAX(id) AS max_id
+                   FROM resource_rates WHERE provider_id=? AND region=?
+                   GROUP BY category, unit, tier_label
+               ) latest ON r.id = latest.max_id
+               ORDER BY r.category, r.tier_label""",
+            (provider_id, region),
+        ).fetchall()
+
+    def set_rate_verification(self, observation_id: int, status: str, detail: str = "") -> None:
+        self._connection.execute(
+            "UPDATE price_observations SET rate_verification=?, rate_verification_detail=? WHERE id=?",
+            (status, detail, observation_id),
+        )
+        self._connection.commit()
+
+    # -- dashboard read helpers ------------------------------------------------
+
+    def get_offering(self, offering_id: int) -> sqlite3.Row | None:
+        return self._connection.execute(
+            """SELECT off.*, p.slug AS provider_slug, p.name AS provider_name
+               FROM offerings off JOIN providers p ON p.id = off.provider_id
+               WHERE off.id=?""",
+            (offering_id,),
+        ).fetchone()
+
+    def list_sources(self) -> list[sqlite3.Row]:
+        return self._connection.execute(
+            """SELECT s.*, p.slug AS provider_slug, p.name AS provider_name
+               FROM sources s JOIN providers p ON p.id = s.provider_id
+               ORDER BY p.slug, s.service_type"""
+        ).fetchall()
+
+    def source_runs(self, source_id: int, limit: int = 5) -> list[sqlite3.Row]:
+        return self._connection.execute(
+            """SELECT * FROM collection_runs WHERE source_id=?
+               ORDER BY started_at DESC, id DESC LIMIT ?""",
+            (source_id, limit),
+        ).fetchall()
+
+    def rate_count(self, provider_id: int) -> int:
+        row = self._connection.execute(
+            "SELECT COUNT(*) AS c FROM resource_rates WHERE provider_id=?", (provider_id,)
+        ).fetchone()
+        return int(row["c"])
+
     # -- skip-unchanged decision ----------------------------------------------
 
     def last_successful_extraction(self, source_id: int, extractor_config_hash: str) -> sqlite3.Row | None:

@@ -26,7 +26,9 @@ if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
 
 from config.loader import load_providers  # noqa: E402
 from collectors.arvan_clean import clean_page  # noqa: E402
+from collectors.arvan_rates import parse_rates  # noqa: E402
 from collectors.pipeline import fetch_source, run_collection  # noqa: E402
+from comparison.rate_check import load_rate_mappings  # noqa: E402
 from extractors.llm import LLMClient  # noqa: E402
 from storage.repository import Repository  # noqa: E402
 from util.runlock import RunLock  # noqa: E402
@@ -42,6 +44,7 @@ def main() -> int:
     args = parser.parse_args()
 
     providers_file = load_providers()
+    rate_mappings = load_rate_mappings()
     DATA_DIR.mkdir(parents=True, exist_ok=True)
 
     with RunLock(DATA_DIR / ".collection.lock"):
@@ -61,6 +64,8 @@ def main() -> int:
                         fetcher=fetch_source,
                         cleaner=clean_page,
                         force=args.force,
+                        rates_parser=parse_rates if provider.slug == "arvan" else None,
+                        rate_mappings=rate_mappings,
                     )
                     print(
                         f"    status={outcome.status} skipped={outcome.skipped} "

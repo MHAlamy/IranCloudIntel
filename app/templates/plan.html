@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}جزئیات {{ offering.plan_name if offering else 'پلن' }}{% endblock %}
+{% block content %}
+{% if offering %}
+<section class="page-head">
+  <h1>{{ offering.plan_name }} <small class="muted">({{ offering.provider_name }})</small></h1>
+  <p class="muted">
+    سطح: {{ offering.provider_tier_raw or '—' }} · منطقه: {{ offering.region or '—' }} ·
+    {{ offering.vcpu|pnum if offering.vcpu else '—' }} vCPU ·
+    {{ offering.ram_gb|pnum if offering.ram_gb else '—' }} گیگابایت رم ·
+    {{ offering.disk_gb|pnum if offering.disk_gb else '—' }} گیگابایت دیسک
+  </p>
+</section>
+
+<section class="card table-card">
+  <h2 class="card-title">تاریخچه قیمت</h2>
+  <table class="price-table">
+    <thead>
+      <tr>
+        <th>تاریخ (شمسی)</th>
+        <th>قیمت ماهانه</th>
+        <th>قیمت خام</th>
+        <th>ارز</th>
+        <th>دوره</th>
+        <th>سازگاری با نرخ‌ها</th>
+        <th>شواهد</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for obs in history %}
+      <tr>
+        <td>{{ obs.observed_at|jalali }}</td>
+        <td class="price-cell">{{ obs.price_in_toman|toman }}</td>
+        <td>{{ obs.price_raw }}</td>
+        <td>{{ obs.currency_raw }}</td>
+        <td>{{ obs.billing_period_raw }}</td>
+        <td>
+          <span class="badge badge-{{ 'verified' if obs.rate_verification == 'verified' else ('mismatch' if obs.rate_verification == 'mismatch' else 'review') }}">
+            {{ verification_labels.get(obs.rate_verification, obs.rate_verification) }}
+          </span>
+          {% if obs.rate_verification_detail %}<div class="row-note">{{ obs.rate_verification_detail }}</div>{% endif %}
+        </td>
+        <td class="evidence">{{ obs.evidence }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% else %}
+<section class="page-head"><h1>پلن یافت نشد</h1></section>
+{% endif %}
+<a class="back-link" href="/vm">← بازگشت به مقایسه</a>
+{% endblock %}

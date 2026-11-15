@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}داشبورد ابری{% endblock %}</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <a class="brand" href="/vm">
+        <span class="brand-dot"></span>
+        رصد ابر ایران
+      </a>
+      <nav class="nav">
+        <a href="/vm" class="nav-link">مقایسه سرور ابری</a>
+        <a href="/status" class="nav-link">وضعیت منابع</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      داده‌ها از صفحات رسمی قیمت تأمین‌کنندگان گردآوری می‌شود · تمام قیمت‌ها به تومان در ماه · تاریخ‌ها شمسی
+    </div>
+  </footer>
+</body>
+</html>

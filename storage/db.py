@@ -7,7 +7,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 SCHEMA_PATH = Path(__file__).resolve().parent / "schema.sql"
-SCHEMA_VERSION = 1
+MIGRATIONS_DIR = Path(__file__).resolve().parent / "migrations"
+SCHEMA_VERSION = 2
 
 BUSY_TIMEOUT_MS = 5000
 
@@ -28,17 +29,30 @@ def connect(db_path: str | Path) -> sqlite3.Connection:
 
 
 def init_db(db_path: str | Path) -> None:
-    """Create the schema if absent and record the schema version. Idempotent."""
+    """Apply pending migrations in order. Idempotent; records each version."""
     connection = connect(db_path)
     try:
-        connection.executescript(SCHEMA_PATH.read_text(encoding="utf-8"))
-        row = connection.execute("SELECT MAX(version) AS v FROM schema_version").fetchone()
-        current = row["v"] if row and row["v"] is not None else 0
-        if current < SCHEMA_VERSION:
+        # ensure the version table exists before consulting it
+        connection.execute(
+            "CREATE TABLE IF NOT EXISTS schema_version (version INTEGER NOT NULL, applied_at TEXT NOT NULL)"
+        )
+        applied = {
+            row["version"]
+            for row in connection.execute("SELECT version FROM schema_version").fetchall()
+        }
+        # v1 is the base schema (kept as schema.sql for historical clarity)
+        migrations: list[tuple[int, Path]] = [(1, SCHEMA_PATH)]
+        for path in sorted(MIGRATIONS_DIR.glob("v*.sql")):
+            version = int(path.name.split("__")[0][1:])
+            migrations.append((version, path))
+        for version, path in migrations:
+            if version in applied:
+                continue
+            connection.executescript(path.read_text(encoding="utf-8"))
             connection.execute(
                 "INSERT INTO schema_version (version, applied_at) VALUES (?, ?)",
-                (SCHEMA_VERSION, utc_now_iso()),
+                (version, utc_now_iso()),
             )
-        connection.commit()
+            connection.commit()
     finally:
         connection.close()

@@ -1,0 +1,67 @@
+# Provider family → rate-class mapping for bundle verification and calculated
+# prices (Arvan). Empirically verified on 2026-11-15 against all Iranian-region
+# bundles (14/14 exact). This mapping is analyst-maintained: it is derived from
+# observed prices, not documented by the provider — review on any mismatch.
+#
+# bundle = ipv4_first + compute_factor * (vcpu * cpu_rate + ram * ram_rate)
+#          + disk * storage_rate
+
+arvan:
+  ipv4_first_toman: "234000"
+  default_storage_rate_toman: "18000"   # بلاک استوریج (Eco) == (Hot-SSD)
+  families:
+    - prefix: "eco"
+      rate_tier: basic
+      compute_factor: "0.7"             # empirically discounted; may be a promotion
+      storage_class: eco
+    - prefix: "g1"
+      rate_tier: basic
+      compute_factor: "1.0"
+      storage_class: eco
+    - prefix: "ls1"
+      rate_tier: basic
+      compute_factor: "1.0"
+      storage_class: local              # بلاک استوریج (Local)
+    - prefix: "g3"
+      rate_tier: standard
+      compute_factor: "1.0"
+      storage_class: eco
+    - prefix: "g4.5"
+      rate_tier: standard
+      compute_factor: "1.0"
+      storage_class: eco
+    - prefix: "g4"
+      rate_tier: standard
+      compute_factor: "1.0"
+      storage_class: eco
+    - prefix: "g6.5"
+      rate_tier: premium
+      compute_factor: "1.0"
+      storage_class: eco
+    - prefix: "g6"
+      rate_tier: standard               # yes: premium-tab g6-small* price at standard rates
+      compute_factor: "1.0"
+      storage_class: eco
+    - prefix: "m6"
+      rate_tier: standard
+      compute_factor: "1.0"
+      storage_class: eco
+    - prefix: "c6"
+      rate_tier: standard
+      compute_factor: "1.0"
+      storage_class: eco
+    - prefix: "c5"
+      rate_tier: premium
+      compute_factor: "1.0"
+      storage_class: eco
+    - prefix: "c2"
+      rate_tier: standard
+      compute_factor: "1.0"
+      storage_class: eco
+  calculated_price_factors:             # for sizes without an existing bundle
+    economy: "0.7"
+    standard: "1.0"
+    premium: "1.0"
+  calculated_notes: >-
+    Calculated prices use the tier's published PAYG rates; the economy factor
+    matches the empirically-observed eco-family discount and is an assumption.

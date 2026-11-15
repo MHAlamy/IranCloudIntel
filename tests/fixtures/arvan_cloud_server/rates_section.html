@@ -1,0 +1,612 @@
+<div class="w-full lg:w-3/4">
+<div class="mb-[88px] scroll-items" id="pricing-package-0" x-data="{ region: 'iran' }" x-intersect.margin.-45%.0.-45%.0="accordionIdHandler(0)">
+<div class="flex flex-row justify-between">
+<div class="text-2xl font-semibold text-2xl text-gray-800 mb-6">
+                                پردازنده</div>
+<div class="flex items-center mb-6">
+<label class="flex items-center cursor-pointer ms-4">
+<input class="hidden peer" name="region" type="radio" value="iran" x-model="region"/>
+<span :class="region === 'iran' ? 'border-[#009595]' : ''" class="w-4 h-4 rounded-full border-2 flex items-center justify-center bg-white peer-checked:border-[#009595] border-[#009595]">
+<span :class="region === 'iran' ? 'bg-[#009595]!' : ''" class="w-2 h-2 rounded-full bg-white peer-checked:bg-[#009595] bg-[#009595]!"></span>
+</span>
+<span class="text-gray-700 pr-1">ایران</span>
+</label>
+<label class="flex items-center cursor-pointer ms-4">
+<input class="hidden peer" name="region" type="radio" value="europe" x-model="region"/>
+<span :class="region === 'europe' ? 'border-[#009595]' : ''" class="w-4 h-4 rounded-full border-2 flex items-center justify-center bg-white peer-checked:border-[#009595]">
+<span :class="region === 'europe' ? 'bg-[#009595]!' : ''" class="w-2 h-2 rounded-full bg-white peer-checked:bg-[#009595]"></span>
+</span>
+<span class="text-gray-700 pr-1">اروپا</span>
+</label>
+</div>
+</div>
+<div class="text-base text-gray-500 mb-8">با انتخاب هر یک از پردازنده‌ها به تعداد دل‌خواه طیف وسیعی از نیازهای پردازشی خود را برطرف کنید.</div>
+<!-- Tables -->
+<div class="bg-white rounded-lg px-1 lg:px-6 pt-1 lg:pt-6">
+<div x-show="region === 'iran'">
+<div class="flex bg-gray-50 lg:bg-gray-25 border border-gray-50 rounded-lg py-4 px-5 gap-x-4">
+<div class="text-sm lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 lg:text-gray-600">
+                                                        پردازنده
+                                                    </div>
+<div class='text-sm lg:text-base font-semibold relative w-24 lg:w-40 text-center lg:text-start text-green-700 before:bg-transparent lg:before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-4 ltr:before:-left-4'>
+                                                        هر vCore
+                                                    </div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center border-b-[1px] border-gray-50">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+                                                        Basic</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۲۵۲٬۰۰۰ تومان</div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center border-b-[1px] border-gray-50">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+                                                        Standard</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۳۲۷٬۶۰۰ تومان</div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center border-b-[1px] border-gray-50">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+                                                        Premium</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۴۷۸٬۸۰۰ تومان</div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+                                                        Premium Plus</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۵۹۲٬۲۰۰ تومان</div>
+</div>
+</div>
+<div style="display: none;" x-show="region === 'europe'">
+<div class="flex bg-gray-50 lg:bg-gray-25 border border-gray-50 rounded-lg py-4 px-5 gap-x-4">
+<div class="text-sm lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 lg:text-gray-600">
+                                                        پردازنده
+                                                    </div>
+<div class='text-sm lg:text-base font-semibold relative w-24 lg:w-40 text-center lg:text-start text-green-700 before:bg-transparent lg:before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-4 ltr:before:-left-4'>
+                                                        هر vCPU
+                                                    </div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center border-b-[1px] border-gray-50">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+                                                        Basic</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۲۹۴٬۰۰۰ تومان</div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center border-b-[1px] border-gray-50">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+                                                        Standard</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۳۸۲٬۲۰۰ تومان</div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+                                                        Premium</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۵۵۸٬۶۰۰ تومان</div>
+</div>
+</div>
+</div>
+</div>
+<div class="mb-[88px] scroll-items" id="pricing-package-1" x-data="{ region: 'iran' }" x-intersect.margin.-45%.0.-45%.0="accordionIdHandler(1)">
+<div class="flex flex-row justify-between">
+<div class="text-2xl font-semibold text-2xl text-gray-800 mb-6">
+                                حافظه (RAM)</div>
+<div class="flex items-center mb-6">
+<label class="flex items-center cursor-pointer ms-4">
+<input class="hidden peer" name="region" type="radio" value="iran" x-model="region"/>
+<span :class="region === 'iran' ? 'border-[#009595]' : ''" class="w-4 h-4 rounded-full border-2 flex items-center justify-center bg-white peer-checked:border-[#009595] border-[#009595]">
+<span :class="region === 'iran' ? 'bg-[#009595]!' : ''" class="w-2 h-2 rounded-full bg-white peer-checked:bg-[#009595] bg-[#009595]!"></span>
+</span>
+<span class="text-gray-700 pr-1">ایران</span>
+</label>
+<label class="flex items-center cursor-pointer ms-4">
+<input class="hidden peer" name="region" type="radio" value="europe" x-model="region"/>
+<span :class="region === 'europe' ? 'border-[#009595]' : ''" class="w-4 h-4 rounded-full border-2 flex items-center justify-center bg-white peer-checked:border-[#009595]">
+<span :class="region === 'europe' ? 'bg-[#009595]!' : ''" class="w-2 h-2 rounded-full bg-white peer-checked:bg-[#009595]"></span>
+</span>
+<span class="text-gray-700 pr-1">اروپا</span>
+</label>
+</div>
+</div>
+<div class="text-base text-gray-500 mb-8">شما می‌توانید به‌شکل نامحدود از حافظه‌های قدرت‌مند ابر آروان استفاده کنید و به‌تناسب نیاز خود و در هر زمان آن را کاهش یا افزایش دهید.</div>
+<!-- Tables -->
+<div class="bg-white rounded-lg px-1 lg:px-6 pt-1 lg:pt-6">
+<div x-show="region === 'iran'">
+<div class="flex bg-gray-50 lg:bg-gray-25 border border-gray-50 rounded-lg py-4 px-5 gap-x-4">
+<div class="text-sm lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 lg:text-gray-600">
+                                                        حافظه (RAM)
+                                                    </div>
+<div class='text-sm lg:text-base font-semibold relative w-24 lg:w-40 text-center lg:text-start text-green-700 before:bg-transparent lg:before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-4 ltr:before:-left-4'>
+                                                        هر گیگابایت
+                                                    </div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center border-b-[1px] border-gray-50">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+                                                        Basic</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۱۹۶٬۲۰۰ تومان</div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center border-b-[1px] border-gray-50">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+                                                        Standard</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۲۵۵٬۰۶۰ تومان</div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center border-b-[1px] border-gray-50">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+                                                        Premium</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۳۷۲٬۷۸۰ تومان</div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+                                                        Premium Plus</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۳۷۲٬۷۸۰ تومان</div>
+</div>
+</div>
+<div style="display: none;" x-show="region === 'europe'">
+<div class="flex bg-gray-50 lg:bg-gray-25 border border-gray-50 rounded-lg py-4 px-5 gap-x-4">
+<div class="text-sm lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 lg:text-gray-600">
+                                                        حافظه (RAM)
+                                                    </div>
+<div class='text-sm lg:text-base font-semibold relative w-24 lg:w-40 text-center lg:text-start text-green-700 before:bg-transparent lg:before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-4 ltr:before:-left-4'>
+                                                        هر گیگابایت
+                                                    </div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center border-b-[1px] border-gray-50">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+                                                        Basic</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۲۲۸٬۹۰۰ تومان</div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center border-b-[1px] border-gray-50">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+                                                        Standard</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۲۹۷٬۵۷۰ تومان</div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+                                                        Premium</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۴۳۴٬۹۱۰ تومان</div>
+</div>
+</div>
+</div>
+</div>
+<div class="mb-[88px] scroll-items" id="pricing-package-2" x-data="{ region: 'iran' }" x-intersect.margin.-45%.0.-45%.0="accordionIdHandler(2)">
+<div class="flex flex-row justify-between">
+<div class="text-2xl font-semibold text-2xl text-gray-800 mb-6">
+                                فضای ذخیره‌سازی</div>
+<div class="flex items-center mb-6">
+<label class="flex items-center cursor-pointer ms-4">
+<input class="hidden peer" name="region" type="radio" value="iran" x-model="region"/>
+<span :class="region === 'iran' ? 'border-[#009595]' : ''" class="w-4 h-4 rounded-full border-2 flex items-center justify-center bg-white peer-checked:border-[#009595] border-[#009595]">
+<span :class="region === 'iran' ? 'bg-[#009595]!' : ''" class="w-2 h-2 rounded-full bg-white peer-checked:bg-[#009595] bg-[#009595]!"></span>
+</span>
+<span class="text-gray-700 pr-1">ایران</span>
+</label>
+<label class="flex items-center cursor-pointer ms-4">
+<input class="hidden peer" name="region" type="radio" value="europe" x-model="region"/>
+<span :class="region === 'europe' ? 'border-[#009595]' : ''" class="w-4 h-4 rounded-full border-2 flex items-center justify-center bg-white peer-checked:border-[#009595]">
+<span :class="region === 'europe' ? 'bg-[#009595]!' : ''" class="w-2 h-2 rounded-full bg-white peer-checked:bg-[#009595]"></span>
+</span>
+<span class="text-gray-700 pr-1">اروپا</span>
+</label>
+</div>
+</div>
+<div class="text-base text-gray-500 mb-8">شما می‌توانید به‌تناسب نیازتان و به‌طور آنی هر تعداد دیسک بلاک استوریج را با هر حجمی به زیرساخت خود اضافه کنید و هزینه‌ی ایمیج، بکاپ، اسنپ‌شات و فایل استوریج را بر اساس فضای مصرفی بپردازید.</div>
+<!-- Tables -->
+<div class="bg-white rounded-lg px-1 lg:px-6 pt-1 lg:pt-6">
+<div x-show="region === 'iran'">
+<div class="flex bg-gray-50 lg:bg-gray-25 border border-gray-50 rounded-lg py-4 px-5 gap-x-4">
+<div class="text-sm lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 lg:text-gray-600">
+                                                        فضای ذخیره‌سازی
+                                                    </div>
+<div class='text-sm lg:text-base font-semibold relative w-24 lg:w-40 text-center lg:text-start text-green-700 before:bg-transparent lg:before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-4 ltr:before:-left-4'>
+                                                        هر گیگابایت
+                                                    </div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center border-b-[1px] border-gray-50">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+                                                        بلاک استوریج (Warm)</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۸٬۶۴۰ تومان</div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center border-b-[1px] border-gray-50">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+                                                        بلاک استوریج (Local)</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۲۵٬۲۰۰ تومان</div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center border-b-[1px] border-gray-50">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+                                                        بلاک استوریج (Eco)</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۱۸٬۰۰۰ تومان</div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center border-b-[1px] border-gray-50">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+                                                        بلاک استوریج (Hot-SSD)</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۱۸٬۰۰۰ تومان</div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center border-b-[1px] border-gray-50">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+                                                        ذخیره‌سازی Image</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۱۸٬۰۰۰ تومان</div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center border-b-[1px] border-gray-50">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+                                                        بکاپ</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۱۷٬۲۸۰ تومان</div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center border-b-[1px] border-gray-50">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+                                                        اسنپ‌شات</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۱۸٬۰۰۰ تومان</div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+                                                        فایل استوریج</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۲۰٬۷۰۰ تومان</div>
+</div>
+</div>
+<div style="display: none;" x-show="region === 'europe'">
+<div class="flex bg-gray-50 lg:bg-gray-25 border border-gray-50 rounded-lg py-4 px-5 gap-x-4">
+<div class="text-sm lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 lg:text-gray-600">
+                                                        فضای ذخیره‌سازی
+                                                    </div>
+<div class='text-sm lg:text-base font-semibold relative w-24 lg:w-40 text-center lg:text-start text-green-700 before:bg-transparent lg:before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-4 ltr:before:-left-4'>
+                                                        هر گیگابایت
+                                                    </div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center border-b-[1px] border-gray-50">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+                                                        بلاک استوریج (Warm)</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۱۰٬۰۸۰ تومان</div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center border-b-[1px] border-gray-50">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+                                                        بلاک استوریج (Local)</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۲۹٬۴۰۰ تومان</div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center border-b-[1px] border-gray-50">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+                                                        بلاک استوریج (Eco)</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۲۱٬۰۰۰ تومان</div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center border-b-[1px] border-gray-50">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+                                                        بلاک استوریج (Hot-SSD)</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۲۱٬۰۰۰ تومان</div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center border-b-[1px] border-gray-50">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+                                                        ذخیره‌سازی Image</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۲۱٬۰۰۰ تومان</div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center border-b-[1px] border-gray-50">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+                                                        بکاپ</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۲۰٬۱۶۰ تومان</div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center border-b-[1px] border-gray-50">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+                                                        اسنپ‌شات</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۲۱٬۰۰۰ تومان</div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+                                                        فایل استوریج</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۲۴٬۱۵۰ تومان</div>
+</div>
+</div>
+</div>
+</div>
+<div class="mb-[88px] scroll-items" id="pricing-package-3" x-data="{ region: 'iran' }" x-intersect.margin.-45%.0.-45%.0="accordionIdHandler(3)">
+<div class="flex flex-row justify-between">
+<div class="text-2xl font-semibold text-2xl text-gray-800 mb-6">
+                                پردازنده گرافیکی</div>
+<div class="flex items-center mb-6">
+</div>
+</div>
+<div class="text-base text-gray-500 mb-8">GPUهای سرور ابری آروان‌کلاد راهکاری قدرت‌مند برای پردازش‌های AI/ML در اختیارتان قرار می‌دهد.</div>
+<!-- Tables -->
+<div class="bg-white rounded-lg px-1 lg:px-6 pt-1 lg:pt-6">
+<div x-show="region === 'iran'">
+<div class="flex bg-gray-50 lg:bg-gray-25 border border-gray-50 rounded-lg py-4 px-5 gap-x-4">
+<div class="text-sm lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 lg:text-gray-600">
+                                                        پردازنده گرافیکی
+                                                    </div>
+<div class='text-sm lg:text-base font-semibold relative w-24 lg:w-40 text-center lg:text-start text-green-700 before:bg-transparent lg:before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-4 ltr:before:-left-4'>
+                                                        هر GPU
+                                                    </div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center border-b-[1px] border-gray-50">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+                                                        NVIDIA RTX 4060 8GB</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۱۴٬۴۰۰٬۰۰۰ تومان</div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center border-b-[1px] border-gray-50">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+                                                        NVIDIA RTX 4060 Ti 16GB</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۱۹٬۸۰۰٬۰۰۰ تومان</div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center border-b-[1px] border-gray-50">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+                                                        NVIDIA A30 24GB</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۸۱٬۰۰۰٬۰۰۰ تومان</div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center border-b-[1px] border-gray-50">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+                                                        NVIDIA A30 48GB</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۱۶۲٬۰۰۰٬۰۰۰ تومان</div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center border-b-[1px] border-gray-50">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+                                                        NVIDIA V100 16GB</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۶۳٬۰۰۰٬۰۰۰ تومان</div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center border-b-[1px] border-gray-50">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+                                                        NVIDIA A100 80GB</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۳۶۰٬۰۰۰٬۰۰۰ تومان</div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center border-b-[1px] border-gray-50">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+                                                        NVIDIA H100 80GB</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۴۵۰٬۰۰۰٬۰۰۰ تومان</div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center border-b-[1px] border-gray-50">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+                                                        NVIDIA H200 141GB</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۶۳۰٬۰۰۰٬۰۰۰ تومان</div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center border-b-[1px] border-gray-50">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+                                                        NVIDIA RTX A5000 24GB</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۷۲٬۰۰۰٬۰۰۰ تومان</div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+                                                        NVIDIA RTX ADA4000 20GB</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۸۱٬۰۰۰٬۰۰۰ تومان</div>
+</div>
+</div>
+<div style="display: none;" x-show="region === 'europe'">
+</div>
+</div>
+</div>
+<div class="mb-[88px] scroll-items" id="pricing-package-4" x-data="{ region: 'iran' }" x-intersect.margin.-45%.0.-45%.0="accordionIdHandler(4)">
+<div class="flex flex-row justify-between">
+<div class="text-2xl font-semibold text-2xl text-gray-800 mb-6">
+                                نشانی آی‌پی</div>
+<div class="flex items-center mb-6">
+<label class="flex items-center cursor-pointer ms-4">
+<input class="hidden peer" name="region" type="radio" value="iran" x-model="region"/>
+<span :class="region === 'iran' ? 'border-[#009595]' : ''" class="w-4 h-4 rounded-full border-2 flex items-center justify-center bg-white peer-checked:border-[#009595] border-[#009595]">
+<span :class="region === 'iran' ? 'bg-[#009595]!' : ''" class="w-2 h-2 rounded-full bg-white peer-checked:bg-[#009595] bg-[#009595]!"></span>
+</span>
+<span class="text-gray-700 pr-1">ایران</span>
+</label>
+<label class="flex items-center cursor-pointer ms-4">
+<input class="hidden peer" name="region" type="radio" value="europe" x-model="region"/>
+<span :class="region === 'europe' ? 'border-[#009595]' : ''" class="w-4 h-4 rounded-full border-2 flex items-center justify-center bg-white peer-checked:border-[#009595]">
+<span :class="region === 'europe' ? 'bg-[#009595]!' : ''" class="w-2 h-2 rounded-full bg-white peer-checked:bg-[#009595]"></span>
+</span>
+<span class="text-gray-700 pr-1">اروپا</span>
+</label>
+</div>
+</div>
+<div class="text-base text-gray-500 mb-8">شما می‌توانید مطابق با جدول زیر تعداد نامحدودی IP را به سرور خود اضافه کنید و هزینه‌ی آن را به‌شکل ثابت و ماهانه بپردازید.</div>
+<!-- Tables -->
+<div class="bg-white rounded-lg px-1 lg:px-6 pt-1 lg:pt-6">
+<div x-show="region === 'iran'">
+<div class="flex bg-gray-50 lg:bg-gray-25 border border-gray-50 rounded-lg py-4 px-5 gap-x-4">
+<div class="text-sm lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 lg:text-gray-600">
+                                                        نشانی آی‌پی
+                                                    </div>
+<div class='text-sm lg:text-base font-semibold relative w-24 lg:w-40 text-center lg:text-start text-green-700 before:bg-transparent lg:before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-4 ltr:before:-left-4'>
+                                                        هر آدرس
+                                                    </div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center border-b-[1px] border-gray-50">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+                                                        به‌ازای IPv4 اول</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۲۳۴٬۰۰۰ تومان</div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+                                                        به‌ازای IPv4 بیش‌تر</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۴۶۸٬۰۰۰ تومان</div>
+</div>
+</div>
+<div style="display: none;" x-show="region === 'europe'">
+<div class="flex bg-gray-50 lg:bg-gray-25 border border-gray-50 rounded-lg py-4 px-5 gap-x-4">
+<div class="text-sm lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 lg:text-gray-600">
+                                                        نشانی آی‌پی
+                                                    </div>
+<div class='text-sm lg:text-base font-semibold relative w-24 lg:w-40 text-center lg:text-start text-green-700 before:bg-transparent lg:before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-4 ltr:before:-left-4'>
+                                                        هر آدرس
+                                                    </div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center border-b-[1px] border-gray-50">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+                                                        به‌ازای IPv4 اول</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۲۷۳٬۰۰۰ تومان</div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+                                                        به‌ازای IPv4 بیش‌تر</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۵۴۶٬۰۰۰ تومان</div>
+</div>
+</div>
+</div>
+</div>
+<div class="mb-[88px] scroll-items" id="pricing-package-5" x-data="{ region: 'iran' }" x-intersect.margin.-45%.0.-45%.0="accordionIdHandler(5)">
+<div class="flex flex-row justify-between">
+<div class="text-2xl font-semibold text-2xl text-gray-800 mb-6">
+                                ترافیک</div>
+<div class="flex items-center mb-6">
+<label class="flex items-center cursor-pointer ms-4">
+<input class="hidden peer" name="region" type="radio" value="iran" x-model="region"/>
+<span :class="region === 'iran' ? 'border-[#009595]' : ''" class="w-4 h-4 rounded-full border-2 flex items-center justify-center bg-white peer-checked:border-[#009595] border-[#009595]">
+<span :class="region === 'iran' ? 'bg-[#009595]!' : ''" class="w-2 h-2 rounded-full bg-white peer-checked:bg-[#009595] bg-[#009595]!"></span>
+</span>
+<span class="text-gray-700 pr-1">ایران</span>
+</label>
+<label class="flex items-center cursor-pointer ms-4">
+<input class="hidden peer" name="region" type="radio" value="europe" x-model="region"/>
+<span :class="region === 'europe' ? 'border-[#009595]' : ''" class="w-4 h-4 rounded-full border-2 flex items-center justify-center bg-white peer-checked:border-[#009595]">
+<span :class="region === 'europe' ? 'bg-[#009595]!' : ''" class="w-2 h-2 rounded-full bg-white peer-checked:bg-[#009595]"></span>
+</span>
+<span class="text-gray-700 pr-1">اروپا</span>
+</label>
+</div>
+</div>
+<div class="text-base text-gray-500 mb-8">هزینه‌ی ترافیک دریافت در منطقه‌ی ایران به‌ازای هر حساب کاربری و در منطقه‌ی اروپا به‌ازای هر ابرک و برای مجموع ارسال و دریافت به‌شکل پلکانی محاسبه می‌شود.</div>
+<!-- Tables -->
+<div class="bg-white rounded-lg px-1 lg:px-6 pt-1 lg:pt-6">
+<div x-show="region === 'iran'">
+<div class="flex bg-gray-50 lg:bg-gray-25 border border-gray-50 rounded-lg py-4 px-5 gap-x-4">
+<div class="text-sm lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 lg:text-gray-600">
+                                                        ترافیک
+                                                    </div>
+<div class='text-sm lg:text-base font-semibold relative w-24 lg:w-40 text-center lg:text-start text-green-700 before:bg-transparent lg:before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-4 ltr:before:-left-4'>
+                                                        پلکان استفاده
+                                                    </div>
+<div class='text-sm lg:text-base font-semibold relative w-24 lg:w-40 text-center lg:text-start text-green-700 before:bg-transparent lg:before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-4 ltr:before:-left-4'>
+                                                        هر گیگابایت
+                                                    </div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center border-b-[1px] border-gray-50">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+                                                        ترافیک ارسال</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        -</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        رایگان</div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center border-b-[1px] border-gray-50">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+                                                        ترافیک دریافت</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        تا ۲۵۰ گیگابایت</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        رایگان</div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center border-b-[1px] border-gray-50">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۲۵۰ گیگابایت تا ۱۰ ترابایت</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۱٬۸۰۰ تومان</div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center border-b-[1px] border-gray-50">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۱۰ تا ۱۰۰ ترابایت</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۱٬۲۰۰ تومان</div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        بیش از ۱۰۰ ترابایت</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۱٬۰۵۰ تومان</div>
+</div>
+</div>
+<div style="display: none;" x-show="region === 'europe'">
+<div class="flex bg-gray-50 lg:bg-gray-25 border border-gray-50 rounded-lg py-4 px-5 gap-x-4">
+<div class="text-sm lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 lg:text-gray-600">
+                                                        ترافیک
+                                                    </div>
+<div class='text-sm lg:text-base font-semibold relative w-24 lg:w-40 text-center lg:text-start text-green-700 before:bg-transparent lg:before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-4 ltr:before:-left-4'>
+                                                        پلکان استفاده
+                                                    </div>
+<div class='text-sm lg:text-base font-semibold relative w-24 lg:w-40 text-center lg:text-start text-green-700 before:bg-transparent lg:before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-4 ltr:before:-left-4'>
+                                                        هر گیگابایت
+                                                    </div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center border-b-[1px] border-gray-50">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+                                                        ترافیک ارسال و دریافت</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        تا ۱۰ ترابایت</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        رایگان</div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        بیش از ۱۰ ترابایت</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        ۳۹۰ تومان</div>
+</div>
+</div>
+</div>
+</div>
+<div class="mb-[88px] scroll-items" id="pricing-package-6" x-data="{ region: 'iran' }" x-intersect.margin.-45%.0.-45%.0="accordionIdHandler(6)">
+<div class="flex flex-row justify-between">
+<div class="text-2xl font-semibold text-2xl text-gray-800 mb-6">
+                                سرور اختصاصی</div>
+<div class="flex items-center mb-6">
+</div>
+</div>
+<div class="text-base text-gray-500 mb-8">هزینه‌ی سرور اختصاصی ابری براساس منابع مشخص‌شده در پنل کاربری محاسبه می‌شود.</div>
+<!-- Tables -->
+<div class="bg-white rounded-lg px-1 lg:px-6 pt-1 lg:pt-6">
+<div x-show="region === 'iran'">
+<div class="flex bg-gray-50 lg:bg-gray-25 border border-gray-50 rounded-lg py-4 px-5 gap-x-4">
+<div class="text-sm lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 lg:text-gray-600">
+                                                        سرور اختصاصی
+                                                    </div>
+<div class='text-sm lg:text-base font-semibold relative w-24 lg:w-40 text-center lg:text-start text-green-700 before:bg-transparent lg:before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-4 ltr:before:-left-4'>
+                                                        هر سرور
+                                                    </div>
+</div>
+<div class="flex py-3 lg:py-6 px-5 gap-x-4 items-center">
+<div class="lg:text-base font-semibold relative grow w-2/4 lg:w-auto text-gray-800 text-[12px] lg:text-sm">
+                                                        سرور اختصاصی ابری</div>
+<div class='lg:text-base font-semibold relative w-24 lg:w-40 text-green-600 text-sm lg:text-base text-center lg:text-start before:content-[""] before:absolute before:w-[1px] before:h-full before:lg:bg-gray-100 rtl:before:-right-2 ltr:before:-left-2 lg:before:bg-transparent'>
+                                                        -</div>
+</div>
+</div>
+<div style="display: none;" x-show="region === 'europe'">
+</div>
+</div>
+</div>
+</div>
