@@ -20,7 +20,16 @@ providers:
   - slug: liara
     name: Liara
     official_url: https://liara.ir/
-    sources: []   # pricing page pending verification (price_gathering_guide.md 4)
+    sources:
+      - id: liara_vm_cloud_server
+        service_type: vm
+        url: https://liara.ir/products/cloud-server/
+        collection_method: http   # static page (was unreachable 2026-11-15, restored)
+        region_scope: iran
+        enabled: true
+        navigation:
+          tabs: [plans]
+          bundle_extraction: false   # deterministic plan parsing, no LLM
 
   - slug: parspack
     name: ParsPack

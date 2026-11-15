@@ -88,6 +88,42 @@ def _seed(repo: Repository) -> None:
     repo.finish_run(kubit_run, "success", model="", prompt_tokens=0, completion_tokens=0)
     repo.record_rates(kubit_run, kubit, kubit_rates)
 
+    # Liara: fixed-bundle provider, all plans Standard tier, exact baselines.
+    # Comparable price = published monthly + documented 200,000 IPv4 surcharge.
+    liara = repo.ensure_provider("liara", "Liara", "https://liara.ir/")
+    liara_source = repo.ensure_source(
+        liara, "vm", "https://liara.ir/products/cloud-server/", "http"
+    )
+    liara_run = repo.start_run(liara_source)
+    repo.finish_run(liara_run, "success", model="", prompt_tokens=0, completion_tokens=0)
+    liara_plans = [
+        ("مشتری", 1, 2, 20, "1475000"),
+        ("زحل", 2, 4, 40, "2650000"),
+        ("اورانوس", 4, 8, 80, "4600000"),
+        ("نپتون", 8, 16, 160, "8000000"),
+        ("پلوتون", 16, 32, 320, "14000000"),
+        ("اریس", 32, 64, 640, "24600000"),
+    ]
+    for plan_name, vcpu, ram, disk, monthly in liara_plans:
+        offering = repo.ensure_offering(
+            liara, "vm", plan_name, product_family="fixed_bundle",
+            provider_tier_raw="standard", region="ir-iran",
+        )
+        raw = LLMPlanRow(
+            plan_name=plan_name, provider_tier_raw="standard", region="ir-iran",
+            vcpu=vcpu, ram_gb=float(ram), disk_gb=float(disk), disk_type=None,
+            price_raw="۱", currency_raw="تومان", billing_period_raw="ماهانه", evidence="e",
+        )
+        normalized = NormalizedPlanRow(
+            plan_name=plan_name, provider_tier_raw="standard", region="ir-iran",
+            vcpu=vcpu, ram_gb=Decimal(ram), disk_gb=Decimal(disk), disk_type=None,
+            price_value=Decimal(monthly), currency="toman",
+            price_in_toman=Decimal(monthly) + Decimal("200000"),
+            billing_period="monthly", pricing_type="fixed_bundle",
+            validation_status="valid", validation_issues=[],
+        )
+        repo.record_observation(liara_run, offering, raw, normalized, evidence="e")
+
     # ParsPack: calculator quotes for the baseline configs (monthly comparable
     # prices incl. 150,000 IPv4 and 5% monthly discount, per analyst facts)
     parspack = repo.ensure_provider("parspack", "ParsPack", "https://parspack.com/")

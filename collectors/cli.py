@@ -29,6 +29,8 @@ from collectors.arvan_clean import clean_page  # noqa: E402
 from collectors.arvan_rates import parse_rates  # noqa: E402
 from collectors.kubit_clean import clean_kubit  # noqa: E402
 from collectors.kubit_rates import parse_kubit_rates  # noqa: E402
+from collectors.liara_clean import clean_liara  # noqa: E402
+from collectors.liara_plans import parse_liara_plans  # noqa: E402
 from collectors.parspack_quotes import run_parspack_quotes  # noqa: E402
 from collectors.pipeline import fetch_source, run_collection  # noqa: E402
 from comparison.rate_check import load_rate_mappings  # noqa: E402
@@ -39,8 +41,9 @@ from util.runlock import RunLock  # noqa: E402
 DATA_DIR = ROOT / "data"
 
 PROVIDER_COLLECTION = {
-    "arvan": {"cleaner": clean_page, "rates_parser": parse_rates},
-    "kubit": {"cleaner": clean_kubit, "rates_parser": parse_kubit_rates},
+    "arvan": {"cleaner": clean_page, "rates_parser": parse_rates, "plans_parser": None},
+    "kubit": {"cleaner": clean_kubit, "rates_parser": parse_kubit_rates, "plans_parser": None},
+    "liara": {"cleaner": clean_liara, "rates_parser": None, "plans_parser": parse_liara_plans},
 }
 
 
@@ -76,7 +79,8 @@ def main() -> int:
                         )
                     else:
                         collection = PROVIDER_COLLECTION.get(
-                            provider.slug, {"cleaner": clean_page, "rates_parser": None}
+                            provider.slug,
+                            {"cleaner": clean_page, "rates_parser": None, "plans_parser": None},
                         )
                         outcome = run_collection(
                             provider=provider,
@@ -89,6 +93,7 @@ def main() -> int:
                             rates_parser=collection["rates_parser"],
                             rate_mappings=rate_mappings,
                             bundle_extraction=source.navigation.get("bundle_extraction", True),
+                            plans_parser=collection["plans_parser"],
                         )
                     print(
                         f"    status={outcome.status} skipped={outcome.skipped} "

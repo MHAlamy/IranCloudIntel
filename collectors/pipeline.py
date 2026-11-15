@@ -26,7 +26,7 @@ from comparison.matching import is_iranian_region  # noqa: E402
 from decimal import Decimal  # noqa: E402
 from extractors.llm import LLMClient, LLMError  # noqa: E402
 from extractors.prompts import SYSTEM_PROMPT, build_extraction_messages  # noqa: E402
-from extractors.schema import LLMPlanRow, SCHEMA_VERSION  # noqa: E402
+from extractors.schema import LLMPlanRow, NormalizedPlanRow, SCHEMA_VERSION  # noqa: E402
 from normalization.validate import normalize_llm_row  # noqa: E402
 from storage.repository import Repository  # noqa: E402
 
@@ -83,6 +83,7 @@ def run_collection(
     rates_parser: Callable[[str], list] | None = None,
     rate_mappings: dict | None = None,
     bundle_extraction: bool = True,
+    plans_parser: Callable[[str], list] | None = None,
 ) -> CollectionOutcome:
     """Collect one source end-to-end. Raises nothing; failures are returned."""
     provider_id = repo.ensure_provider(provider.slug, provider.name, provider.official_url)
@@ -132,6 +133,56 @@ def run_collection(
             rates_stored = repo.record_rates(run_id, provider_id, rates_parser(fetch_result.html))
             if rate_mappings and provider.slug in rate_mappings:
                 rates_lookup = _tier_rates_from_repo(repo, provider_id, rate_mappings[provider.slug])
+
+        # Deterministic-bundle providers (e.g. Liara): plans parsed directly,
+        # no LLM call. Comparable price includes the provider's documented
+        # IPv4 surcharge when the page states one.
+        if plans_parser is not None:
+            plans = plans_parser(fetch_result.html)
+            from collectors.liara_plans import parse_ipv4_monthly
+
+            ipv4_monthly = parse_ipv4_monthly(fetch_result.html)
+            recorded = 0
+            for plan in plans:
+                offering_id = repo.ensure_offering(
+                    provider_id, source.service_type, plan.name,
+                    product_family="fixed_bundle", provider_tier_raw="standard",
+                    region="ir-iran",
+                )
+                comparable = Decimal(plan.monthly_toman)
+                if ipv4_monthly is not None:
+                    comparable += Decimal(ipv4_monthly)
+                raw = LLMPlanRow(
+                    plan_name=plan.name, provider_tier_raw="standard", region="ir-iran",
+                    vcpu=int(Decimal(plan.vcpu)), ram_gb=float(Decimal(plan.ram_gb)),
+                    disk_gb=float(Decimal(plan.disk_gb)), disk_type=None,
+                    price_raw=plan.monthly_text, currency_raw="تومان",
+                    billing_period_raw="ماهانه",
+                    evidence=f"Liara IaaS bundle {plan.name}: {plan.monthly_text}/month "
+                             f"({plan.vcpu} vCPU, {plan.ram_gb} GB RAM, {plan.disk_gb} GB SSD)",
+                )
+                normalized = NormalizedPlanRow(
+                    plan_name=plan.name, provider_tier_raw="standard", region="ir-iran",
+                    vcpu=int(Decimal(plan.vcpu)), ram_gb=Decimal(plan.ram_gb),
+                    disk_gb=Decimal(plan.disk_gb), disk_type=None,
+                    price_value=Decimal(plan.monthly_toman), currency="toman",
+                    price_in_toman=comparable, billing_period="monthly",
+                    pricing_type="fixed_bundle", plan_url=source.url,
+                    validation_status="valid", validation_issues=[],
+                )
+                repo.record_observation(run_id, offering_id, raw, normalized)
+                recorded += 1
+
+            repo.finish_run(
+                run_id, "success", http_status=fetch_result.http_status,
+                content_hash=content_hash, extractor_config_hash=config_hash,
+                evidence_path=str(evidence_dir), model=_current_model(),
+                schema_version=SCHEMA_VERSION,
+            )
+            outcome.status = "success"
+            outcome.observations = recorded
+            outcome.detail = {"plans_stored": recorded, "ipv4_monthly": ipv4_monthly}
+            return outcome
 
         # Rate-table-only sources (no published VM bundles, e.g. Kubit):
         # store rates and finish; no LLM call, no bundle observations.
