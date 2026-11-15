@@ -7,6 +7,7 @@ Credentials never live in these files.
 from __future__ import annotations
 
 from pathlib import Path
+from decimal import Decimal
 from typing import Any, Literal
 
 import yaml
@@ -130,3 +131,29 @@ def load_tiers(config_dir: Path = CONFIG_DIR) -> TiersFile:
 
 def load_benchmarks(config_dir: Path = CONFIG_DIR) -> BenchmarksFile:
     return BenchmarksFile(**_load_yaml(config_dir / "benchmarks.yaml"))
+
+
+class QuoteTarget(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    label: str
+    cpu: int = Field(ge=1)
+    ram: int = Field(ge=1)
+    disk: int = Field(ge=1)
+
+
+class AnalystProviderFacts(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    ipv4_monthly_toman: Decimal | None = None
+    monthly_discount: Decimal = Decimal("1")
+    month_days: int = Field(default=30, ge=1)
+    quotes: list[QuoteTarget] = Field(default_factory=list)
+
+
+def load_analyst_facts(config_dir: Path = CONFIG_DIR) -> dict[str, AnalystProviderFacts]:
+    path = config_dir / "analyst_facts.yaml"
+    if not path.exists():
+        return {}
+    data = _load_yaml(path)
+    return {slug: AnalystProviderFacts(**cfg) for slug, cfg in data.items()}

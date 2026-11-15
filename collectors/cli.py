@@ -24,11 +24,12 @@ load_dotenv(ROOT / ".env")
 if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
     sys.stdout.reconfigure(encoding="utf-8")
 
-from config.loader import load_providers  # noqa: E402
+from config.loader import load_analyst_facts, load_providers  # noqa: E402
 from collectors.arvan_clean import clean_page  # noqa: E402
 from collectors.arvan_rates import parse_rates  # noqa: E402
 from collectors.kubit_clean import clean_kubit  # noqa: E402
 from collectors.kubit_rates import parse_kubit_rates  # noqa: E402
+from collectors.parspack_quotes import run_parspack_quotes  # noqa: E402
 from collectors.pipeline import fetch_source, run_collection  # noqa: E402
 from comparison.rate_check import load_rate_mappings  # noqa: E402
 from extractors.llm import LLMClient  # noqa: E402
@@ -63,21 +64,32 @@ def main() -> int:
                     if not source.enabled or (args.source and source.id != args.source):
                         continue
                     print(f"--- collecting {source.id} ---")
-                    collection = PROVIDER_COLLECTION.get(
-                        provider.slug, {"cleaner": clean_page, "rates_parser": None}
-                    )
-                    outcome = run_collection(
-                        provider=provider,
-                        source=source,
-                        repo=repository,
-                        llm_factory=LLMClient,
-                        fetcher=fetch_source,
-                        cleaner=collection["cleaner"],
-                        force=args.force,
-                        rates_parser=collection["rates_parser"],
-                        rate_mappings=rate_mappings,
-                        bundle_extraction=source.navigation.get("bundle_extraction", True),
-                    )
+                    if provider.slug == "parspack":
+                        # configurable-quote provider: drive the calculator
+                        outcome = run_parspack_quotes(
+                            provider=provider,
+                            source=source,
+                            repo=repository,
+                            facts=load_analyst_facts()["parspack"],
+                            evidence_root=ROOT / "evidence",
+                            force=args.force,
+                        )
+                    else:
+                        collection = PROVIDER_COLLECTION.get(
+                            provider.slug, {"cleaner": clean_page, "rates_parser": None}
+                        )
+                        outcome = run_collection(
+                            provider=provider,
+                            source=source,
+                            repo=repository,
+                            llm_factory=LLMClient,
+                            fetcher=fetch_source,
+                            cleaner=collection["cleaner"],
+                            force=args.force,
+                            rates_parser=collection["rates_parser"],
+                            rate_mappings=rate_mappings,
+                            bundle_extraction=source.navigation.get("bundle_extraction", True),
+                        )
                     print(
                         f"    status={outcome.status} skipped={outcome.skipped} "
                         f"observations={outcome.observations} suspect={outcome.suspect_rows} "

@@ -25,7 +25,15 @@ providers:
   - slug: parspack
     name: ParsPack
     official_url: https://parspack.com/
-    sources: []   # calculator behavior pending verification
+    sources:
+      - id: parspack_vm_quotes
+        service_type: vm
+        url: https://parspack.com/cloud-server
+        collection_method: playwright   # interactive calculator quotes
+        region_scope: iran
+        enabled: true
+        navigation:
+          bundle_extraction: false
 
   - slug: cloud_ir
     name: Cloud.ir

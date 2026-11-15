@@ -1,0 +1,15 @@
+# Analyst-maintained facts that cannot be scraped from provider pages.
+# Owner-approved hard numbers (2026-11-15). Review when providers change.
+
+parspack:
+  # Comparable-price adjustments for calculator quotes:
+  ipv4_monthly_toman: "150000"   # fixed monthly IPv4 price (added to quotes)
+  monthly_discount: "0.95"       # 5% discount for monthly purchase
+  month_days: 30                 # monthly estimate = daily x 30 x 0.95
+
+  # Baseline configurations to quote from the calculator (owner baselines):
+  quotes:
+    - {label: small, cpu: 1, ram: 2, disk: 20}
+    - {label: medium, cpu: 4, ram: 8, disk: 80}
+    - {label: large, cpu: 16, ram: 32, disk: 320}
+    - {label: very_large, cpu: 32, ram: 64, disk: 640}

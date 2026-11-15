@@ -22,7 +22,9 @@ from comparison.rate_check import (  # noqa: E402
     calculated_price,
     load_rate_mappings,
 )
+from config.loader import load_analyst_facts  # noqa: E402
 from config.loader import load_benchmarks, load_providers, load_tiers  # noqa: E402
+from util.format import format_toman  # noqa: E402
 from storage.repository import Repository  # noqa: E402
 from util.jalali import format_jalali  # noqa: E402
 
@@ -156,6 +158,8 @@ def build_vm_view(repo: Repository, tier: str, size_key: str) -> dict:
 
     plans = build_plan_views(repo, matcher)
     result = matcher.match_size(plans, tier, size_key)
+    facts = load_analyst_facts()
+    parspack_facts = facts.get("parspack")
 
     size = benchmarks.vm.sizes[size_key]
     view: dict = {
@@ -196,9 +200,6 @@ def build_vm_view(repo: Repository, tier: str, size_key: str) -> dict:
     primary_by_provider: dict[str, list] = {}
     for match in result.primary:
         primary_by_provider.setdefault(match.plan.provider_slug, []).append(match)
-    approximate_by_provider: dict[str, list] = {}
-    for match in result.approximate:
-        approximate_by_provider.setdefault(match.plan.provider_slug, []).append(match)
 
     def add_row(provider_slug: str, price: Decimal | None, basis: str, *,
                 plan_name: str = "", vcpu: int | None = None,
@@ -218,10 +219,14 @@ def build_vm_view(repo: Repository, tier: str, size_key: str) -> dict:
         if slug in primary_by_provider:
             for match in primary_by_provider[slug]:
                 p = match.plan
+                notes = []
+                if slug == "parspack" and parspack_facts is not None:
+                    notes.append(_parspack_adjustment_note(parspack_facts))
                 add_row(
                     slug, p.price_in_toman, "published", plan_name=p.plan_name,
                     vcpu=p.vcpu, ram_gb=p.ram_gb, disk_gb=p.disk_gb,
                     observed_at=p.observed_at, offering_id=_offering_id(repo, slug, p),
+                    notes=notes,
                 )
             continue
 
@@ -255,16 +260,24 @@ def build_vm_view(repo: Repository, tier: str, size_key: str) -> dict:
             )
             continue
 
-        # 3) No rates available: nearest larger published bundle, marked approximate
-        if slug in approximate_by_provider:
-            for match in approximate_by_provider[slug]:
-                p = match.plan
-                add_row(
-                    slug, p.price_in_toman, "approximate", plan_name=p.plan_name,
-                    vcpu=p.vcpu, ram_gb=p.ram_gb, disk_gb=p.disk_gb,
-                    observed_at=p.observed_at, offering_id=_offering_id(repo, slug, p),
-                    notes=["بسته‌ی بزرگ‌تر از مرجع؛ به‌عنوان تقریبی نمایش داده می‌شود"],
-                )
+        # 3) No rates available: exact-CPU/RAM near misses (disk differs), then
+        #    nearest larger published bundles — both shown as تقریبی.
+        near_miss = next((m for m in result.near_miss if m.plan.provider_slug == slug), None)
+        approximate = next((m for m in result.approximate if m.plan.provider_slug == slug), None)
+        match = near_miss or approximate
+        if match is not None:
+            p = match.plan
+            notes = []
+            if match.match_type == "approximate":
+                notes.append("بسته‌ی بزرگ‌تر از مرجع؛ به‌عنوان تقریبی نمایش داده می‌شود")
+            if slug == "parspack" and parspack_facts is not None:
+                notes.append(_parspack_adjustment_note(parspack_facts))
+            add_row(
+                slug, p.price_in_toman, "approximate", plan_name=p.plan_name,
+                vcpu=p.vcpu, ram_gb=p.ram_gb, disk_gb=p.disk_gb,
+                observed_at=p.observed_at, offering_id=_offering_id(repo, slug, p),
+                notes=notes,
+            )
             continue
 
         # 4) Collected but nothing usable for this size
@@ -288,6 +301,18 @@ def _offering_id(repo: Repository, slug: str, plan: PlanView) -> int | None:
         (slug, plan.plan_name, plan.region),
     ).fetchone()
     return int(row["id"]) if row else None
+
+
+def _parspack_adjustment_note(facts) -> str:
+    """Owner-approved adjustments applied to ParsPack calculator quotes."""
+    discount_percent = int(round((1 - facts.monthly_discount) * 100))
+    ipv4 = format_toman(facts.ipv4_monthly_toman) if facts.ipv4_monthly_toman else None
+    parts = []
+    if ipv4:
+        parts.append(f"شامل IPv4 ({ipv4} در ماه)")
+    if discount_percent:
+        parts.append(f"{discount_percent}٪ تخفیف خرید ماهانه")
+    return "؛ ".join(parts) if parts else ""
 
 
 def build_status_view(repo: Repository) -> dict:

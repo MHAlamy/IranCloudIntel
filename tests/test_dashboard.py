@@ -89,20 +89,33 @@ def test_vm_foreign_region_plans_hidden_by_default(client_tuple):
 
 
 def test_vm_calculated_discount_note_only_on_economy(client_tuple):
-    """The note tracks the provider's actual factor: Arvan economy (0.7) has it,
-    Arvan standard/premium (1.0) and Kubit economy (1.0) do not."""
+    """The 30% eco-discount assumption note tracks Arvan's factor only;
+    ParsPack's separate 5% monthly-discount note may legitimately appear."""
     client, _ = client_tuple
     arvan_economy = client.get("/vm?tier=economy&size=medium").text
     arvan_standard = client.get("/vm?tier=standard&size=medium").text
     arvan_premium = client.get("/vm?tier=premium&size=medium").text
-    assert "تخفیف" in arvan_economy            # Arvan economy factor 0.7
-    assert "تخفیف" not in arvan_standard       # factor 1.0
-    assert "تخفیف" not in arvan_premium        # factor 1.0
+    assert "تخفیف ۳۰٪" in arvan_economy        # Arvan economy factor 0.7
+    assert "تخفیف ۳۰٪" not in arvan_standard   # factor 1.0
+    assert "تخفیف ۳۰٪" not in arvan_premium    # factor 1.0
 
     # Kubit uses full published rates (factor 1.0) even in economy tier
     kubit_economy = client.get("/vm?tier=economy&size=small").text
     kubit_section = kubit_economy.split("Kubit", 1)[-1]
     assert "تخفیف" not in kubit_section
+
+
+def test_parspack_rows_present_with_adjustment_note(client_tuple):
+    client, _ = client_tuple
+    fa = lambda n: f"{n:,}".replace(",", "٬").translate(str.maketrans("0123456789", "۰۱۲۳۴۵۶۷۸۹"))
+    standard = client.get("/vm?tier=standard&size=medium").text
+    # Medium quote is an exact baseline config -> published basis + adjustment note
+    assert "ParsPack" in standard
+    assert fa(3408120) in standard  # 3,408,120 monthly (incl. IPv4, 5% discount)
+    assert "شامل" in standard and "تخفیف خرید ماهانه" in standard
+    # Small: near-miss quote (1/2/25) -> تقریبی with the same note
+    small = client.get("/vm?tier=standard&size=small").text
+    assert fa(1227300) in small  # 1,227,300
 
 
 def test_plan_detail_shows_history_and_verification(client_tuple):

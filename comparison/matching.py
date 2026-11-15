@@ -56,7 +56,8 @@ class Match:
 class SizeMatchResult:
     tier: str
     size_key: str
-    primary: list[Match] = field(default_factory=list)       # ranked cheapest-first
+    primary: list[Match] = field(default_factory=list)       # exact CPU/RAM/disk
+    near_miss: list[Match] = field(default_factory=list)     # exact CPU/RAM, disk differs
     approximate: list[Match] = field(default_factory=list)   # nearest larger, per provider
     review_flags: list[str] = field(default_factory=list)
     no_match_reasons: list[str] = field(default_factory=list)
@@ -132,6 +133,16 @@ class VMMatcher:
         for plan in exact:
             result.primary.append(Match(plan=plan, match_type="exact"))
         result.primary.sort(key=lambda m: m.plan.price_in_toman)
+
+        # Near misses: exact CPU/RAM but different disk (shown as تقریبی only
+        # when the provider has no calculated-price capability — app decides).
+        near_miss_plans = [
+            p for p in scoped
+            if p.vcpu == target_vcpu and p.ram_gb == target_ram and p.disk_gb != target_disk
+        ]
+        for plan in near_miss_plans:
+            result.near_miss.append(Match(plan=plan, match_type="near_miss"))
+        result.near_miss.sort(key=lambda m: m.plan.price_in_toman)
 
         if not result.primary:
             larger = [p for p in scoped if p.vcpu > target_vcpu or p.ram_gb > target_ram]

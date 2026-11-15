@@ -87,3 +87,36 @@ def _seed(repo: Repository) -> None:
     kubit_run = repo.start_run(kubit_source)
     repo.finish_run(kubit_run, "success", model="", prompt_tokens=0, completion_tokens=0)
     repo.record_rates(kubit_run, kubit, kubit_rates)
+
+    # ParsPack: calculator quotes for the baseline configs (monthly comparable
+    # prices incl. 150,000 IPv4 and 5% monthly discount, per analyst facts)
+    parspack = repo.ensure_provider("parspack", "ParsPack", "https://parspack.com/")
+    parspack_source = repo.ensure_source(
+        parspack, "vm", "https://parspack.com/cloud-server", "playwright"
+    )
+    parspack_run = repo.start_run(parspack_source)
+    repo.finish_run(parspack_run, "success", model="", prompt_tokens=0, completion_tokens=0)
+    parspack_quotes = [
+        ("1vCPU-2GB-25GB", 1, 2, 25, "1227300"),
+        ("4vCPU-8GB-80GB", 4, 8, 80, "3408120"),
+        ("16vCPU-32GB-300GB", 16, 32, 300, "12648810"),
+        ("32vCPU-64GB-300GB", 32, 64, 300, "24349065"),
+    ]
+    for plan_name, vcpu, ram, disk, monthly in parspack_quotes:
+        offering = repo.ensure_offering(
+            parspack, "vm", plan_name, product_family="calculator_quote",
+            provider_tier_raw="standard", region="ir-tehran11",
+        )
+        raw = LLMPlanRow(
+            plan_name=plan_name, provider_tier_raw="standard", region="ir-tehran11",
+            vcpu=vcpu, ram_gb=float(ram), disk_gb=float(disk), disk_type=None,
+            price_raw="۱", currency_raw="تومان", billing_period_raw="روزانه", evidence="e",
+        )
+        normalized = NormalizedPlanRow(
+            plan_name=plan_name, provider_tier_raw="standard", region="ir-tehran11",
+            vcpu=vcpu, ram_gb=Decimal(ram), disk_gb=Decimal(disk), disk_type=None,
+            price_value=Decimal(monthly), currency="toman", price_in_toman=Decimal(monthly),
+            billing_period="monthly", pricing_type="configurable_quote",
+            validation_status="valid", validation_issues=[],
+        )
+        repo.record_observation(parspack_run, offering, raw, normalized, evidence="e")

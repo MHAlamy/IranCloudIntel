@@ -11,6 +11,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from collectors.kubit_rates import parse_kubit_rates  # noqa: E402
+from config.loader import load_analyst_facts
 from comparison.rate_check import load_rate_mappings  # noqa: E402
 from config.loader import ProviderConfig, SourceConfig  # noqa: E402
 from extractors.llm import LLMClient  # noqa: E402
@@ -104,6 +105,75 @@ def test_pipeline_rates_only_source_no_llm(tmp_path):
     assert outcome.status == "success"
     assert outcome.detail.get("rates_stored") == 9
     assert llm_calls == []  # rates-only: LLM never called
+
+
+def test_near_miss_exact_cpu_ram_shows_as_approximate():
+    """Providers without rates (e.g. ParsPack quotes): exact CPU/RAM with a
+    different disk is a near miss — shown as تقریبی by the app layer."""
+    from comparison.matching import VMMatcher
+    from config.loader import load_benchmarks, load_tiers
+
+    matcher = VMMatcher(load_benchmarks(), load_tiers())
+
+    def plan(name, tier_raw, region, vcpu, ram, disk, price):
+        from decimal import Decimal as D
+
+        from comparison.matching import PlanView
+
+        return PlanView(
+            provider_slug="parspack", plan_name=name,
+            tier=matcher.normalize_tier("parspack", tier_raw),
+            region=region, vcpu=vcpu, ram_gb=D(ram), disk_gb=D(disk),
+            price_in_toman=D(price), observed_at="2026-11-15T12:00:00+00:00",
+            validation_status="valid",
+        )
+    quotes = [
+        plan("4vCPU-8GB-80GB", "standard", "ir-tehran11", 4, 8, 80, 3408120),
+        plan("1vCPU-2GB-25GB", "standard", "ir-tehran11", 1, 2, 25, 1227300),
+        plan("16vCPU-32GB-300GB", "standard", "ir-tehran11", 16, 32, 300, 12648810),
+        plan("32vCPU-64GB-300GB", "standard", "ir-tehran11", 32, 64, 300, 24349065),
+    ]
+    # Medium: exact baseline bundle -> primary
+    medium = matcher.match_size(quotes, "standard", "medium")
+    assert [m.plan.plan_name for m in medium.primary] == ["4vCPU-8GB-80GB"]
+    # Small: 1/2/25 is a near miss (disk +5)
+    small = matcher.match_size(quotes, "standard", "small")
+    assert small.primary == []
+    assert [m.plan.plan_name for m in small.near_miss] == ["1vCPU-2GB-25GB"]
+    # VeryLarge (32/64/640): 32/64/300 has exact CPU/RAM, disk differs -> near miss
+    very_large = matcher.match_size(quotes, "standard", "very_large")
+    assert very_large.primary == []
+    assert [m.plan.plan_name for m in very_large.near_miss] == ["32vCPU-64GB-300GB"]
+
+
+def test_parspack_monthly_computation():
+    from collectors.parspack_quotes import compute_monthly
+    from config.loader import load_analyst_facts
+
+    facts = load_analyst_facts()["parspack"]
+    # Medium daily 114,320 -> x30 x0.95 = 3,258,120 + 150,000 IPv4 = 3,408,120
+    assert compute_monthly(Decimal("114320"), facts) == Decimal("3408120")
+    # Small daily 37,800 -> 1,077,300 + 150,000 = 1,227,300
+    assert compute_monthly(Decimal("37800"), facts) == Decimal("1227300")
+
+
+def test_parspack_slider_positions():
+    from collectors.parspack_quotes import (
+        nearest_cpu_position, nearest_disk_position, nearest_ram_position,
+    )
+    assert nearest_ram_position(8) == 2 and nearest_ram_position(64) == 5
+    assert nearest_disk_position(80) == 11 and nearest_disk_position(20) == 0
+    assert nearest_disk_position(320) == 59  # clamped by caller / actual read back
+    assert nearest_cpu_position(4) == 3 and nearest_cpu_position(32) == 16
+    assert nearest_cpu_position(16) == 15
+
+
+def test_analyst_facts_load():
+    facts = load_analyst_facts()["parspack"]
+    assert facts.ipv4_monthly_toman == Decimal("150000")
+    assert facts.monthly_discount == Decimal("0.95")
+    assert facts.month_days == 30
+    assert [q.label for q in facts.quotes] == ["small", "medium", "large", "very_large"]
 
 
 def test_dashboard_reflects_kubit(client_tuple):
