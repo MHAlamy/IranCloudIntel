@@ -7,15 +7,6 @@
   <p class="muted">مقایسه بر پایه‌ی پلن‌های منتشرشده‌ی {{ view.baseline_name }} (مبنا) · همه‌ی قیمت‌ها به تومان در ماه · هزینه‌ی درخواست‌ها مستثنی است</p>
 </section>
 
-{% if view.review_flags %}
-<section class="banner banner-warning">
-  <strong>نکته:</strong>
-  <ul>
-    {% for flag in view.review_flags %}<li>{{ flag }}</li>{% endfor %}
-  </ul>
-</section>
-{% endif %}
-
 {% include 'os_comparison.html' %}
 
 {% for section in view.provider_sections %}

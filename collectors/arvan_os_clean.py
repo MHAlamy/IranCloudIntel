@@ -6,9 +6,9 @@ an FAQ. The LLM receives only the plans region — from the 'قیمت فضای �
 heading to just before 'مصرف مازاد' — so extraction stays focused and the
 deterministic rate parser (arvan_os_rates.py) owns the PAYG tables.
 
-The PAYG/FAQ region is deliberately excluded: the FAQ states overage figures
-that contradict the rate table, and the LLM must not arbitrate between them
-(review-only per the project rules).
+The PAYG/FAQ region is deliberately excluded: the deterministic rate parser
+owns the tariff table, and the marketing FAQ is not collected at all (owner
+decision 2026-11-16: the rate table is authoritative).
 """
 
 from __future__ import annotations

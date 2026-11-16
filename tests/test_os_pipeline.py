@@ -16,7 +16,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from collectors.arvan_os_clean import build_os_cleaned_markdown  # noqa: E402
 from collectors.arvan_os_rates import (  # noqa: E402
     crosscheck_arvan_os_plans,
-    parse_faq_overage,
     parse_os_rates,
 )
 from collectors.hamravesh_os import build_hamravesh_os_markdown, parse_hamravesh_os_plans  # noqa: E402
@@ -148,28 +147,24 @@ def test_arvan_os_collection_with_mocked_llm(repo, tmp_path):
     def fetcher(source):
         return FetchResult(html=ARVAN_HTML, http_status=200, final_url=source.url)
 
-    def rates_parser(html):
-        return parse_os_rates(html) + parse_faq_overage(html)
-
     outcome = run_os_collection(
         provider, provider.sources[0], repo,
         fetcher=fetcher, cleaner=build_os_cleaned_markdown,
         llm_factory=lambda: FakeLLM(ARVAN_LLM_ROWS),
-        os_rates_parser=rates_parser,
+        os_rates_parser=parse_os_rates,
         os_crosscheck=crosscheck_arvan_os_plans,
         evidence_root=tmp_path,
     )
     assert outcome.status == "success" and outcome.error is None, outcome.error
     assert outcome.observations == 4
     assert outcome.prompt_tokens == 100 and outcome.completion_tokens == 50
-    assert outcome.detail["rates_stored"] > 40  # storage/read/write/traffic/feature/FAQ rows
+    assert outcome.detail["rates_stored"] > 30  # storage/read/write/traffic/feature rows
 
     rates = repo.latest_os_rates(repo._connection.execute(
         "SELECT id FROM providers WHERE slug='arvan'").fetchone()["id"])
     storage = {r["range_max_gb"]: r for r in rates if r["category"] == "storage"}
     assert Decimal(storage["5120"]["amount_toman"]) == 3600
-    faq = [r for r in rates if r["category"] == "faq_overage"]
-    assert len(faq) == 2
+    assert not [r for r in rates if r["category"] == "faq_overage"]
 
     rows = {r["plan_name"]: r for r in repo.latest_os_observations()}
     assert Decimal(rows["رشد"]["price_in_toman"]) == 1800000

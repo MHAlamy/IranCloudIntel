@@ -37,3 +37,33 @@ def test_atomic_publication_failure_recheck_and_recovery(tmp_path):
     repo.publish_run(empty, 'failed', error='empty')
     reader.close()
     repo.close()
+
+
+def os_rate(category='storage', tier_label='استاندارد',
+            range_label='۵ گیگابایت تا ۵ ترابایت', amount_toman='3600'):
+    return SimpleNamespace(
+        category=category, region='iran', unit='هر گیگابایت',
+        tier_label=tier_label, range_label=range_label,
+        range_min_gb='5', range_max_gb='5120',
+        amount_toman=amount_toman, is_free=False, evidence='fixture',
+    )
+
+
+def test_retired_review_only_os_rates_do_not_block_publication(tmp_path):
+    """Dropping a review-only category (Arvan FAQ) is not a partial publication."""
+    repo = Repository(tmp_path / 'os_rates.db')
+    provider = repo.ensure_provider('arvan', 'ArvanCloud', 'https://www.arvancloud.ir/')
+    source = repo.ensure_source(
+        provider, 'object_storage',
+        'https://www.arvancloud.ir/fa/pricing/cloud-storage', 'playwright',
+    )
+    first = repo.start_run(source)
+    repo.record_os_rates(first, provider, [
+        os_rate(),
+        os_rate('faq_overage', 'فضای ذخیره‌سازی', 'مصرف مازاد (طبق پرسش‌های رایج)', '1400'),
+    ])
+    repo.publish_run(first, 'success', content_hash='first')
+    second = repo.start_run(source)
+    repo.record_os_rates(second, provider, [os_rate()])
+    repo.publish_run(second, 'success', content_hash='second')  # must not raise
+    repo.close()

@@ -1,8 +1,8 @@
 """Dashboard tests for the Object Storage view (/object-storage).
 
 Seeds a real database through the repository API (no LLM), then asserts the
-scenario comparison table, basis badges, rate tables and the deterministic
-review flag for Arvan's FAQ-vs-rate-table inconsistency.
+scenario comparison table, basis badges and the PAYG rate tables. Arvan's
+marketing FAQ is not collected: the rate table is the only tariff basis.
 """
 
 import sys
@@ -15,7 +15,7 @@ from fastapi.testclient import TestClient
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from app.main import create_app  # noqa: E402
-from collectors.arvan_os_rates import parse_faq_overage, parse_os_rates  # noqa: E402
+from collectors.arvan_os_rates import parse_os_rates  # noqa: E402
 from collectors.hamravesh_os import parse_hamravesh_os_plans  # noqa: E402
 from collectors.kubit_os import parse_kubit_os_rates  # noqa: E402
 from extractors.os_schema import LLMStoragePlanRow  # noqa: E402
@@ -75,14 +75,13 @@ def _seed(repo: Repository) -> None:
             overage_traffic_toman_gb=_overage_toman(plan.overage_traffic_raw),
         )
 
-    # Arvan: PAYG rates + FAQ rows from fixtures; plans recorded directly
+    # Arvan: PAYG rate table from fixture; plans recorded directly
     run = repo.start_run(repo.ensure_source(
         arvan, "object_storage", "https://www.arvancloud.ir/fa/pricing/cloud-storage", "playwright"
     ))
     repo.finish_run(run, "success")
     rates_html = (FIXTURES / "arvan_os_payg.html").read_text(encoding="utf-8")
-    faq_html = (FIXTURES / "arvan_os_faq.html").read_text(encoding="utf-8")
-    repo.record_os_rates(run, arvan, parse_os_rates(rates_html) + parse_faq_overage(faq_html))
+    repo.record_os_rates(run, arvan, parse_os_rates(rates_html))
 
     arvan_plans = [
         ("پایه", "رایگان", "۵ گیگابایت", "۲۰ گیگابایت", None, "۱۰٬۰۰۰"),
@@ -211,11 +210,11 @@ def test_os_scenario_prices_and_bases(os_client):
     assert "تقریبی" in text
 
 
-def test_os_review_flag_for_faq_divergence(os_client):
-    """Arvan's FAQ overage figures (1,400/850) contradict its rate table."""
+def test_os_page_has_no_faq_divergence_banner(os_client):
+    """The marketing FAQ is not collected; the rate table is authoritative."""
     text = os_client.get("/object-storage").text
-    assert "ناهمخوان" in text
-    assert fa(1400) in text
+    assert "ناهمخوان" not in text
+    assert "پرسش‌های رایج" not in text
 
 
 def test_os_provider_plan_tables(os_client):

@@ -39,6 +39,10 @@
   unless using Uvicorn `--reload`; do not start another server on the same port.
 - Provider-site compatibility of revised waits still requires an explicitly
   authorized live check. Local browser smoke tests do not establish that.
+- Arvan's marketing FAQ overage figures are no longer collected (owner decision
+  2026-11-16: the published rate table is authoritative). Historical
+  `faq_overage` rows remain append-only in existing databases but are ignored by
+  the view and the publication completeness gate.
 
 Item 4 validation: 177 non-browser tests passed, plus 2 synthetic local browser tests (no provider requests).
 

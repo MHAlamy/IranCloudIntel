@@ -17,6 +17,14 @@ from pathlib import Path
 from extractors.schema import LLMPlanRow, NormalizedPlanRow
 from storage.db import connect, init_db, utc_now_iso
 
+# Rate categories stored only as analyst-review artefacts, never as prices.
+# Retiring one (the Arvan FAQ rows stopped on 2026-11-16) must not make a
+# later complete collection look like a partial publication.
+REVIEW_ONLY_OS_RATE_CATEGORIES = ("faq_overage",)
+_REVIEW_ONLY_OS_RATE_SQL = "(" + ", ".join(
+    f"'{category}'" for category in REVIEW_ONLY_OS_RATE_CATEGORIES
+) + ")"
+
 
 class Repository:
     def __init__(self, db_path: str | Path):
@@ -93,15 +101,37 @@ class Repository:
     def _check_publication(self, run_id: int, content_hash: str | None) -> None:
         source = self._connection.execute('SELECT source_id FROM collection_runs WHERE id=?', (run_id,)).fetchone()[0]
         previous = self._connection.execute("SELECT id, content_hash FROM collection_runs WHERE source_id=? AND status='success' ORDER BY id DESC LIMIT 1", (source,)).fetchone()
-        count = sum(self._connection.execute(f'SELECT COUNT(*) FROM main.{t} WHERE run_id=?', (run_id,)).fetchone()[0] for t in ('price_observations','os_observations','resource_rates','os_rates'))
+        count = sum(
+            self._connection.execute(f'SELECT COUNT(*) FROM main.{t} WHERE run_id=?', (run_id,)).fetchone()[0]
+            for t in ('price_observations', 'os_observations', 'resource_rates')
+        ) + self._connection.execute(
+            f'SELECT COUNT(*) FROM main.os_rates WHERE run_id=? AND category NOT IN {_REVIEW_ONLY_OS_RATE_SQL}',
+            (run_id,),
+        ).fetchone()[0]
         if not count:
             if previous and content_hash and previous['content_hash'] == content_hash:
                 return  # successful unchanged recheck
             raise ValueError('empty collection cannot be published')
         # Missing previously accepted identities require review, not silent partial publication.
-        for table, key in (('price_observations','offering_id'), ('os_observations','offering_id'), ('resource_rates',"category || ':' || unit || ':' || tier_label || ':' || region"), ('os_rates',"category || ':' || unit || ':' || tier_label || ':' || range_label || ':' || region")):
-            old = {r[0] for r in self._connection.execute(f"SELECT {key} FROM main.{table} WHERE run_id IN (SELECT id FROM collection_runs WHERE source_id=? AND status='success')", (source,))}
-            new = {r[0] for r in self._connection.execute(f'SELECT {key} FROM main.{table} WHERE run_id=?', (run_id,))}
+        checks = (
+            ('price_observations', 'offering_id', ''),
+            ('os_observations', 'offering_id', ''),
+            ('resource_rates', "category || ':' || unit || ':' || tier_label || ':' || region", ''),
+            (
+                'os_rates',
+                "category || ':' || unit || ':' || tier_label || ':' || range_label || ':' || region",
+                f" AND category NOT IN {_REVIEW_ONLY_OS_RATE_SQL}",
+            ),
+        )
+        for table, key, extra in checks:
+            old = {r[0] for r in self._connection.execute(
+                f"SELECT {key} FROM main.{table} WHERE run_id IN "
+                f"(SELECT id FROM collection_runs WHERE source_id=? AND status='success'){extra}",
+                (source,),
+            )}
+            new = {r[0] for r in self._connection.execute(
+                f'SELECT {key} FROM main.{table} WHERE run_id=?{extra}', (run_id,)
+            )}
             if old - new:
                 raise ValueError(f'incomplete {table}: previously accepted identities missing; review required')
 

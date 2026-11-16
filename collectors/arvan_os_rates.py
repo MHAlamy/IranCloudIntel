@@ -7,9 +7,9 @@ Page structure (verified 2026-11-15):
   empty first cells continue the previous tier/group.
 - The plan comparison matrix is a real <table> (features × plan columns);
   plan names live in the cards above it, so columns are positional.
-- The FAQ states PAYG overage figures (1,400/GB storage, 850/GB traffic) that
-  contradict the rate table (3,600/965). Both are recorded; the dashboard
-  shows the divergence instead of silently choosing one side.
+- The marketing FAQ also mentions overage figures. It is not part of the
+  published tariff table and is intentionally not collected (owner decision
+  2026-11-16: the rate table is authoritative).
 
 Range bounds are parsed to GB only for GB-denominated categories (storage,
 traffic); request-tier ranges keep their verbatim labels (scenario math
@@ -48,7 +48,7 @@ def _category_key(label: str) -> str:
 
 @dataclass
 class OSRateRow:
-    category: str      # storage | traffic_download | requests_read | requests_write | feature | faq_overage
+    category: str      # storage | traffic_download | requests_read | requests_write | feature
     unit: str
     tier_label: str
     range_label: str
@@ -176,36 +176,6 @@ def _make_row(
         is_free=is_free,
         evidence=f"{category}/{tier or '-'}/{range_label or '-'}: {amount_text}",
     )
-
-
-def parse_faq_overage(page_html: str) -> list[OSRateRow]:
-    """The FAQ's PAYG sentence, recorded verbatim for divergence review."""
-    soup = BeautifulSoup(page_html, "html.parser")
-    node = soup.find(string=lambda s: s and "مصرف مازاد" in s and "به‌ازای هر گیگابایت" in s)
-    if node is None:
-        return []
-    text = to_latin_digits(node)
-    rows: list[OSRateRow] = []
-    for label, pattern in (
-        ("فضای ذخیره‌سازی", r"ذخیره‌سازی\s*([\d,]+)\s*تومان"),
-        ("ترافیک", r"ترافیک\s*([\d,]+)\s*تومان"),
-    ):
-        match = re.search(pattern, text)
-        if match:
-            rows.append(
-                OSRateRow(
-                    category="faq_overage",
-                    unit="هر گیگابایت",
-                    tier_label=label,
-                    range_label="مصرف مازاد (طبق پرسش‌های رایج)",
-                    range_min_gb=None,
-                    range_max_gb=None,
-                    amount_toman=str(Decimal(match.group(1).replace(",", ""))),
-                    is_free=False,
-                    evidence=f"FAQ: {match.group(0)}",
-                )
-            )
-    return rows
 
 
 def parse_os_plan_matrix(page_html: str) -> dict[str, list[str]]:

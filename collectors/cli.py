@@ -28,7 +28,6 @@ from collectors.arvan_clean import clean_page  # noqa: E402
 from collectors.arvan_os_clean import build_os_cleaned_markdown  # noqa: E402
 from collectors.arvan_os_rates import (  # noqa: E402
     crosscheck_arvan_os_plans,
-    parse_faq_overage,
     parse_os_rates,
 )
 from collectors.arvan_rates import parse_rates  # noqa: E402
@@ -58,7 +57,7 @@ OS_COLLECTION = {
     "arvan": {
         "cleaner": build_os_cleaned_markdown,
         "os_plans_parser": None,        # plan cards via LLM
-        "os_rates_parser": lambda html: parse_os_rates(html) + parse_faq_overage(html),
+        "os_rates_parser": parse_os_rates,
         "os_crosscheck": lambda html, pairs: crosscheck_arvan_os_plans(
             html, [(raw, norm) for raw, norm in pairs]
         ),

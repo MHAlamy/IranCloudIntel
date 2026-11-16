@@ -61,8 +61,9 @@ amounts are in `benchmarks.yaml`, not duplicated here. Prefer an exact published
 bundle, then documented PAYG calculation, then exact storage-only quote, then
 nearest larger quote with actual capacity and an approximation label.
 These are subtotals: requests and tax are excluded; unknown extra charges are not
-zero. Arvan PAYG period is assumed monthly; FAQ/rate-table contradictions remain
-flagged. Kubit uses egress outside location as the explicitly provisional traffic
+zero. Arvan PAYG period is assumed monthly; the published rate table is the
+authoritative tariff and the marketing FAQ is not collected (owner decision
+2026-11-16). Kubit uses egress outside location as the explicitly provisional traffic
 analog. ParsPack HDD/Iran/one-month quotes omit traffic and are not complete totals.
 Only progressive tariffs are implemented: contiguous, nonoverlapping intervals,
 known nonnegative rates and coverage of usage are required. Volume tariffs need

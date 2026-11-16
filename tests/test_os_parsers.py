@@ -11,7 +11,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from collectors.arvan_os_rates import (  # noqa: E402
     crosscheck_arvan_os_plans,
-    parse_faq_overage,
     parse_gb_bounds,
     parse_os_plan_matrix,
     parse_os_rates,
@@ -146,14 +145,6 @@ def test_arvan_traffic_tiers(arvan_rates):
 def test_arvan_feature_rates(arvan_rates):
     features = {r.tier_label: r.amount_toman for r in arvan_rates if r.category == "feature"}
     assert features == {"نقطه دسترسی": "96", "آنتی ویروس": "11250"}
-
-
-def test_arvan_faq_overage_rows_recorded():
-    html = (FIXTURES / "arvan_os_faq.html").read_text(encoding="utf-8")
-    rows = parse_faq_overage(html)
-    by_label = {r.tier_label: r.amount_toman for r in rows}
-    assert by_label == {"فضای ذخیره‌سازی": "1400", "ترافیک": "850"}
-    assert all(r.category == "faq_overage" for r in rows)
 
 
 # -- plan matrix + cross-check ------------------------------------------------

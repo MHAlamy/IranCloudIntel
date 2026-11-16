@@ -136,31 +136,6 @@ def build_os_view(repo: Repository, scenario_key: str | None = None) -> dict:
             if rates:
                 rates_by_provider[slug] = rates
 
-    arvan_rates = rates_by_provider.get("arvan", [])
-
-    review_flags: list[str] = []
-    # deterministic divergence check: FAQ overage figures vs the rate table
-    faq = {r["tier_label"]: Decimal(r["amount_toman"]) for r in arvan_rates if r["category"] == "faq_overage"}
-    table_storage = [
-        Decimal(r["amount_toman"]) for r in arvan_rates
-        if r["category"] == "storage" and "استاندارد" in r["tier_label"]
-        and not r["is_free"] and r["amount_toman"]
-    ]
-    table_traffic = [
-        Decimal(r["amount_toman"]) for r in arvan_rates
-        if r["category"] == "traffic" and not r["is_free"] and r["amount_toman"]
-    ]
-    if faq.get("فضای ذخیره‌سازی") and table_storage and faq["فضای ذخیره‌سازی"] != min(table_storage):
-        review_flags.append(
-            f"نرخ مصرف مازاد ذخیره‌سازی در پرسش‌های رایج ({format_toman(faq['فضای ذخیره‌سازی'], False)}) "
-            f"با جدول نرخ‌ها ({format_toman(min(table_storage), False)}) ناهمخوان است — نیازمند بررسی"
-        )
-    if faq.get("ترافیک") and table_traffic and faq["ترافیک"] != min(table_traffic):
-        review_flags.append(
-            f"نرخ مصرف مازاد ترافیک در پرسش‌های رایج ({format_toman(faq['ترافیک'], False)}) "
-            f"با جدول نرخ‌ها ({format_toman(min(table_traffic), False)}) ناهمخوان است — نیازمند بررسی"
-        )
-
     def plan_public_row(row) -> dict:
         return {
             "plan_name": row["plan_name"],
@@ -338,7 +313,6 @@ def build_os_view(repo: Repository, scenario_key: str | None = None) -> dict:
         "chart": chart,
         "provider_sections": provider_sections,
         "rate_sections": rate_sections,
-        "review_flags": review_flags,
         "baseline_name": provider_names.get(baseline_slug, baseline_slug),
     }
 
