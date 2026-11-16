@@ -19,12 +19,15 @@ PROVIDER_NOTES = {
     "liara": "پلن منتشرشده‌ی لیارا",
 }
 
+_FSI = "\u2068"  # first-strong isolate: keep mixed Latin/number runs LTR
+_PDI = "\u2069"  # pop directional isolate
+
 SMALL_NOTE = (
-    "ماشین‌حساب عمومی آروان ترکیب ۱ vCPU + ۲ GB را قابل انتخاب نمی‌کند؛ "
+    f"ماشین‌حساب عمومی آروان ترکیب {_FSI}۱ vCPU + ۲ GB{_PDI} را قابل انتخاب نمی‌کند؛ "
     "قیمت از نرخ‌های PAYG محاسبه شده است"
 )
 LARGE_DISK_NOTE = (
-    "حجم SSD از سقف اسلایدر ماشین‌حساب آروان (۲۰۰ GB) بیشتر است؛ "
+    f"حجم SSD از سقف اسلایدر ماشین‌حساب آروان ({_FSI}۲۰۰ GB{_PDI}) بیشتر است؛ "
     "قیمت از نرخ‌های PAYG محاسبه شده است"
 )
 
@@ -43,6 +46,7 @@ class PaasRow:
     observed_at: str
     offering_id: int | None
     notes: list[str] = field(default_factory=list)
+    plan_config: str = ""
 
 
 def _row_basis(row) -> str:
@@ -103,7 +107,9 @@ def build_paas_view(repo: Repository, selection_key: str | None = None) -> dict:
             if not provider_rows:
                 notes = ["هنوز گردآوری نشده"]
             elif slug == "liara" and selection_key == "s4":
-                notes = ["لیارا در سطح نقره‌ای پلن ۳۲ vCPU + ۶۴ GB RAM ندارد"]
+                notes = [
+                    f"لیارا در سطح نقره‌ای پلن {_FSI}۳۲ vCPU + ۶۴ GB RAM{_PDI} ندارد"
+                ]
             else:
                 notes = ["پلن منطبق برای این ترکیب یافت نشد"]
             rows.append(PaasRow(
@@ -118,6 +124,10 @@ def build_paas_view(repo: Repository, selection_key: str | None = None) -> dict:
 
         disk = Decimal(str(chosen["disk_gb"] or 0))
         tier_raw = chosen["provider_tier_raw"] or ""
+        plan_name = chosen["plan_name"]
+        plan_config = ""
+        if chosen["product_family"] == "paas_calculated" and plan_name.startswith("پیکربندی "):
+            plan_config = plan_name[len("پیکربندی "):]
         notes = _selection_notes(slug, selection_key)
         if disk != Decimal(selection.disk_gb):
             basis = "approximate"
@@ -130,7 +140,8 @@ def build_paas_view(repo: Repository, selection_key: str | None = None) -> dict:
         rows.append(PaasRow(
             provider_slug=slug,
             provider_name=provider_names.get(slug, slug),
-            plan_name=chosen["plan_name"],
+            plan_name=plan_name,
+            plan_config=plan_config,
             vcpu=int(chosen["vcpu"] or 0),
             ram_gb=Decimal(str(chosen["ram_gb"] or 0)),
             disk_gb=disk,

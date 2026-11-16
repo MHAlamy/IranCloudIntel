@@ -23,12 +23,12 @@
       <span class="selector-label">اندازه:</span>
       <div class="pills">
         {% for selection in view.selections %}
-        <a class="pill {{ 'active' if selection.key == view.selection }}" href="/paas?size={{ selection.key }}">{{ selection.label }}</a>
+        <a class="pill {{ 'active' if selection.key == view.selection }}" href="/paas?size={{ selection.key }}"><span dir="ltr">{{ selection.label }}</span></a>
         {% endfor %}
       </div>
     </div>
     <div class="target">
-      مرجع: {{ view.target.vcpu|pnum }} <span dir="ltr">vCPU</span> · {{ view.target.ram_gb|pnum }} گیگابایت رم · {{ view.target.disk_gb|pnum }} گیگابایت SSD
+      مرجع: <bdi>{{ view.target.vcpu|pnum }} vCPU</bdi> · {{ view.target.ram_gb|pnum }} گیگابایت رم · {{ view.target.disk_gb|pnum }} گیگابایت SSD
     </div>
   </section>
 
@@ -51,13 +51,13 @@
         <tr class="basis-{{ row.basis }}">
           <td data-label="تأمین‌کننده">{{ row.provider_name }}</td>
           <td data-label="پلن">
-            {% if row.offering_id %}<a href="/plan/{{ row.offering_id }}" class="plan-link">{{ row.plan_name }}</a>
-            {% else %}{{ row.plan_name }}{% endif %}
+            {% if row.offering_id %}<a href="/plan/{{ row.offering_id }}" class="plan-link">{% if row.plan_config %}پیکربندی <span dir="ltr">{{ row.plan_config }}</span>{% else %}{{ row.plan_name }}{% endif %}</a>
+            {% else %}{% if row.plan_config %}پیکربندی <span dir="ltr">{{ row.plan_config }}</span>{% else %}{{ row.plan_name }}{% endif %}{% endif %}
             {% for note in row.notes %}<div class="row-note">{{ note }}</div>{% endfor %}
             {% if row.provider_slug == 'liara' and row.provider_tier_raw %}<div class="row-note">سطح: {{ row.provider_tier_raw }}</div>{% endif %}
           </td>
           <td data-label="مشخصات">
-            {{ row.vcpu|pnum }} <span dir="ltr">vCPU</span> · {{ row.ram_gb|pnum }} گیگابایت · {{ row.disk_gb|pnum }} گیگابایت SSD
+            <bdi>{{ row.vcpu|pnum }} vCPU</bdi> · {{ row.ram_gb|pnum }} گیگابایت · {{ row.disk_gb|pnum }} گیگابایت SSD
           </td>
           <td data-label="قیمت" class="price-cell">
             {% if row.price_in_toman is not none %}{{ row.price_in_toman|toman }}{% else %}—{% endif %}

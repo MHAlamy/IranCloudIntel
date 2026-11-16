@@ -101,7 +101,9 @@ def test_paas_liara_missing_for_32_64(paas_client):
     text = paas_client.get("/paas?size=s4").text
     assert fa(48160000) in text    # Hamravesh
     assert fa(76654080) in text    # Arvan
-    assert "لیارا در سطح نقره‌ای پلن ۳۲ vCPU + ۶۴ GB RAM ندارد" in text
+    assert "لیارا در سطح نقره‌ای پلن" in text
+    assert "۳۲ vCPU + ۶۴ GB RAM" in text
+    assert "ندارد" in text
     assert fa(28000000) not in text
 
 
