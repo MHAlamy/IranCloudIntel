@@ -156,10 +156,6 @@ class VMMatcher:
                     Match(plan=plan, match_type="approximate")
                     for plan in sorted(cheapest_by_provider.values(), key=lambda p: p.price_in_toman)
                 ]
-            elif scoped:
-                result.no_match_reasons.append(
-                    f"no {tier} plan with >= {target_vcpu} vCPU / {target_ram} GB RAM in scope"
-                )
 
         if not scoped:
             if not tier_plans:

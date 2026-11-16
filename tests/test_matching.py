@@ -101,7 +101,7 @@ def test_medium_size_iran_scope_excludes_foreign_and_finds_nothing_exact(matcher
     standard = matcher.match_size(REAL_PLANS, "standard", "medium")
     assert standard.primary == []
     assert standard.approximate == []  # no standard plan is larger than 4/8 either
-    assert standard.no_match_reasons
+    assert not standard.no_match_reasons  # no diagnostic banner for a plain size miss
 
     economy = matcher.match_size(REAL_PLANS, "economy", "medium")
     assert economy.primary == []  # g1/ls1 are 4/12 (not 4/8); c1-medium2 is foreign
@@ -120,7 +120,17 @@ def test_very_large_has_no_matches_anywhere(matcher):
     for tier in ("economy", "standard", "premium"):
         result = matcher.match_size(REAL_PLANS, tier, "very_large")
         assert result.primary == [] and result.approximate == []
-        assert result.no_match_reasons
+        assert not result.no_match_reasons
+
+
+def test_coverage_gaps_still_report_a_reason(matcher):
+    # The size-miss note is gone, but genuinely missing coverage stays visible.
+    no_plans = matcher.match_size([], "standard", "medium")
+    assert "no collected plans for tier standard" in no_plans.no_match_reasons
+
+    foreign_only = [plan("std-foreign", "standard", "eu-west1-a", 2, 4, 25, 1000)]
+    out_of_scope = matcher.match_size(foreign_only, "standard", "medium")
+    assert any("foreign-region" in reason for reason in out_of_scope.no_match_reasons)
 
 
 def test_premium_m6_small1_is_ram_larger_approximate_for_medium(matcher):
@@ -131,7 +141,7 @@ def test_premium_m6_small1_is_ram_larger_approximate_for_medium(matcher):
     assert "m6-small1" not in names
     # premium has no plan >= 4 vCPU or >= 8 GB with more... m6 has ram 8 == target (not >)
     assert premium.primary == []
-    assert premium.no_match_reasons
+    assert not premium.no_match_reasons
 
 
 def test_same_plan_in_multiple_iranian_regions_deduped_with_flag(matcher):
