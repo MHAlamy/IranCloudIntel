@@ -25,6 +25,14 @@ providers:
         navigation:
           ready_marker: "مصرف مازاد"    # proves the PAYG section rendered
           llm_plan_extraction: true     # plan cards via LLM; PAYG tables parsed deterministically
+      - id: arvan_paas
+        service_type: paas
+        url: https://www.arvancloud.ir/fa/pricing/paas
+        collection_method: playwright   # JS challenge; rates parsed from the rendered page
+        region_scope: iran
+        enabled: true
+        navigation:
+          ready_marker: "هر vCore"      # proves the PAYG rate cards rendered
 
   - slug: hamravesh
     name: Hamravesh
@@ -41,6 +49,15 @@ providers:
           click_selector: 'li.ant-menu-item:has-text("آبجکت استورج")'
           ready_marker: "هر GB فضای اضافه"   # proves the OS table rendered
           llm_plan_extraction: false    # clean attribute matrix -> deterministic parser
+      - id: hamravesh_paas
+        service_type: paas
+        url: https://hamravesh.com/pricing
+        collection_method: playwright   # pricing table loads client-side per service tab
+        region_scope: iran
+        enabled: true
+        navigation:
+          click_selector: 'li.ant-menu-item:has-text("پلتفرم ابری دارکوب")'
+          ready_marker: "هزینه منابع در پلتفرم ابری دارکوب"   # Iran datacenter rate table
 
   - slug: liara
     name: Liara
@@ -55,6 +72,16 @@ providers:
         navigation:
           tabs: [plans]
           bundle_extraction: false   # deterministic plan parsing, no LLM
+      - id: liara_paas
+        service_type: paas
+        url: https://liara.ir/pricing/
+        collection_method: playwright   # client-side tier switch (silver)
+        region_scope: iran
+        enabled: true
+        navigation:
+          click_selector: 'button[data-gtm-position="paas"][data-gtm-label="نقره‌ای"]'
+          ready_marker: "۹۵۰,۰۰۰"        # silver زمین price proves the tier switched
+          tier_label: "نقره‌ای"
 
   - slug: parspack
     name: ParsPack

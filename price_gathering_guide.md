@@ -69,6 +69,26 @@ Only progressive tariffs are implemented: contiguous, nonoverlapping intervals,
 known nonnegative rates and coverage of usage are required. Volume tariffs need
 an explicit adapter. Preserve free quotas, classes, minimums and geography.
 
+## PaaS (CNAP)
+
+Four compute references (owner decision 2026-11-16): 1 vCPU + 2 GB RAM / 20 GB
+SSD, 4/8/80, 16/32/320 and 32/64/640. CPU/RAM are requirements; SSD follows
+Liara silver's published plan sizes (20/80/320 GB). The 640 GB value for the
+32/64 reference is the same doubling pattern because Liara does not offer that
+size; Liara is shown as unavailable there, not approximated.
+
+- Liara: compare only the middle silver tier. Plan monthly prices are published
+  bundles (مشتری، اورانوس، پلوتون). The selected tier must be visible on the page.
+- Hamravesh: Darakub Iran datacenter monthly resource rates (vCore/RAM/SSD)
+  form a calculated subtotal. Traffic, IPv4 and monitoring are excluded.
+- Arvan: published PaaS PAYG monthly rates (vCore/RAM/SSD) form a calculated
+  subtotal. Traffic, IPv4, backup and snapshot are excluded. The public
+  calculator cannot select the smallest 1/2 combination or storage above
+  200 GB; those quotes are calculated from the published per-unit rates and
+  must say so.
+- No LLM is used. Basis badges distinguish published (Liara) from calculated
+  (Hamravesh/Arvan); missing is not a zero price.
+
 ## Presentation and future CDN
 
 Use the VM shared visual standard: one selected scenario, basis colors, provider

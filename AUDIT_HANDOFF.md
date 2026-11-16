@@ -43,6 +43,10 @@
   2026-11-16: the published rate table is authoritative). Historical
   `faq_overage` rows remain append-only in existing databases but are ignored by
   the view and the publication completeness gate.
+- PaaS/CNAP (schema v5) reuses `price_observations` with
+  `service_type='paas'`. Liara is compared on its silver tier; Hamravesh
+  Darakub and Arvan PaaS are calculated from published monthly resource rates.
+  No LLM is used for PaaS.
 
 Item 4 validation: 177 non-browser tests passed, plus 2 synthetic local browser tests (no provider requests).
 

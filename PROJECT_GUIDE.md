@@ -8,8 +8,11 @@ the milestone status for progress, and `docs/CODE_MAP.md` for targeted code look
 
 A personal dashboard tracking Iranian cloud prices with auditable source evidence
 and history. Equally important: learn practical VM-based DevOps while building it.
-V1 covers public VM, Object Storage and CDN pricing. VM and OS panels exist;
-CDN, deployment and operational automation remain unfinished.
+V1 covers public VM, Object Storage, PaaS/CNAP and CDN pricing. VM, OS and
+PaaS/CNAP panels exist; CDN, deployment and operational automation remain
+unfinished. PaaS is compute-shaped and reuses the VM observation table with
+`service_type='paas'`; Liara is compared on its silver tier, while Hamravesh
+and Arvan are calculated from their published monthly resource rates.
 
 V2 may expand services and add reviewed AI-assisted scraper repairs. V3 may track
 features from official documentation and later authorized read-only consoles.

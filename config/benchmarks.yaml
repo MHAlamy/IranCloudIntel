@@ -35,3 +35,15 @@ object_storage:
     growth:     {label: رشد,     storage_gb: 500,    traffic_gb: 2048}
     pro:        {label: حرفه‌ای, storage_gb: 5120,   traffic_gb: 20480}
     dedicated:  {label: اختصاصی, storage_gb: 51200,  traffic_gb: 204800}
+
+# PaaS/CNAP compute references. CPU/RAM are owner requirements (2026-11-16).
+# SSD follows Liara silver's published plans (20/80/320 GB); the 640 GB value
+# for the 32/64 reference is the same doubling pattern because Liara does not
+# offer that size. The dashboard shows the actual SSD with every selection.
+paas:
+  liara_tier: "نقره‌ای"
+  selections:
+    s1: {vcpu: 1,  ram_gb: 2,  disk_gb: 20}
+    s2: {vcpu: 4,  ram_gb: 8,  disk_gb: 80}
+    s3: {vcpu: 16, ram_gb: 32, disk_gb: 320}
+    s4: {vcpu: 32, ram_gb: 64, disk_gb: 640}

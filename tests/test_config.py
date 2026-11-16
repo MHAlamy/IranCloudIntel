@@ -38,6 +38,15 @@ def test_committed_configs_load_and_validate():
     assert set(os_b.scenarios) == {"base", "growth", "pro", "dedicated"}
     assert os_b.scenarios["growth"].storage_gb == 500
     assert os_b.scenarios["growth"].traffic_gb == 2048
+    # PaaS/CNAP: four compute references, Liara silver comparison.
+    assert set(benchmarks.paas.selections) == {"s1", "s2", "s3", "s4"}
+    assert benchmarks.paas.selections["s4"].disk_gb == 640
+    assert benchmarks.paas.liara_tier == "نقره‌ای"
+    paas_sources = {
+        source.id for provider in providers.providers
+        for source in provider.sources if source.service_type == "paas"
+    }
+    assert paas_sources == {"arvan_paas", "hamravesh_paas", "liara_paas"}
 
 
 def test_duplicate_provider_slug_rejected(tmp_path):
@@ -87,13 +96,14 @@ def test_product_catalog_loads():
     assert [p.slug for p in layers["caas"].products] == ["kaas"]
     assert [p.slug for p in layers["paas"].products] == ["cnap", "dbaas", "devops", "aiaas"]
     assert {p.slug for layer in catalog.layers for p in layer.products if p.enabled} == {
-        "vm", "object_storage"
+        "vm", "object_storage", "cnap"
     }
     vm = next(p for p in layers["iaas"].products if p.slug == "vm")
     assert vm.name_fa == "سرور ابری (VM)"
     routes = {p.slug: p.route for layer in catalog.layers for p in layer.products}
     assert routes["vm"] == "/vm"
     assert routes["object_storage"] == "/object-storage"
+    assert routes["cnap"] == "/paas"
     assert routes["cdn"] is None
     cnap = next(p for p in layers["paas"].products if p.slug == "cnap")
     assert cnap.name_fa == "پلتفرم ابری توسعه اپلیکیشن (CNAP)"

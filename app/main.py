@@ -25,6 +25,7 @@ from app.data import (  # noqa: E402
     TIER_LABELS_FA,
     VERIFICATION_LABELS_FA,
     build_os_view,
+    build_paas_view,
     build_status_view,
     build_vm_view,
 )
@@ -95,6 +96,20 @@ def create_app(db_path: str | Path | None = None) -> FastAPI:
             request,
             "os.html",
             {"view": view, "basis_labels": OS_BASIS_LABELS_FA},
+        )
+
+    @app.get("/paas", response_class=HTMLResponse)
+    def paas(request: Request, size: str = "s1"):
+        repo = Repository(db_path)
+        try:
+            view = build_paas_view(repo, size)
+            view["freshness"] = repo.freshness("paas")
+        finally:
+            repo.close()
+        return templates.TemplateResponse(
+            request,
+            "paas.html",
+            {"view": view, "basis_labels": BASIS_LABELS_FA},
         )
 
     @app.get("/plan/{offering_id}", response_class=HTMLResponse)

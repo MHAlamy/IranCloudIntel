@@ -4,5 +4,6 @@ from app.vm_view import (
     build_plan_views, build_vm_view,
 )
 from app.os_view import OS_BASIS_LABELS_FA, build_os_view
+from app.paas_view import build_paas_view
 from app.status_view import build_status_view
 from comparison.tariffs import tier_cost as _tier_cost

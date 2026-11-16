@@ -20,7 +20,7 @@ class SourceConfig(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     id: str = Field(min_length=1)
-    service_type: Literal["vm", "object_storage", "cdn"]
+    service_type: Literal["vm", "object_storage", "cdn", "paas"]
     url: str = Field(min_length=1)
     collection_method: Literal["http", "playwright"]
     region_scope: str = ""
@@ -107,6 +107,21 @@ class VMBenchmarks(BaseModel):
     regions: RegionConfig = RegionConfig()
 
 
+class PaasSelection(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    vcpu: int = Field(ge=1)
+    ram_gb: int = Field(ge=1)
+    disk_gb: int = Field(ge=1)
+
+
+class PaasBenchmarks(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    liara_tier: str = "نقره‌ای"
+    selections: dict[str, PaasSelection] = Field(default_factory=dict)
+
+
 class BenchmarksFile(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -114,6 +129,7 @@ class BenchmarksFile(BaseModel):
     object_storage: "ObjectStorageBenchmarks" = Field(
         default_factory=lambda: ObjectStorageBenchmarks()  # type: ignore[call-arg]
     )
+    paas: PaasBenchmarks = Field(default_factory=PaasBenchmarks)
 
 
 class OSScenario(BaseModel):

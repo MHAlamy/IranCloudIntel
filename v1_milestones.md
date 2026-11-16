@@ -1,14 +1,16 @@
 # V1 milestone tracker
 
 **Status (2026-11-16):** native Windows development; four VM sources and four
-Object Storage sources implemented. CDN, production deployment and automation
-remain open. Audit actions 1-4 completed; action 5 documentation/tooling cleanup
-completed. Historical detail is preserved in `docs/archive/2026-11-16_v1_milestones.md`.
+Object Storage sources implemented. PaaS/CNAP added with three sources
+(Hamravesh Darakub, Arvan PaaS, Liara silver). CDN, production deployment and
+automation remain open. Audit actions 1-4 completed; action 5
+documentation/tooling cleanup completed. Historical detail is preserved in
+`docs/archive/2026-11-16_v1_milestones.md`.
 
 - [x] 1. Local environment: Python 3.14, `.venv`, Git, VS Code and private repository.
 - [x] 2. First collector: Arvan public VM page, evidence, LLM extraction and fixtures.
 - [x] 3. SQLite history, comparison logic, source status and Persian dashboard.
-- [ ] 4. V1 coverage: VM and OS complete; CDN remains to implement.
+- [ ] 4. V1 coverage: VM, OS and PaaS/CNAP complete; CDN remains to implement.
 - [ ] 5. Deploy one Ubuntu VM: verify pricing/connectivity, approve provisioning,
   configure SSH/firewall, Docker/Compose, persistent data, secrets, Nginx/HTTPS
   and protected access. Test Linux collectors/containers, health and persistence.

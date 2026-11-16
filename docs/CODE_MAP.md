@@ -5,6 +5,9 @@
 | HTTP/browser dispatch | `collectors/fetching.py`, `arvan_fetch.py`, `browser.py` | `test_browser.py`, `test_waits.py` |
 | VM extraction/publication | `collectors/vm_pipeline.py`, `extractors/schema.py`, `normalization/validate.py` | `test_pipeline.py`, `test_collection_regressions.py` |
 | OS extraction/publication | `collectors/os_pipeline.py`, `extractors/os_schema.py` | `test_os_pipeline.py`, `test_os_parsers.py` |
+| PaaS extraction/publication | `collectors/paas_pipeline.py`, `hamravesh_paas.py`, `arvan_paas.py`, `liara_paas.py` | `test_paas_pipeline.py`, `test_paas_parsers.py` |
+| PaaS comparison/rendering | `app/paas_view.py`, `app/templates/paas.html` | `test_paas_dashboard.py` |
+| Schema v5 PaaS service type | `storage/migrations/v5__paas.sql` | `test_paas_pipeline.py` |
 | ParsPack interaction | `collectors/parspack_quotes.py`, `parspack_os.py`, `waits.py` | `test_waits.py` (browser cases are opt-in) |
 | Provider parsers | `collectors/{provider}*.py` | `test_liara.py`, `test_kubit.py`, `test_rates.py`, `test_os_parsers.py` |
 | Accepted history/freshness | `storage/repository.py`, `collectors/common.py` | `test_publication.py`, `test_storage.py` |

@@ -31,14 +31,18 @@ from collectors.arvan_os_rates import (  # noqa: E402
     parse_os_rates,
 )
 from collectors.arvan_rates import parse_rates  # noqa: E402
+from collectors.arvan_paas import collect_arvan_paas  # noqa: E402
 from collectors.hamravesh_os import build_hamravesh_os_markdown, parse_hamravesh_os_plans  # noqa: E402
+from collectors.hamravesh_paas import collect_hamravesh_paas  # noqa: E402
 from collectors.kubit_clean import clean_kubit  # noqa: E402
 from collectors.kubit_os import clean_kubit_os, parse_kubit_os_plans, parse_kubit_os_rates  # noqa: E402
 from collectors.kubit_rates import parse_kubit_rates  # noqa: E402
 from collectors.liara_clean import clean_liara  # noqa: E402
+from collectors.liara_paas import collect_liara_paas  # noqa: E402
 from collectors.liara_plans import parse_liara_plans  # noqa: E402
 from collectors.parspack_os import run_parspack_os  # noqa: E402
 from collectors.parspack_quotes import run_parspack_quotes  # noqa: E402
+from collectors.paas_pipeline import run_paas_collection  # noqa: E402
 from collectors.pipeline import fetch_source, run_collection, run_os_collection  # noqa: E402
 from comparison.rate_check import load_rate_mappings  # noqa: E402
 from extractors.llm import LLMClient  # noqa: E402
@@ -51,6 +55,12 @@ PROVIDER_COLLECTION = {
     "arvan": {"cleaner": clean_page, "rates_parser": parse_rates, "plans_parser": None},
     "kubit": {"cleaner": clean_kubit, "rates_parser": parse_kubit_rates, "plans_parser": None},
     "liara": {"cleaner": clean_liara, "rates_parser": None, "plans_parser": parse_liara_plans},
+}
+
+PAAS_COLLECTION = {
+    "arvan": collect_arvan_paas,
+    "hamravesh": collect_hamravesh_paas,
+    "liara": collect_liara_paas,
 }
 
 OS_COLLECTION = {
@@ -117,6 +127,20 @@ def main() -> int:
                             provider=provider,
                             source=source,
                             repo=repository,
+                            evidence_root=ROOT / "evidence",
+                            force=args.force,
+                        )
+                    elif source.service_type == "paas":
+                        collector = PAAS_COLLECTION.get(provider.slug)
+                        if collector is None:
+                            print(f"    ERROR: no PaaS collector for {provider.slug}")
+                            exit_code = 1
+                            continue
+                        outcome = run_paas_collection(
+                            provider=provider,
+                            source=source,
+                            repo=repository,
+                            collector=collector,
                             evidence_root=ROOT / "evidence",
                             force=args.force,
                         )

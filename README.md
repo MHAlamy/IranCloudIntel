@@ -1,8 +1,9 @@
 # Iranian Cloud Intelligence Dashboard
 
 Personal public-price intelligence for Iranian cloud services, with source evidence,
-SQLite history and a Persian RTL dashboard. VM and Object Storage are implemented;
-CDN and production operations remain unfinished. See `v1_milestones.md` for status.
+SQLite history and a Persian RTL dashboard. VM, Object Storage and PaaS/CNAP are
+implemented; CDN and production operations remain unfinished. See
+`v1_milestones.md` for status.
 
 ## Develop on Windows
 
@@ -15,9 +16,9 @@ py -3.14 -m venv .venv
 .\.venv\Scripts\python.exe -m uvicorn app.main:create_app --factory --reload --host 127.0.0.1 --port 8000
 ```
 
-Open `/` for the homepage product map, `/vm`, `/object-storage` or `/status`.
-Restart an already-running server before using changed Python code unless it
-was launched with `--reload`.
+Open `/` for the homepage product map, `/vm`, `/object-storage`, `/paas` or
+`/status`. Restart an already-running server before using changed Python code
+unless it was launched with `--reload`.
 Repository initialization applies pending migrations; back up persistent data
 before running a newer release. Do not use the real database for test seeding.
 Production images will install `requirements.txt`; dev requirements add pytest.

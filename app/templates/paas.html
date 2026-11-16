@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% from "macros.html" import coming_soon %}
+{% block title %}پلتفرم ابری توسعه اپلیکیشن (CNAP) | رصد بازار خدمات ابری ایران{% endblock %}
+{% block content %}
+<header class="product-head">
+  <h1>پلتفرم ابری توسعه اپلیکیشن (CNAP)</h1>
+</header>
+
+<section class="product-section">
+  <h2 class="section-title">مقایسه قیمت</h2>
+  <p class="section-note muted">مقایسه‌ی قیمت ماهانه‌ی منابع محاسباتی (vCPU، RAM و SSD) · سطح انتخابی لیارا: {{ view.liara_tier }} (Silver) · بدون مالیات و هزینه‌های ترافیک/IP</p>
+
+  {% if view.notes %}
+  <section class="banner">
+    <ul>
+      {% for note in view.notes %}<li>{{ note }}</li>{% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+  <section class="selectors card">
+    <div class="selector-group">
+      <span class="selector-label">اندازه:</span>
+      <div class="pills">
+        {% for selection in view.selections %}
+        <a class="pill {{ 'active' if selection.key == view.selection }}" href="/paas?size={{ selection.key }}">{{ selection.label }}</a>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="target">
+      مرجع: {{ view.target.vcpu|pnum }} <span dir="ltr">vCPU</span> · {{ view.target.ram_gb|pnum }} گیگابایت رم · {{ view.target.disk_gb|pnum }} گیگابایت SSD
+    </div>
+  </section>
+
+  {% include 'price_chart.html' %}
+
+  <section class="card table-card">
+    <table class="price-table">
+      <thead>
+        <tr>
+          <th>تأمین‌کننده</th>
+          <th>پلن</th>
+          <th>vCPU / رم / SSD</th>
+          <th>قیمت (تومان/ماه)</th>
+          <th>مبنا</th>
+          <th>آخرین بررسی</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in view.rows %}
+        <tr class="basis-{{ row.basis }}">
+          <td data-label="تأمین‌کننده">{{ row.provider_name }}</td>
+          <td data-label="پلن">
+            {% if row.offering_id %}<a href="/plan/{{ row.offering_id }}" class="plan-link">{{ row.plan_name }}</a>
+            {% else %}{{ row.plan_name }}{% endif %}
+            {% for note in row.notes %}<div class="row-note">{{ note }}</div>{% endfor %}
+            {% if row.provider_slug == 'liara' and row.provider_tier_raw %}<div class="row-note">سطح: {{ row.provider_tier_raw }}</div>{% endif %}
+          </td>
+          <td data-label="مشخصات">
+            {{ row.vcpu|pnum }} <span dir="ltr">vCPU</span> · {{ row.ram_gb|pnum }} گیگابایت · {{ row.disk_gb|pnum }} گیگابایت SSD
+          </td>
+          <td data-label="قیمت" class="price-cell">
+            {% if row.price_in_toman is not none %}{{ row.price_in_toman|toman }}{% else %}—{% endif %}
+          </td>
+          <td data-label="مبنا">
+            <span class="badge badge-{{ row.basis }}">{{ basis_labels[row.basis] }}</span>
+          </td>
+          <td data-label="آخرین بررسی">{{ row.observed_at|jalali_date }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <section class="legend card">
+    <strong>راهنما:</strong>
+    <span class="badge badge-published">منتشرشده</span> پلن منتشرشده‌ی لیارا (نقره‌ای) ·
+    <span class="badge badge-calculated">محاسبه‌شده</span> محاسبه از نرخ‌های منتشرشده‌ی هم‌روش/آروان ·
+    <span class="badge badge-missing">در دسترس نیست</span> ترکیب ارائه‌نشده یا هنوز گردآوری نشده
+  </section>
+
+  {% include 'freshness.html' %}
+</section>
+
+{{ coming_soon("مقایسه قابلیت‌ها") }}
+{{ coming_soon("مقایسه عملکرد") }}
+{% endblock %}

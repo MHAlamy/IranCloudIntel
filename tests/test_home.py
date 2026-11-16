@@ -25,6 +25,7 @@ def test_homepage_links_only_ready_products(client_tuple):
     text = client.get("/").text
     assert 'href="/vm"' in text
     assert 'href="/object-storage"' in text
+    assert 'href="/paas"' in text
     for future_route in ("/cdn", "/gpu", "/kaas", "/cnap", "/dbaas", "/devops", "/aiaas"):
         assert f'href="{future_route}"' not in text
     assert "به‌زودی" in text
