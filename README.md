@@ -114,3 +114,17 @@ ParsPack storage-only caveat. They are not full equivalent purchase costs.
 Progressive tariff intervals must be contiguous, ordered and nonoverlapping;
 unknown rates, malformed intervals and uncovered consumption produce no price.
 Only progressive tariffs are supported; volume tariffs require an explicit adapter.
+
+## Regression checks and extraction cache
+
+Collection cache keys include source settings, relevant runtime options, public YAML
+configuration and collection/normalization/schema code. This intentionally favors
+safe reprocessing over narrowly optimized invalidation: editing relevant code may
+re-extract multiple providers on their next scheduled check. Credentials and `.env`
+are never fingerprint inputs. Use mocked extraction for routine verification.
+
+Audit regression tests cover mid-tab failure after staged writes, empty/suspect-only
+results, omitted OS plans, preservation of accepted rates, stale sources, configuration
+changes on unchanged content, monthly conversion and invalid tariff intervals.
+Run the portable suite with `python -m pytest tests --ignore=tests/test_browser.py`;
+browser-launch smoke tests remain separate and require installed browsers.

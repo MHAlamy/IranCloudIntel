@@ -18,6 +18,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+from util.fingerprint import collection_fingerprint
 from collectors.arvan_clean import sha256_text  # noqa: E402
 from collectors.pipeline import CollectionOutcome, FetchError  # noqa: E402
 from config.loader import AnalystProviderFacts, ProviderConfig, SourceConfig  # noqa: E402
@@ -160,7 +161,7 @@ def run_parspack_quotes(
             finally:
                 browser.close()
 
-        config_hash = "parspack-quote-v1"
+        config_hash = collection_fingerprint("parspack-quote-v1", facts.model_dump(), source.model_dump())
         if not force and repo.should_skip_extraction(source_id, content_hash, config_hash):
             repo.publish_run(run_id, "success", http_status=200, content_hash=content_hash,
                             extractor_config_hash=config_hash, evidence_path=str(evidence_dir))

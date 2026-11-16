@@ -31,6 +31,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+from util.fingerprint import collection_fingerprint
 from collectors.arvan_clean import sha256_text  # noqa: E402
 from collectors.pipeline import CollectionOutcome  # noqa: E402
 from config.loader import ProviderConfig, SourceConfig  # noqa: E402
@@ -179,10 +180,11 @@ def run_parspack_os(
             finally:
                 browser.close()
 
-        if not force and repo.should_skip_extraction(source_id, content_hash, _CONFIG_HASH):
+        config_hash = collection_fingerprint(_CONFIG_HASH, source.model_dump())
+        if not force and repo.should_skip_extraction(source_id, content_hash, config_hash):
             repo.publish_run(
                 run_id, "success", http_status=200, content_hash=content_hash,
-                extractor_config_hash=_CONFIG_HASH, evidence_path=str(evidence_dir),
+                extractor_config_hash=config_hash, evidence_path=str(evidence_dir),
             )
             outcome.status = "success"
             outcome.skipped = True
@@ -225,7 +227,7 @@ def run_parspack_os(
 
         repo.publish_run(
             run_id, "success", http_status=200, content_hash=content_hash,
-            extractor_config_hash=_CONFIG_HASH, evidence_path=str(evidence_dir),
+            extractor_config_hash=config_hash, evidence_path=str(evidence_dir),
         )
         outcome.status = "success"
         outcome.observations = observations

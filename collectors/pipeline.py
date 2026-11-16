@@ -19,6 +19,7 @@ from typing import Callable
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+from util.fingerprint import collection_fingerprint
 from config.loader import ProviderConfig, SourceConfig, load_benchmarks  # noqa: E402
 from collectors.arvan_clean import TabContent, build_cleaned_markdown, sha256_text  # noqa: E402
 from comparison.rate_check import STORAGE_CLASS_LABELS, ProviderRateMapping, TierRates, verify_bundle  # noqa: E402
@@ -72,7 +73,7 @@ def extractor_config_hash(model: str) -> str:
         {"model": model, "schema_version": SCHEMA_VERSION, "system_prompt": SYSTEM_PROMPT},
         sort_keys=True,
     )
-    return sha256_text(payload)
+    return collection_fingerprint(payload)
 
 
 def run_collection(
@@ -110,8 +111,9 @@ def run_collection(
             config_hash = extractor_config_hash(_current_model())
         else:
             # rates-only sources: the "extractor" is the deterministic rate parser
-            config_hash = sha256_text(f"rates-parser:{provider.slug}")
+            config_hash = collection_fingerprint("rates", provider.slug)
 
+        config_hash = collection_fingerprint(config_hash, source.model_dump(), rate_mappings)
         stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
         evidence_dir = evidence_root / provider.slug / source.service_type / f"{stamp}_{content_hash[:12]}"
         evidence_dir.mkdir(parents=True, exist_ok=True)
@@ -274,6 +276,8 @@ def run_collection(
                 json.dumps(review_entries, ensure_ascii=False, indent=2), encoding="utf-8"
             )
 
+        if observations == 0:
+            raise FetchError("no accepted VM plans; review required")
         repo.publish_run(
             run_id, "success", http_status=fetch_result.http_status,
             content_hash=content_hash, extractor_config_hash=config_hash,
@@ -308,7 +312,7 @@ def os_extractor_config_hash(model: str) -> str:
         {"model": model, "schema_version": OS_SCHEMA_VERSION, "system_prompt": OS_SYSTEM_PROMPT},
         sort_keys=True,
     )
-    return sha256_text(payload)
+    return collection_fingerprint(payload)
 
 
 def _overage_toman(raw: str | None) -> str | None:
@@ -350,8 +354,9 @@ def run_os_collection(
         if llm_factory is not None:
             config_hash = os_extractor_config_hash(_current_model())
         else:
-            config_hash = sha256_text(f"os-parser:{provider.slug}")
+            config_hash = collection_fingerprint("os", provider.slug)
 
+        config_hash = collection_fingerprint(config_hash, source.model_dump(), tb_to_gb)
         stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
         evidence_dir = evidence_root / provider.slug / source.service_type / f"{stamp}_{content_hash[:12]}"
         evidence_dir.mkdir(parents=True, exist_ok=True)
@@ -477,6 +482,8 @@ def run_os_collection(
                 json.dumps(review_entries, ensure_ascii=False, indent=2), encoding="utf-8"
             )
 
+        if observations == 0:
+            raise FetchError("no accepted Object Storage plans; review required")
         repo.publish_run(
             run_id, "success", http_status=fetch_result.http_status,
             content_hash=content_hash, extractor_config_hash=config_hash,

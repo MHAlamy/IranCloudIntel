@@ -210,3 +210,23 @@ def test_arvan_os_llm_malformed_row_quarantined(repo, tmp_path):
     assert outcome.suspect_rows == 1  # quarantined, not recorded
     names = [r["plan_name"] for r in repo.latest_os_observations()]
     assert "ساختگی" not in names
+
+
+@pytest.mark.parametrize('bad_rows', [[], [{'plan_name': 'bad', 'price_raw': 'nonsense', 'evidence': 'fixture'}], ARVAN_LLM_ROWS[:1]])
+def test_os_incomplete_result_preserves_prices_and_rates(repo, tmp_path, bad_rows):
+    provider = _provider('arvan', 'ArvanCloud', 'arvan_object_storage',
+                         'https://www.arvancloud.ir/fa/pricing/cloud-storage', {})
+    kwargs = dict(provider=provider, source=provider.sources[0], repo=repo,
+                  fetcher=lambda source: FetchResult(ARVAN_HTML, 200, source.url),
+                  cleaner=build_os_cleaned_markdown, os_rates_parser=parse_os_rates,
+                  evidence_root=tmp_path)
+    first = run_os_collection(llm_factory=lambda: FakeLLM(ARVAN_LLM_ROWS), **kwargs)
+    assert first.status == 'success'
+    before = [r['id'] for r in repo.latest_os_observations()]
+    provider_id = repo.list_sources()[0]['provider_id']
+    rates = [r['id'] for r in repo.latest_os_rates(provider_id)]
+    failed = run_os_collection(llm_factory=lambda: FakeLLM(bad_rows), force=True, **kwargs)
+    assert failed.status == 'failed'
+    assert [r['id'] for r in repo.latest_os_observations()] == before
+    assert [r['id'] for r in repo.latest_os_rates(provider_id)] == rates
+    assert repo.freshness('object_storage')[0]['stale']
