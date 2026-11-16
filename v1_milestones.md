@@ -2,8 +2,9 @@
 
 **Status (2026-11-16):** native Windows development; four VM sources and four
 Object Storage sources implemented. PaaS/CNAP added with three sources
-(Hamravesh Darakub, Arvan PaaS, Liara silver). CDN, production deployment and
-automation remain open. Audit actions 1-4 completed; action 5
+(Hamravesh Darakub, Arvan PaaS, Liara silver). The homepage layered product map
+and the shared three-section product shell are implemented. CDN, production
+deployment and automation remain open. Audit actions 1-4 completed; action 5
 documentation/tooling cleanup completed. Historical detail is preserved in
 `docs/archive/2026-11-16_v1_milestones.md`.
 
@@ -28,9 +29,18 @@ documentation/tooling cleanup completed. Historical detail is preserved in
   explicit runtime/dev dependencies and opt-in browser smoke tests.
 - [x] VM/OS visual consistency using a shared chart template and selected scenarios.
 
+## Post-audit additions
+
+- [x] Homepage with a layered IaaS/CaaS/PaaS product map and method summary;
+  only implemented products link, the rest are disabled with «به‌زودی».
+- [x] Shared three-section product shell: price comparison, capabilities and
+  performance placeholders. Product pages use a centered product title.
+- [x] PaaS/CNAP comparison: four compute selections, Liara silver, Hamravesh
+  Darakub and Arvan calculated from published monthly resource rates.
+
 ## Release gates
 
-- [ ] Agreed VM/OS/CDN sources update daily with checked accuracy and visible failures.
+- [ ] Agreed VM/OS/PaaS/CDN sources update daily with checked accuracy and visible failures.
 - [ ] Price history survives releases; protected access and restore are demonstrated.
 - [ ] Deployment rollback and database recovery are tested/documented separately.
 - [ ] Runbooks cover setup, migrations, operations, spending and collector shutdown.
@@ -41,3 +51,5 @@ push/merge, data deletion or deployment without explicit authorization.
 See `AUDIT_HANDOFF.md` for audit changes/limits and `docs/CODE_MAP.md` for code lookup.
 
 Audit cleanup validation: 183 default tests passed (4 browser tests deselected); two synthetic browser tests passed separately. Dependency consistency check passed. No paid/provider collection or deployment performed.
+
+Current validation (2026-11-16): 202 default tests passed (4 browser tests deselected). PaaS live collection used public provider pages and no LLM calls.

@@ -47,6 +47,9 @@
   `service_type='paas'`. Liara is compared on its silver tier; Hamravesh
   Darakub and Arvan PaaS are calculated from published monthly resource rates.
   No LLM is used for PaaS.
+- The homepage and three-section product shell were added after the audit; see
+  `PROJECT_GUIDE.md` “Dashboard structure”. Capability and performance sections
+  remain explicit «به‌زودی» placeholders.
 
 Item 4 validation: 177 non-browser tests passed, plus 2 synthetic local browser tests (no provider requests).
 

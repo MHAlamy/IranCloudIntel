@@ -13,7 +13,7 @@
 | Accepted history/freshness | `storage/repository.py`, `collectors/common.py` | `test_publication.py`, `test_storage.py` |
 | Tariff/monthly semantics | `comparison/tariffs.py`, `normalization/validate.py` | `test_price_semantics.py` |
 | Homepage/product catalogue | `config/products.yaml`, `app/templates/home.html`, `app/main.py` | `test_home.py`, `test_config.py` |
-| Product page shell | `app/templates/vm.html`, `os.html`, `macros.html` | dashboard tests |
+| Product page shell | `app/templates/vm.html`, `os.html`, `paas.html`, `macros.html` | dashboard tests |
 | VM comparison/rendering | `app/vm_view.py`, `comparison/matching.py`, `app/templates/vm.html` | `test_matching.py`, `test_dashboard.py` |
 | OS comparison/rendering | `app/os_view.py`, `app/templates/os_comparison.html` | `test_os_dashboard.py` |
 | Shared chart design | `app/templates/price_chart.html`, `app/static/style.css` | dashboard tests |

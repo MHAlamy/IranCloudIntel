@@ -11,7 +11,10 @@ Source URLs/navigation: `config/providers.yaml`. Analyst decisions: YAML config.
 - VM: Arvan browser + LLM bundles and deterministic rates; Liara HTTP bundles;
   Kubit HTTP component rates; ParsPack browser calculator quotes. Cloud.ir is out.
 - OS: Hamravesh browser/matrix baseline, Arvan browser + LLM cards/deterministic
-  PAYG, Kubit HTTP PAYG, ParsPack browser storage-only quotes. CDN is pending.
+  PAYG, Kubit HTTP PAYG, ParsPack browser storage-only quotes.
+- PaaS/CNAP: Liara browser + silver plan cards, Hamravesh Darakub browser rate
+  matrix, Arvan browser + deterministic PAYG rates. No LLM.
+- CDN is pending.
 - Record source URL, navigation/configuration, timestamp, content hash and evidence.
   Keep regions, native tiers, units, inclusions, taxes and qualifiers where known.
 - LLM output is source-grounded JSON with evidence, not instructions or computed
@@ -94,5 +97,16 @@ size; Liara is shown as unavailable there, not approximated.
 Use the VM shared visual standard: one selected scenario, basis colors, provider
 labels, cheapest-first bars and provider-row tables, with caveats and freshness.
 OS assumptions prevent treating its bars as full equivalent purchase costs.
+
+Every product page uses that standard inside a three-section shell: a centered
+product title, then «مقایسه قیمت» (the chart, provider-row table, details and
+freshness), «مقایسه قابلیت‌ها» and «مقایسه عملکرد». The latter two are explicit
+«به‌زودی» placeholders until their data models exist. The homepage is static:
+title/subtitle, a layered IaaS/CaaS/PaaS product map (implemented products are
+links; the rest are disabled with «به‌زودی») and a methodology summary. Size-miss
+notes that merely restate the reference resources are not shown; genuine
+coverage gaps (uncollected tier, foreign-only plans) remain. Mixed Persian/Latin
+labels use bidi isolation so `x vCPU + y GB` renders in the intended order.
+
 CDN needs its own schema/scenarios for package fees, traffic geography, requests,
 quotas and overages. Agree scenarios before implementation; do not reuse VM tiers.

@@ -23,6 +23,20 @@ Repository initialization applies pending migrations; back up persistent data
 before running a newer release. Do not use the real database for test seeding.
 Production images will install `requirements.txt`; dev requirements add pytest.
 
+## Dashboard structure
+
+- `/` is a static homepage: title «رصد بازار خدمات ابری ایران», a subtitle
+  explaining the price/capabilities/performance comparison, a layered
+  IaaS/CaaS/PaaS product map, and a methodology summary. VM, Object Storage and
+  CNAP are links; CDN, GPUaaS, KaaS, DBaaS, DevOps tools and AIaaS are disabled
+  with «به‌زودی».
+- `/vm`, `/object-storage` and `/paas` share one shell: a centered product title,
+  then «مقایسه قیمت» (selectors, shared chart, provider-row table, details,
+  freshness), «مقایسه قابلیت‌ها» and «مقایسه عملکرد» («به‌زودی» placeholders).
+- `/status` shows collection health and `/plan/{id}` shows one offering's
+  history. The catalogue and routes live in `config/products.yaml`; a product
+  becomes a link only when it has a real page.
+
 ## Tests and inspection
 
 Default pytest runs deterministic/offline tests; browser launches are opt-in:
@@ -59,14 +73,19 @@ Do not commit secrets, evidence or databases. Use exact Decimal/text money.
 
 Accepted-run publication hides running/failed rows. Empty/incomplete results retain
 last accepted prices; source verification becomes stale after 48 hours or a failed
-latest attempt. Genuine plan removal/renaming requires review. Schema v4 records
-hourly conversion hours; OS totals remain partial and assumption-dependent.
+latest attempt. Genuine plan removal/renaming requires review. Schema v5 adds the
+PaaS service type; schema v4 records hourly conversion hours. OS and PaaS totals
+remain partial and assumption-dependent: Liara silver is a published plan price,
+while Hamravesh Darakub and Arvan PaaS are calculated from monthly resource rates.
 
 ## Documentation and visual design
 
-`PROJECT_GUIDE.md` describes architecture; `price_gathering_guide.md` governs pricing.
-`docs/CODE_MAP.md` maps tasks to code/tests; `AUDIT_HANDOFF.md` records audit work.
-Archived docs/scripts preserve history but are not routine context or entry points.
-Both panels share `price_chart.html`: one selected scenario, provider-labelled bars,
-price-basis colors, cheapest-first chart and provider-row table. Future panels use
-this VM visual standard unless the user explicitly requests otherwise.
+`PROJECT_GUIDE.md` describes architecture and dashboard structure;
+`price_gathering_guide.md` governs pricing. `docs/CODE_MAP.md` maps tasks to
+code/tests; `AUDIT_HANDOFF.md` records audit work. Archived docs/scripts preserve
+history but are not routine context or entry points.
+
+All three product pages share `price_chart.html`: one selected scenario,
+provider-labelled bars, price-basis colors, cheapest-first chart and a
+provider-row table, inside the price-comparison section. Future products use the
+same shell and VM visual standard unless the user explicitly requests otherwise.

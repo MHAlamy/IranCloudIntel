@@ -31,10 +31,36 @@ Neither roadmap stage justifies extra infrastructure or autonomous production ed
   on disk. One-shot sequential collection, with an exclusive collection lock.
 - FastAPI/Jinja2 and shared CSS, Persian RTL interface and Jalali display dates;
   UTC timestamps in storage. No separate frontend service or microservices.
+- Product pages share a validated catalogue (`config/products.yaml`) and a
+  three-section shell; schema v5 allows `service_type='paas'` for compute-shaped
+  PaaS offerings while VM/OS keep their service-specific data rules.
 - Target production: one Ubuntu Arvan VM, Docker Compose, Nginx/HTTPS, protected
   access, daily collection and consistent off-VM backups to private Object Storage.
 - GitHub/Actions/GHCR are proposed release tools, subject to verified connectivity.
   Begin with manual deployment; test restore, health checks and rollback before CD.
+
+## Dashboard structure
+
+- `/` is a static homepage titled «رصد بازار خدمات ابری ایران» with the subtitle
+  «مقایسه‌ی قیمت، قابلیت‌ها و عملکرد محصولات ابری تأمین‌کنندگان ایرانی».
+  It contains a layered IaaS/CaaS/PaaS product map — IaaS: VM, Object Storage,
+  CDN, GPUaaS; CaaS: KaaS; PaaS: CNAP, DBaaS, DevOps tools, AIaaS — followed by
+  a short methodology summary (official pages, structured sources, price
+  catalogues, periodic automated performance checks, evidence and timestamps,
+  unknown ≠ zero). Only products with a real page are links; all others are
+  visibly disabled with «به‌زودی».
+- Product pages exist at `/vm`, `/object-storage` and `/paas`; `/status` shows
+  source collection health and `/plan/{id}` shows one offering's history.
+- Every product page has a centered product title, followed by three sections:
+  1. «مقایسه قیمت» — all existing price content: selectors, the shared chart,
+     the provider-row table, plan/rate details, legend and freshness.
+  2. «مقایسه قابلیت‌ها» — a «به‌زودی» placeholder.
+  3. «مقایسه عملکرد» — a «به‌زودی» placeholder.
+  The capability and performance sections must not fabricate data before their
+  data models exist.
+- The topbar brand links to the homepage; the nav links the implemented product
+  pages and source status. The product catalogue and routes are defined in
+  `config/products.yaml`; enabling a product requires a real route.
 
 ## Reliability and operating constraints
 
@@ -62,9 +88,5 @@ labels, price-basis colors and cheapest-first bars scaled within that selection.
 Place the chart above a provider-row table. Keep missing data, calculation basis,
 subtotals, assumptions and freshness visible. Raw plan/rate details remain separate.
 
-Each product page presents a centered product title and three sections: price
-comparison (the existing shared chart and provider-row table), capabilities and
-performance. Until capability/performance data exists, those two sections are
-explicit «به‌زودی» placeholders and must not fabricate data. The homepage shows a
-layered IaaS/CaaS/PaaS product map; only products with a real page are links,
-and the rest are visibly disabled.
+The homepage and product-page structure are defined in “Dashboard structure”
+above; the visual rules here apply inside the price-comparison section.

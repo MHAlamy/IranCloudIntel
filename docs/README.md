@@ -1,6 +1,7 @@
 # Documentation map
 
-- `../PROJECT_GUIDE.md`: current architecture, scope and operational rules.
+- `../PROJECT_GUIDE.md`: current architecture, scope, dashboard structure and
+  operational rules.
 - `../price_gathering_guide.md`: current pricing/comparison contract.
 - `../v1_milestones.md`: short progress tracker and remaining release gates.
 - `CODE_MAP.md`: task-to-code/test lookup; start here for targeted exploration.
