@@ -78,6 +78,8 @@ class VmRow:
 def build_plan_views(repo: Repository, matcher: VMMatcher) -> list[PlanView]:
     plans: list[PlanView] = []
     for row in repo.latest_observations(service_type="vm"):
+        if row["billing_period"] != "monthly":
+            continue  # legacy hourly observations require recollection
         plans.append(
             PlanView(
                 provider_slug=row["provider_slug"],
@@ -208,6 +210,13 @@ def build_vm_view(repo: Repository, tier: str, size_key: str) -> dict:
                 ram_gb: Decimal | None = None, disk_gb: Decimal | None = None,
                 rate_verification: str = "not_applicable", observed_at: str = "",
                 offering_id: int | None = None, notes: list[str] | None = None):
+        notes = list(notes or [])
+        if offering_id:
+            history = repo.offering_history(offering_id)
+            if history:
+                from normalization.persian import normalize_billing_period
+                if normalize_billing_period(history[0]['billing_period_raw']) == 'hourly':
+                    notes.append(f"????? ?????? ????????? ({history[0]["conversion_hours"] or "??????"} ????)? ?? ???? ?????? ????????")
         view["rows"].append(VmRow(
             provider_slug=provider_slug,
             provider_name=provider_names.get(provider_slug, provider_slug),
@@ -371,34 +380,25 @@ def _tier_cost(rates: list[dict], quantity_gb: Decimal) -> tuple[Decimal | None,
     order; unbounded last tiers (max=None) absorb the remainder. None means
     the quantity exceeds every documented bounded tier without an unbounded one.
     """
-    ordered = sorted(
-        (r for r in rates if not r["is_free"] and r["amount"] is not None),
-        key=lambda r: Decimal(r["range_min_gb"] or "0"),
-    )
-    free_rows = [r for r in rates if r["is_free"]]
-    remaining = quantity_gb
-    total = Decimal("0")
-
-    # consume documented free allowances first
-    for row in free_rows:
-        lo = Decimal(row["range_min_gb"] or "0")
-        hi = Decimal(row["range_max_gb"]) if row["range_max_gb"] is not None else None
-        span = (hi - lo) if hi is not None else remaining
-        take = min(remaining, span) if remaining > 0 else Decimal("0")
-        remaining -= take
-
+    if quantity_gb < 0:
+        return None, False
+    if quantity_gb == 0:
+        return Decimal(0), True
+    ordered = sorted(rates, key=lambda r: Decimal(r['range_min_gb'] or '0'))
+    cursor = Decimal(0)
+    total = Decimal(0)
     for row in ordered:
-        if remaining <= 0:
-            break
-        lo = Decimal(row["range_min_gb"] or "0")
-        hi = Decimal(row["range_max_gb"]) if row["range_max_gb"] is not None else None
-        span = (hi - lo) if hi is not None else remaining
-        if span <= 0:
-            continue
-        take = min(remaining, span)
-        total += take * Decimal(row["amount"])
-        remaining -= take
-    return (total, remaining <= 0)
+        lo = Decimal(row['range_min_gb'] or '0')
+        hi = Decimal(row['range_max_gb']) if row['range_max_gb'] is not None else None
+        if cursor is None or lo != cursor or (hi is not None and hi <= lo):
+            return None, False
+        amount = Decimal(0) if row['is_free'] else (Decimal(row['amount']) if row['amount'] is not None else None)
+        if amount is None or amount < 0:
+            return None, False
+        end = min(quantity_gb, hi) if hi is not None else quantity_gb
+        total += max(Decimal(0), end - lo) * amount
+        cursor = hi
+    return (total, True) if ordered and (cursor is None or cursor >= quantity_gb) else (None, False)
 
 
 # Per-provider scenario resolution for rates-based providers: which rate rows
@@ -583,7 +583,7 @@ def build_os_view(repo: Repository) -> dict:
         return None
 
     def _cell(price, basis: str, plan_name: str, notes: list[str]) -> dict:
-        return {"price": price, "basis": basis, "plan_name": plan_name, "notes": notes}
+        return {"price": price, "basis": basis, "plan_name": plan_name, "notes": notes + ["??? ????? ????? ?????????? ? ?????? ???? ???? ???"]}
 
     def resolve_cell(slug: str, storage_gb: Decimal, traffic_gb: Decimal) -> dict:
         """One provider's comparable price at one baseline consumption point.

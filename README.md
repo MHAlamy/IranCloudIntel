@@ -99,3 +99,18 @@ Existing historical successes are trusted, not retroactively revalidated.
 VM and Object Storage pages show per-source latest attempt, successful verification,
 and stale status (48-hour verification threshold, or latest attempt not successful).
 A running attempt is provisionally marked stale until it completes.
+
+## Price semantics
+
+VM hourly observations are converted using `vm.monthly_hours`; original values
+and periods remain preserved, with conversion hours recorded per observation
+(schema v4). Legacy hourly rows without monthly normalization are excluded from
+comparison until recollected. Unknown billing periods cannot supply monthly totals.
+Liara collection requires a known IPv4 surcharge rather than silently using zero.
+
+Object Storage scenario figures are subtotals excluding request charges and tax;
+provider notes retain the approved billing-period/traffic assumptions and the
+ParsPack storage-only caveat. They are not full equivalent purchase costs.
+Progressive tariff intervals must be contiguous, ordered and nonoverlapping;
+unknown rates, malformed intervals and uncovered consumption produce no price.
+Only progressive tariffs are supported; volume tariffs require an explicit adapter.

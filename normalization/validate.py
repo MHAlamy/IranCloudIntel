@@ -18,7 +18,7 @@ from normalization.persian import (
 )
 
 
-def normalize_llm_row(row: LLMPlanRow, plan_url: str | None = None) -> NormalizedPlanRow:
+def normalize_llm_row(row: LLMPlanRow, plan_url: str | None = None, monthly_hours: int = 730) -> NormalizedPlanRow:
     issues: list[str] = []
 
     # Price: parse deterministically from the verbatim source text
@@ -45,6 +45,14 @@ def normalize_llm_row(row: LLMPlanRow, plan_url: str | None = None) -> Normalize
     if billing_period == "unknown":
         issues.append(f"unrecognized billing period {row.billing_period_raw!r}")
 
+    if monthly_hours <= 0:
+        raise ValueError('monthly_hours must be positive')
+    if billing_period == 'hourly' and price_in_toman is not None:
+        price_in_toman *= Decimal(monthly_hours)
+        billing_period = 'monthly'
+    if billing_period == 'unknown':
+        price_in_toman = None
+
     if row.vcpu is None or row.ram_gb is None or row.disk_gb is None:
         issues.append("missing resource specification (vcpu/ram/disk)")
 
@@ -56,6 +64,7 @@ def normalize_llm_row(row: LLMPlanRow, plan_url: str | None = None) -> Normalize
         ram_gb=row.ram_gb,
         disk_gb=row.disk_gb,
         disk_type=row.disk_type,
+        conversion_hours=monthly_hours if normalize_billing_period(row.billing_period_raw) == "hourly" else None,
         price_value=price_value,
         currency=currency,  # type: ignore[arg-type]
         price_in_toman=price_in_toman,

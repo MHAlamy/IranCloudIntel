@@ -12,7 +12,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-SCHEMA_VERSION = "vm-v1"
+SCHEMA_VERSION = "vm-v2"
 
 
 class LLMPlanRow(BaseModel):
@@ -52,6 +52,7 @@ class NormalizedPlanRow(BaseModel):
     ram_gb: float | None
     disk_gb: float | None
     disk_type: str | None
+    conversion_hours: int | None = None
     price_value: Decimal
     currency: Literal["toman", "rial", "unknown"]
     price_in_toman: Decimal | None = None  # set only when source currency is explicit

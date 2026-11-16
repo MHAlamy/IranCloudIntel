@@ -19,7 +19,7 @@ from typing import Callable
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from config.loader import ProviderConfig, SourceConfig  # noqa: E402
+from config.loader import ProviderConfig, SourceConfig, load_benchmarks  # noqa: E402
 from collectors.arvan_clean import TabContent, build_cleaned_markdown, sha256_text  # noqa: E402
 from comparison.rate_check import STORAGE_CLASS_LABELS, ProviderRateMapping, TierRates, verify_bundle  # noqa: E402
 from comparison.matching import is_iranian_region  # noqa: E402
@@ -146,6 +146,8 @@ def run_collection(
             from collectors.liara_plans import parse_ipv4_monthly
 
             ipv4_monthly = parse_ipv4_monthly(fetch_result.html)
+            if ipv4_monthly is None:
+                raise FetchError("Liara IPv4 surcharge unknown; comparable total cannot be published")
             recorded = 0
             for plan in plans:
                 offering_id = repo.ensure_offering(
@@ -232,7 +234,7 @@ def run_collection(
                         review_entries.append({"tab": tab, "row": raw_row, "error": str(exc)})
                         suspect += 1
                         continue
-                    normalized = normalize_llm_row(plan_row)
+                    normalized = normalize_llm_row(plan_row, monthly_hours=load_benchmarks().vm.monthly_hours)
                     if normalized.validation_status != "valid":
                         review_entries.append(
                             {"tab": tab, "row": raw_row, "issues": normalized.validation_issues}

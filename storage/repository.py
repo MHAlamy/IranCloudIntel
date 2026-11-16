@@ -166,8 +166,8 @@ class Repository:
                    offering_id, run_id, observed_at, price_value, price_in_toman,
                    currency, billing_period, price_raw, currency_raw, billing_period_raw,
                    vcpu, ram_gb, disk_gb, disk_type, plan_url,
-                   validation_status, validation_issues, evidence)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                   validation_status, validation_issues, evidence, conversion_hours)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (
                 offering_id, run_id, observed_at or utc_now_iso(),
                 str(normalized.price_value), str(price_in_toman),
@@ -179,7 +179,7 @@ class Repository:
                 normalized.disk_type, normalized.plan_url,
                 normalized.validation_status,
                 json.dumps(normalized.validation_issues, ensure_ascii=False),
-                evidence or raw.evidence,
+                evidence or raw.evidence, normalized.conversion_hours,
             ),
         )
         self._connection.commit()

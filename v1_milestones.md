@@ -98,3 +98,5 @@ Based on `PROJECT_GUIDE.md`; complete one milestone together at a time. Agreed c
 - [ ] README documents local setup, deployment, routine operation and recovery.
 
 **Working agreement:** before each step, describe exactly what will be checked, installed or changed; wait for confirmation, then implement and report results. Obtain explicit approval for installations/system changes, credentials changes, paid calls/resources, pushes/merges and production deployment. Keep V2 scraper repair and V3 feature/console monitoring outside this release.
+
+- [x] Audit item 2: monthly VM conversion with persisted basis (schema v4), strict progressive tariffs, unknown IPv4 handling and OS subtotal warnings. Local fixtures only; production DB not migrated.
