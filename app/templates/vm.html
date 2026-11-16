@@ -37,27 +37,7 @@
 </section>
 {% endif %}
 
-{% if view.chart %}
-<section class="card chart-card">
-  <h2 class="card-title">مقایسه بصری قیمت‌ها <span class="muted">ارزان‌ترین در بالا</span></h2>
-  {% for bar in view.chart %}
-  <div class="bar-row">
-    <span class="bar-provider" title="{{ bar.plan_name }}">{{ bar.provider_name }}</span>
-    <div class="bar-track">
-      {% if bar.price is not none %}
-      <div class="bar-fill bar-{{ bar.basis }}" style="width: {{ bar.width_pct }}%"></div>
-      {% else %}
-      <div class="bar-fill bar-empty"></div>
-      {% endif %}
-    </div>
-    <span class="bar-price {% if bar.price is none %}bar-price-none{% endif %}">
-      {{ bar.price|toman if bar.price is not none else '—' }}
-    </span>
-  </div>
-  {% endfor %}
-  <div class="muted chart-note">طول هر میله نسبت به گران‌ترین قیمتِ همین انتخاب است؛ رنگ میله‌ها مطابق ستون «مبنا» در جدول زیر.</div>
-</section>
-{% endif %}
+{% include 'price_chart.html' %}
 
 <section class="card table-card">
   <table class="price-table">

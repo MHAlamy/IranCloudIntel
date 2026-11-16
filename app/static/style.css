@@ -134,26 +134,6 @@ body {
 .rate-group-title { font-size: 14px; margin: 14px 0 6px; color: var(--text); }
 .rate-table { margin-bottom: 10px; }
 
-/* grouped scenario bars: colors identify the provider via a single legend */
-.os-chart .bar-price { color: var(--text); font-weight: 500; white-space: normal; }
-.os-chart .bar-fill.os-hamravesh { background: var(--success); }
-.os-chart .bar-fill.os-arvan { background: var(--brand-soft); opacity: 0.9; }
-.os-chart .bar-fill.os-parspack { background: var(--warning); }
-.os-chart .bar-fill.os-kubit { background: var(--info); }
-.chart-legend { display: flex; gap: 18px; margin: 4px 0 10px; font-size: 13px; flex-wrap: wrap; }
-.legend-item { display: inline-flex; align-items: center; gap: 6px; }
-.swatch { width: 12px; height: 12px; border-radius: 4px; display: inline-block; }
-.swatch.os-hamravesh { background: var(--success); }
-.swatch.os-arvan { background: var(--brand-soft); opacity: 0.9; }
-.swatch.os-parspack { background: var(--warning); }
-.swatch.os-kubit { background: var(--info); }
-.chart-group { margin: 14px 0 18px; }
-.chart-group:last-child { margin-bottom: 6px; }
-.chart-group-title {
-  font-size: 13px; color: var(--muted); margin-bottom: 6px;
-  padding-bottom: 4px; border-bottom: 1px solid var(--elevated);
-}
-
 /* collapsible cards (native <details>): closed until the user clicks */
 .collapse-card { padding: 0; }
 .collapse-card > summary {

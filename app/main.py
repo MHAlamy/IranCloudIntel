@@ -82,10 +82,10 @@ def create_app(db_path: str | Path | None = None) -> FastAPI:
         )
 
     @app.get("/object-storage", response_class=HTMLResponse)
-    def object_storage(request: Request):
+    def object_storage(request: Request, scenario: str | None = None):
         repo = Repository(db_path)
         try:
-            view = build_os_view(repo)
+            view = build_os_view(repo, scenario)
             view["freshness"] = repo.freshness("object_storage")
         finally:
             repo.close()

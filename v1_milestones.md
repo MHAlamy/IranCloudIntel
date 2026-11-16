@@ -102,3 +102,5 @@ Based on `PROJECT_GUIDE.md`; complete one milestone together at a time. Agreed c
 - [x] Audit item 2: monthly VM conversion with persisted basis (schema v4), strict progressive tariffs, unknown IPv4 handling and OS subtotal warnings. Local fixtures only; production DB not migrated.
 
 - [x] Audit item 3: regression coverage for failed/partial/empty extraction, stale sources, missing tariff intervals and cache invalidation on parser/config changes. Conservative fingerprints and suspect-only publication guards added.
+
+- [x] Visual consistency: VM and Object Storage share the VM chart template; OS selects one scenario and uses provider-row tables. Basis colors and cheapest-first bars are the default for future charts.

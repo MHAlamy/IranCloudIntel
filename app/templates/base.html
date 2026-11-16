@@ -24,8 +24,8 @@
   <main class="container">
     {% block content %}{% endblock %}
     {% if view is defined %}{% for source in view.freshness|default([]) %}
-    <p>{{ source.provider }} ? {% if source.stale %}???? ????? / ??????? ?????{% else %}??????{% endif %}
-    ? ????? ????: {{ source.last_checked|jalali }} ? ????? ?????: {{ source.last_verified|jalali }}</p>
+    <p>{{ source.provider }} · {% if source.stale %}داده قدیمی / نیازمند بررسی{% else %}به‌روز{% endif %}
+    · آخرین تلاش: {{ source.last_checked|jalali }} · آخرین تأیید: {{ source.last_verified|jalali }}</p>
     {% endfor %}{% endif %}
 
   </main>

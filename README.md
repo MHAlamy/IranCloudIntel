@@ -128,3 +128,7 @@ results, omitted OS plans, preservation of accepted rates, stale sources, config
 changes on unchanged content, monthly conversion and invalid tariff intervals.
 Run the portable suite with `python -m pytest tests --ignore=tests/test_browser.py`;
 browser-launch smoke tests remain separate and require installed browsers.
+
+## Panel visual standard
+
+VM and Object Storage share the VM chart design: one selected configuration, horizontal provider-labelled bars sorted cheapest first, colors by price basis, and a matching provider-row comparison table. Object Storage uses `?scenario=base|growth|pro|dedicated` pills; raw plans and tariffs remain below. Future panels follow this design unless explicitly overridden.

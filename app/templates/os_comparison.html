@@ -1,0 +1,30 @@
+<section class="selectors card">
+  <div class="selector-group">
+    <span class="selector-label">سناریو:</span>
+    <div class="pills">
+      {% for scenario in view.scenarios %}
+      <a class="pill {{ 'active' if view.selected_scenario and scenario.key == view.selected_scenario.key }}" href="/object-storage?scenario={{ scenario.key }}">{{ scenario.label }}</a>
+      {% endfor %}
+    </div>
+  </div>
+  {% if view.selected_scenario %}<div class="target">مرجع: {{ view.selected_scenario.storage_fa }} ذخیره‌سازی · {{ view.selected_scenario.traffic_fa }} ترافیک</div>{% endif %}
+</section>
+
+{% include 'price_chart.html' %}
+
+<section class="card table-card">
+  <table class="price-table">
+    <thead><tr><th>تأمین‌کننده</th><th>پلن</th><th>ظرفیت مرجع / ترافیک</th><th>جمع جزئی (تومان/ماه)</th><th>مبنا</th></tr></thead>
+    <tbody>
+      {% for row in view.comparison_rows %}
+      <tr class="basis-{{ row.basis }}">
+        <td data-label="تأمین‌کننده">{{ row.provider_name }}</td>
+        <td data-label="پلن">{{ row.plan_name }}{% for note in row.notes %}<div class="row-note">{{ note }}</div>{% endfor %}</td>
+        <td data-label="مرجع"><span dir="ltr">{{ view.selected_scenario.label_compact }}</span></td>
+        <td data-label="قیمت" class="price-cell">{{ row.price|toman }}</td>
+        <td data-label="مبنا"><span class="badge badge-{{ row.basis }}">{{ basis_labels[row.basis] }}</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>

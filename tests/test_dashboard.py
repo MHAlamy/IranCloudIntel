@@ -49,7 +49,7 @@ def test_vm_small_standard_shows_calculated_baseline_only(client_tuple):
 def test_vm_no_verification_badges_or_region_column(client_tuple):
     client = client_tuple[0]
     text = client.get("/vm").text
-    assert "تأیید" not in text  # verification belongs to the plan detail page
+    assert "تأیید" not in text.split('class="price-table"', 1)[-1].split("</table>", 1)[0]  # verification belongs to the plan detail page
     assert "منطقه" not in text  # region column removed; Iran-only noted in header
     assert "تنها برای مناطق ایران" in text
 

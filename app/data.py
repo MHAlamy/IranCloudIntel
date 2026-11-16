@@ -216,7 +216,7 @@ def build_vm_view(repo: Repository, tier: str, size_key: str) -> dict:
             if history:
                 from normalization.persian import normalize_billing_period
                 if normalize_billing_period(history[0]['billing_period_raw']) == 'hourly':
-                    notes.append(f"????? ?????? ????????? ({history[0]["conversion_hours"] or "??????"} ????)? ?? ???? ?????? ????????")
+                    notes.append(f"معادل ماهانه استاندارد ({history[0]['conversion_hours'] or 'نامشخص'} ساعت)، نه بسته ماهانه منتشرشده")
         view["rows"].append(VmRow(
             provider_slug=provider_slug,
             provider_name=provider_names.get(provider_slug, provider_slug),
@@ -483,7 +483,7 @@ def _format_compact(gb: Decimal, tb_to_gb: int) -> str:
     return f"{format_number(gb)}GB"
 
 
-def build_os_view(repo: Repository) -> dict:
+def build_os_view(repo: Repository, scenario_key: str | None = None) -> dict:
     benchmarks = load_benchmarks().object_storage
     providers_file = load_providers()
     provider_names = {p.slug: p.name for p in providers_file.providers}
@@ -583,7 +583,7 @@ def build_os_view(repo: Repository) -> dict:
         return None
 
     def _cell(price, basis: str, plan_name: str, notes: list[str]) -> dict:
-        return {"price": price, "basis": basis, "plan_name": plan_name, "notes": notes + ["??? ????? ????? ?????????? ? ?????? ???? ???? ???"]}
+        return {"price": price, "basis": basis, "plan_name": plan_name, "notes": notes + ["جمع جزئی؛ هزینه درخواست‌ها و مالیات لحاظ نشده است"]}
 
     def resolve_cell(slug: str, storage_gb: Decimal, traffic_gb: Decimal) -> dict:
         """One provider's comparable price at one baseline consumption point.
@@ -662,34 +662,17 @@ def build_os_view(repo: Repository) -> dict:
             },
         })
 
-    # One grouped bar chart. Bars are scaled within each scenario (the
-    # priciest option of that point = full track): the chart's job is showing
-    # how much cheaper each option is at each consumption point, and log or
-    # global-linear scaling both distort that perception (log compresses
-    # ratios; a global linear axis hides the small plans entirely).
-    chart_groups = []
-    for scenario in scenarios:
-        prices = [scenario["providers"][slug]["price"] for slug in os_provider_slugs]
-        group_max = max((p for p in prices if p is not None), default=None)
-        bars = []
+    selected = next((s for s in scenarios if s['key'] == scenario_key), scenarios[0] if scenarios else None)
+    comparison_rows = []
+    if selected:
         for slug in os_provider_slugs:
-            cell = scenario["providers"][slug]
-            badge_key = cell["basis"] if cell["basis"] not in (None, "published", "missing") else None
-            bars.append({
-                "cls": f"os-{slug}",
-                "price": cell["price"],
-                "basis": cell["basis"],
-                "width_pct": (
-                    max(int(cell["price"] / group_max * 100), 2)
-                    if cell["price"] is not None and group_max else 0
-                ),
-                "badge": OS_BASIS_LABELS_FA.get(badge_key) if badge_key else None,
-            })
-        chart_groups.append({"label": scenario["label"], "compact": scenario["label_compact"], "bars": bars})
-    chart = {
-        "legend": [{"cls": f"os-{slug}", "name": provider_names.get(slug, slug)} for slug in os_provider_slugs],
-        "groups": chart_groups,
-    }
+            comparison_rows.append(dict(selected['providers'][slug], provider_name=provider_names.get(slug, slug)))
+    priced = sorted((r for r in comparison_rows if r['price'] is not None), key=lambda r: r['price'])
+    missing = [r for r in comparison_rows if r['price'] is None]
+    maximum = max((r['price'] for r in priced), default=Decimal(0))
+    chart = [dict(r, width_pct=max(int(r['price'] / maximum * 100), 2) if maximum else 0) for r in priced]
+    if priced:
+        chart.extend(dict(r, width_pct=0) for r in missing)
 
     # PAYG rate tables per provider (collapsible on the page)
     rate_sections = []
@@ -723,6 +706,8 @@ def build_os_view(repo: Repository) -> dict:
         ],
         "baseline_slug": baseline_slug,
         "scenarios": scenarios,
+        "selected_scenario": selected,
+        "comparison_rows": comparison_rows,
         "chart": chart,
         "provider_sections": provider_sections,
         "rate_sections": rate_sections,

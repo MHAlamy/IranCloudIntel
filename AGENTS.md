@@ -23,3 +23,5 @@ Working rules:
   operations, modifying production, pushing/merging or deploying.
 - Update documentation when behavior or architecture changes. Do not claim a
   test or command succeeded unless it actually ran successfully.
+
+- Follow the VM visual standard for charts and comparison tables unless explicitly overridden: shared price_chart.html, one selected scenario, price-basis colors, cheapest-first bars. See price_gathering_guide.md shared design section.

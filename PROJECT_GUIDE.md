@@ -412,3 +412,23 @@ Status updates (2026-11-15) — original planning assumptions below are kept for
 - No code, repositories, paid endpoints or infrastructure have been created as part of preparing this guide. — **Superseded:** the application exists and runs locally; a private GitHub repository holds all code; the only paid resources used are Arvan AIaaS tokens (gateway rate-limited to 50 requests/5 minutes).
 
 **Start here:** Phase 0 locally; Phase 1 with one pricing page. — **Superseded:** Phases 0–4 (local prototype) are complete for VM coverage; continue with `v1_milestones.md` — remaining: Object Storage/CDN coverage, then VM deployment (Phase 4 of the technical milestones) and automated releases.
+
+## Shared chart and comparison-table design
+
+Owner decision: VM is the visual reference for all service panels and future
+charts unless an explicit request specifies otherwise. This overrides earlier
+Object Storage grouped/provider-color chart descriptions.
+
+- Show one selected scenario/configuration at a time, using the existing pill
+  selectors (VM tier/size; Object Storage scenario). Invalid selections fall back
+  to the first configured scenario.
+- Use `app/templates/price_chart.html`: horizontal provider-labelled bars,
+  cheapest priced result first, missing results last, widths relative to the
+  maximum price in that selection. Colors indicate price basis (published,
+  calculated, approximate), never provider identity. Omit charts with no prices.
+- Place the selected comparison chart above its primary table. Use provider rows
+  with plan, relevant specifications, monthly price/subtotal, basis badges and
+  caveats. Keep provider ordering consistent in tables; charts sort by price.
+- Preserve service-specific dimensions, uncertainty/subtotal warnings, source
+  freshness and detailed raw plan/rate sections. Visual consistency does not
+  imply equivalent products or complete costs.

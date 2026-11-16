@@ -183,7 +183,7 @@ def test_os_scenario_prices_and_bases(os_client):
     calculated from PAYG rates for the other two sizes; Kubit is calculated
     from its PAYG rates everywhere; ParsPack quotes storage only."""
     client = os_client
-    text = client.get("/object-storage").text
+    text = "".join(client.get("/object-storage?scenario=" + key).text for key in ("base", "growth", "pro", "dedicated"))
     # baseline (Hamravesh) published prices
     assert fa(375000) in text     # پایه
     assert fa(1500000) in text    # رشد
@@ -260,50 +260,28 @@ def test_os_layout_convention_chart_before_primary_table(os_client):
     text = os_client.get("/object-storage").text
     assert text.count('class="card chart-card') == 1
     chart_pos = text.find('class="card chart-card')
-    table_pos = text.find("مقایسه سناریوها")
+    table_pos = text.find('class="card table-card"')
     assert 0 < chart_pos < table_pos
 
 
-def test_os_scenario_chart_groups(os_client):
-    """One grouped bar chart, one legend, compact capacity labels. Bars are
-    scaled within each scenario (priciest option of the point = full track)
-    so the visual gap equals the true price ratio at that point:
-      پایه Arvan 100 · رشد Kubit 100 · حرفه‌ای ParsPack 100 · اختصاصی Arvan 100."""
-    client = os_client
-    text = client.get("/object-storage").text
-    assert "مقایسه بصری قیمت‌ها" in text
-    assert "بدون مصرف مازاد" in text  # the stated consumption assumption
-    # scaling note describes the per-scenario scale honestly
-    assert "گران\u200cترین گزینه\u200cی همان سناریو" in text
-    assert "۱۰۰٪ =" not in text  # no stale global-scale claim
-    # exactly one chart with a single legend (four provider swatches)
-    assert text.count('class="card chart-card os-chart"') == 1
-    assert text.count("swatch os-hamravesh") == 1
-    assert text.count("swatch os-arvan") == 1
-    assert text.count("swatch os-kubit") == 1
-    assert text.count("swatch os-parspack") == 1
-    # no per-bar provider labels anymore — the legend identifies them
-    assert "bar-provider" not in text
-    # four groups with compact capacity labels
-    assert text.count('class="chart-group"') == 4
-    for compact in ("۱۰۰GB/۴۰۰GB", "۵۰۰GB/۲TB", "۵TB/۲۰TB", "۵۰TB/۲۰۰TB"):
-        assert compact in text, compact
-    # each scenario's priciest option is full width (4 bars); spot-check
-    # fractions equal the true price ratios of that scenario
-    assert text.count('style="width: 100%"') == 4
-    for width in ("52%", "80%", "51%", "62%", "42%", "84%", "28%", "34%"):
-        assert f'style="width: {width}"' in text, width
-
-
-def test_os_chart_calculated_bar_has_badge(os_client):
-    """Calculated (Kubit) and approximate (ParsPack) bars carry their basis
-    badge inside the chart."""
-    text = os_client.get("/object-storage").text
-    chart_section = text.split('class="card chart-card os-chart"', 1)[-1]
-    assert "badge-calculated" in chart_section
-    assert "محاسبه\u200cشده" in chart_section
-    assert "badge-approximate" in chart_section
-    assert "تقریبی" in chart_section
+def test_os_chart_follows_selected_scenario(os_client):
+    from bs4 import BeautifulSoup
+    base = os_client.get('/object-storage').text
+    pro = os_client.get('/object-storage?scenario=pro').text
+    assert os_client.get('/object-storage?scenario=invalid').text == base
+    for text in (base, pro):
+        soup = BeautifulSoup(text, 'html.parser')
+        chart = soup.select_one('.chart-card')
+        assert len(soup.select('.chart-card')) == 1
+        assert len(chart.select('.bar-provider')) == 4
+        assert not chart.select('.chart-group, .swatch')
+        assert chart.select('.bar-calculated')
+        assert len(chart.select('[style="width: 100%"]')) == 1
+        prices = [int(''.join(c for c in el.get_text() if c.isdigit())) for el in chart.select('.bar-price')]
+        assert prices == sorted(prices)
+        assert len(soup.select('.table-card')[0].select('tbody tr')) == 4
+    assert 'bar-approximate' in BeautifulSoup(pro, 'html.parser').select_one('.chart-card').decode()
+    assert BeautifulSoup(base, 'html.parser').select_one('.chart-card').decode() != BeautifulSoup(pro, 'html.parser').select_one('.chart-card').decode()
 
 
 def test_nav_links_to_object_storage(os_client):

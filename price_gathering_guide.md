@@ -310,3 +310,23 @@ Read this guide and `PROJECT_GUIDE.md` before implementation. Inspect the curren
 - ~~Reference disk sizes, matching tie-breakers, default region details~~ — Reference sizes confirmed as owner requirements; disk targets remain proposed defaults. Region scope decided: Iranian regions only. IPv4 treatment decided per provider (see `v1_milestones.md` milestone 4).
 - Object Storage/CDN benchmark usage scenarios are still pending decisions.
 - Confirm production memory requirements for Playwright and LLM access/cost after local tests; do not increase infrastructure prematurely. — Local runs measured so far: Arvan collection ~3.2K prompt + ~3K completion tokens per full run; skip-unchanged runs cost 0 tokens.
+
+## Shared chart and comparison-table design
+
+Owner decision: VM is the visual reference for all service panels and future
+charts unless an explicit request specifies otherwise. This overrides earlier
+Object Storage grouped/provider-color chart descriptions.
+
+- Show one selected scenario/configuration at a time, using the existing pill
+  selectors (VM tier/size; Object Storage scenario). Invalid selections fall back
+  to the first configured scenario.
+- Use `app/templates/price_chart.html`: horizontal provider-labelled bars,
+  cheapest priced result first, missing results last, widths relative to the
+  maximum price in that selection. Colors indicate price basis (published,
+  calculated, approximate), never provider identity. Omit charts with no prices.
+- Place the selected comparison chart above its primary table. Use provider rows
+  with plan, relevant specifications, monthly price/subtotal, basis badges and
+  caveats. Keep provider ordering consistent in tables; charts sort by price.
+- Preserve service-specific dimensions, uncertainty/subtotal warnings, source
+  freshness and detailed raw plan/rate sections. Visual consistency does not
+  imply equivalent products or complete costs.
