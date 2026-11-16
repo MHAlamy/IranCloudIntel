@@ -9,6 +9,15 @@ natively on Windows; defer Linux and Docker execution to the VM deployment stage
 
 Working rules:
 
+- Start code exploration with `docs/CODE_MAP.md` and the milestone status header.
+  Read `AUDIT_HANDOFF.md` for audit context. Archived docs/scripts are historical,
+  not current instructions; do not load them by default.
+- Exclude `.venv`, `data`, `evidence`, `.pytest*`, fixtures and archives from broad
+  searches. Read bounded excerpts and specific fixtures only as needed.
+- Default `python -m pytest` is offline and skips browser launches. Use explicit
+  `-m browser` for local browser smoke tests. Use `python -m scripts.inspect_data`
+  for bounded read-only database inspection; archived scripts may write or bill.
+
 - Work on one agreed milestone at a time. Explain the purpose of each new
   component and summarize changes, tests, limitations and next steps.
 - Prefer small reviewable patches and a single VM architecture. Do not introduce

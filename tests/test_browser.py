@@ -1,5 +1,7 @@
 """Tests for environment-configured browser launching."""
 
+import pytest
+
 from playwright.sync_api import sync_playwright
 
 from collectors.browser import describe_browser_config, launch_browser, resolve_browser_options
@@ -24,6 +26,7 @@ def test_channel_and_executable_path_precedence(monkeypatch):
     assert options["executable_path"] == "/usr/bin/chromium"
 
 
+@pytest.mark.browser
 def test_launch_bundled_chromium_and_render_page():
     with sync_playwright() as p:
         browser = launch_browser(p)
@@ -33,6 +36,7 @@ def test_launch_bundled_chromium_and_render_page():
         browser.close()
 
 
+@pytest.mark.browser
 def test_launch_edge_channel(monkeypatch):
     monkeypatch.setenv("BROWSER_CHANNEL", "msedge")
     with sync_playwright() as p:

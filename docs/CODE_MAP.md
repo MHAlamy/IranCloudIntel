@@ -1,0 +1,22 @@
+# Task map
+
+| Task | Implementation | Targeted tests |
+|---|---|---|
+| HTTP/browser dispatch | `collectors/fetching.py`, `arvan_fetch.py`, `browser.py` | `test_browser.py`, `test_waits.py` |
+| VM extraction/publication | `collectors/vm_pipeline.py`, `extractors/schema.py`, `normalization/validate.py` | `test_pipeline.py`, `test_collection_regressions.py` |
+| OS extraction/publication | `collectors/os_pipeline.py`, `extractors/os_schema.py` | `test_os_pipeline.py`, `test_os_parsers.py` |
+| ParsPack interaction | `collectors/parspack_quotes.py`, `parspack_os.py`, `waits.py` | `test_waits.py` (browser cases are opt-in) |
+| Provider parsers | `collectors/{provider}*.py` | `test_liara.py`, `test_kubit.py`, `test_rates.py`, `test_os_parsers.py` |
+| Accepted history/freshness | `storage/repository.py`, `collectors/common.py` | `test_publication.py`, `test_storage.py` |
+| Tariff/monthly semantics | `comparison/tariffs.py`, `normalization/validate.py` | `test_price_semantics.py` |
+| VM comparison/rendering | `app/vm_view.py`, `comparison/matching.py`, `app/templates/vm.html` | `test_matching.py`, `test_dashboard.py` |
+| OS comparison/rendering | `app/os_view.py`, `app/templates/os_comparison.html` | `test_os_dashboard.py` |
+| Shared chart design | `app/templates/price_chart.html`, `app/static/style.css` | dashboard tests |
+| Read-only inspection | `scripts/inspect_data.py` | `test_inspect_data.py` |
+
+`app/data.py` and `collectors/pipeline.py` preserve old imports; edit the actual
+service modules. Prices, prompts and rules live in code/YAML, not historical docs.
+
+Explore with file lists, function searches and bounded excerpts. Exclude `.venv/`,
+`data/`, `evidence/`, `.pytest*/`, `tests/fixtures/`, `scripts/archive/`, and
+`docs/archive/` from broad content searches; read a specific fixture when needed.

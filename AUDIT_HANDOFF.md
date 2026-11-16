@@ -41,3 +41,29 @@
   authorized live check. Local browser smoke tests do not establish that.
 
 Item 4 validation: 177 non-browser tests passed, plus 2 synthetic local browser tests (no provider requests).
+
+## Item 5: efficient development workflow
+
+Item 4 commit: `787ed81`. The original planning/pricing/progress/README documents
+are preserved byte-for-text in `docs/archive/2026-11-16_*`; current root guides
+supersede them. Read `docs/CODE_MAP.md` for targeted code/test navigation.
+The five main root guidance files shrank from roughly 88 KB to 17 KB.
+
+All 42 one-off scripts are preserved under `scripts/archive/`. Do not run them as
+maintained tools: some write, bill, or use obsolete paths. Use
+`python -m scripts.inspect_data summary|providers|runs|verification --limit 20`;
+it opens SQLite read-only and never migrates. Three old inspection command names
+remain compatibility wrappers. Missing database paths are rejected, not created.
+
+Install `requirements-dev.txt` locally; `requirements.txt` contains runtime pins
+including the directly imported `python-dotenv`. Pytest is dev-only. Default
+`python -m pytest` searches `tests/` and excludes browser launches; explicitly use
+`python -m pytest -m browser tests/test_waits.py` for synthetic browser checks.
+Tests cover bounded inspection, no implicit DB creation/migration, and wait timeouts.
+
+Final validation: 183 default tests passed; four browser tests were deselected.
+The two synthetic delayed VM/OS calculator tests passed separately. Chromium/Edge
+launch tests were not rerun. `pip check` passed; one existing FastAPI/HTTPX
+TestClient deprecation warning remains. Archive preservation verified against Git.
+No dependency installation, paid extraction, provider requests, production change,
+push or deployment was performed for items 4/5.
