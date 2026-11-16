@@ -9,7 +9,7 @@ layers:
     name_fa: زیرساخت به‌عنوان سرویس
     products:
       - slug: vm
-        name_fa: سرور ابری
+        name_fa: سرور ابری (VM)
         route: /vm
         enabled: true
       - slug: object_storage
@@ -36,7 +36,7 @@ layers:
     name_fa: پلتفرم به‌عنوان سرویس
     products:
       - slug: cnap
-        name_fa: (CNAP) پلتفرم ابری توسعه اپلیکیشن
+        name_fa: پلتفرم ابری توسعه اپلیکیشن (CNAP)
         enabled: false
       - slug: dbaas
         name_fa: دیتابیس ابری (DBaaS)

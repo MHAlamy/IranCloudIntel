@@ -15,7 +15,7 @@ def test_homepage_renders_hero_and_layers(client_tuple):
     assert "مقایسه‌ی قیمت، قابلیت‌ها و عملکرد محصولات ابری تأمین‌کنندگان ایرانی" in text
     for acronym in ("IaaS", "CaaS", "PaaS"):
         assert acronym in text
-    for product in ("سرور ابری", "آبجکت استورج", "(CNAP) پلتفرم ابری توسعه اپلیکیشن",
+    for product in ("سرور ابری (VM)", "آبجکت استورج", "پلتفرم ابری توسعه اپلیکیشن (CNAP)",
                     "دیتابیس ابری (DBaaS)", "ابزارهای DevOps", "AIaaS", "GPUaaS"):
         assert product in text
 

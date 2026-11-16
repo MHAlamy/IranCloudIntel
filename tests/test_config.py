@@ -89,12 +89,14 @@ def test_product_catalog_loads():
     assert {p.slug for layer in catalog.layers for p in layer.products if p.enabled} == {
         "vm", "object_storage"
     }
+    vm = next(p for p in layers["iaas"].products if p.slug == "vm")
+    assert vm.name_fa == "سرور ابری (VM)"
     routes = {p.slug: p.route for layer in catalog.layers for p in layer.products}
     assert routes["vm"] == "/vm"
     assert routes["object_storage"] == "/object-storage"
     assert routes["cdn"] is None
     cnap = next(p for p in layers["paas"].products if p.slug == "cnap")
-    assert cnap.name_fa == "(CNAP) پلتفرم ابری توسعه اپلیکیشن"
+    assert cnap.name_fa == "پلتفرم ابری توسعه اپلیکیشن (CNAP)"
 
 
 def test_product_catalog_rejects_duplicate_slugs():
