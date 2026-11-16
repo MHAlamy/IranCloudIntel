@@ -116,8 +116,9 @@ def test_pipeline_liara_records_bundles_with_ipv4(tmp_path):
 def test_dashboard_reflects_liara(client_tuple):
     client, _ = client_tuple
     fa = lambda n: f"{n:,}".replace(",", "٬").translate(str.maketrans("0123456789", "۰۱۲۳۴۵۶۷۸۹"))
-    standard_medium = client.get("/vm?tier=standard&size=medium").text
-    assert "Liara" in standard_medium
-    assert fa(4800000) in standard_medium  # اورانوس + IPv4, exact baseline
-    standard_vl = client.get("/vm?tier=standard&size=very_large").text
-    assert fa(24800000) in standard_vl  # اریس + IPv4, exact baseline
+    # Owner decision 2026-11-15: Liara compares under Economy.
+    economy_medium = client.get("/vm?tier=economy&size=medium").text
+    assert "Liara" in economy_medium
+    assert fa(4800000) in economy_medium  # اورانوس + IPv4, exact baseline
+    economy_vl = client.get("/vm?tier=economy&size=very_large").text
+    assert fa(24800000) in economy_vl  # اریس + IPv4, exact baseline

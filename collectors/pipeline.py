@@ -25,8 +25,12 @@ from comparison.rate_check import STORAGE_CLASS_LABELS, ProviderRateMapping, Tie
 from comparison.matching import is_iranian_region  # noqa: E402
 from decimal import Decimal  # noqa: E402
 from extractors.llm import LLMClient, LLMError  # noqa: E402
+from extractors.os_prompts import OS_SYSTEM_PROMPT  # noqa: E402
+from extractors.os_schema import OS_SCHEMA_VERSION  # noqa: E402
 from extractors.prompts import SYSTEM_PROMPT, build_extraction_messages  # noqa: E402
 from extractors.schema import LLMPlanRow, NormalizedPlanRow, SCHEMA_VERSION  # noqa: E402
+from normalization.os_validate import normalize_os_row  # noqa: E402
+from normalization.persian import parse_price  # noqa: E402
 from normalization.validate import normalize_llm_row  # noqa: E402
 from storage.repository import Repository  # noqa: E402
 
@@ -292,6 +296,204 @@ def _current_model() -> str:
     return os.getenv("AIaaS_MODEL", "")
 
 
+# -- Object Storage collection (price_gathering_guide.md 7) -------------------
+
+def os_extractor_config_hash(model: str) -> str:
+    """Hash of everything that defines OS extraction behavior."""
+    payload = json.dumps(
+        {"model": model, "schema_version": OS_SCHEMA_VERSION, "system_prompt": OS_SYSTEM_PROMPT},
+        sort_keys=True,
+    )
+    return sha256_text(payload)
+
+
+def _overage_toman(raw: str | None) -> str | None:
+    """'۳,۰۰۰ تومان' -> '3000'; markers like 'تماس بگیرید' -> None."""
+    if not raw:
+        return None
+    try:
+        return str(Decimal(parse_price(raw)))
+    except ValueError:
+        return None
+
+
+def run_os_collection(
+    provider: ProviderConfig,
+    source: SourceConfig,
+    repo: Repository,
+    fetcher: Fetcher,
+    cleaner: Callable[[str, str], str],
+    llm_factory: Callable[[], LLMClient] | None = None,
+    os_plans_parser: Callable[[str], list] | None = None,
+    os_rates_parser: Callable[[str], list] | None = None,
+    os_crosscheck: Callable[[str, list], list[dict]] | None = None,
+    tb_to_gb: int = 1024,
+    evidence_root: Path = EVIDENCE_ROOT,
+    force: bool = False,
+) -> CollectionOutcome:
+    """Collect one object-storage source end-to-end. Failures are returned."""
+    provider_id = repo.ensure_provider(provider.slug, provider.name, provider.official_url)
+    source_id = repo.ensure_source(
+        provider_id, source.service_type, source.url, source.collection_method, source.region_scope
+    )
+    run_id = repo.start_run(source_id)
+    outcome = CollectionOutcome(source_id=source.id, status="failed")
+
+    try:
+        fetch_result = fetcher(source)
+        cleaned = cleaner(fetch_result.html, source.url)
+        content_hash = sha256_text(cleaned)
+        if llm_factory is not None:
+            config_hash = os_extractor_config_hash(_current_model())
+        else:
+            config_hash = sha256_text(f"os-parser:{provider.slug}")
+
+        stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+        evidence_dir = evidence_root / provider.slug / source.service_type / f"{stamp}_{content_hash[:12]}"
+        evidence_dir.mkdir(parents=True, exist_ok=True)
+        (evidence_dir / "rendered.html").write_text(fetch_result.html, encoding="utf-8")
+        (evidence_dir / "cleaned.md").write_text(cleaned, encoding="utf-8")
+
+        if not force and repo.should_skip_extraction(source_id, content_hash, config_hash):
+            repo.finish_run(
+                run_id, "success", http_status=fetch_result.http_status,
+                content_hash=content_hash, extractor_config_hash=config_hash,
+                evidence_path=str(evidence_dir), model=_current_model(),
+                schema_version=OS_SCHEMA_VERSION,
+            )
+            outcome.status = "success"
+            outcome.skipped = True
+            return outcome
+
+        rates_stored = 0
+        if os_rates_parser is not None:
+            rates_stored = repo.record_os_rates(
+                run_id, provider_id, os_rates_parser(fetch_result.html)
+            )
+
+        prompt_tokens = completion_tokens = 0
+        observations = suspect = 0
+        review_entries: list[dict] = []
+
+        if os_plans_parser is not None:
+            # Deterministic plan parsing (e.g. Hamravesh's attribute matrix):
+            # no LLM call; overage rates come from the same table.
+            from collectors.hamravesh_os import OSPlan  # noqa: F401  (typing only)
+            from extractors.os_schema import LLMStoragePlanRow
+            from normalization.os_validate import normalize_os_row
+
+            for plan in os_plans_parser(fetch_result.html):
+                price_raw = plan.price_raw or ""
+                raw = LLMStoragePlanRow(
+                    plan_name=plan.plan_name,
+                    price_raw=price_raw,
+                    currency_raw="تومان" if "تومان" in price_raw else "",
+                    billing_period_raw="ماهانه" if price_raw and "ثبت درخواست" not in price_raw else "",
+                    storage_raw=plan.storage_raw,
+                    traffic_raw=plan.traffic_raw,
+                    requests_raw=None,
+                    unlimited_raw=None,
+                    evidence=plan.evidence,
+                )
+                normalized = normalize_os_row(raw, tb_to_gb=tb_to_gb, plan_url=source.url)
+                if normalized.validation_status != "valid":
+                    review_entries.append({"plan": plan.plan_name, "issues": normalized.validation_issues})
+                    suspect += 1
+                    continue
+                offering_id = repo.ensure_offering(
+                    provider_id, source.service_type, normalized.plan_name,
+                    product_family="fixed_bundle", provider_tier_raw="", region="",
+                )
+                repo.record_os_observation(
+                    run_id, offering_id, normalized,
+                    price_raw=price_raw,
+                    currency_raw=raw.currency_raw,
+                    billing_period_raw=raw.billing_period_raw,
+                    evidence=plan.evidence,
+                    overage_storage_toman_gb=_overage_toman(plan.overage_storage_raw),
+                    overage_traffic_toman_gb=_overage_toman(plan.overage_traffic_raw),
+                )
+                observations += 1
+        elif llm_factory is not None:
+            from extractors.os_prompts import build_os_extraction_messages
+            from extractors.os_schema import LLMStoragePlanRow
+            from normalization.os_validate import normalize_os_row
+
+            context = {
+                "provider": provider.name,
+                "service": source.service_type,
+                "source_url": source.url,
+                "region_scope": source.region_scope,
+            }
+            with llm_factory() as client:
+                messages = build_os_extraction_messages(cleaned, context=context)
+                try:
+                    rows, telemetry = client.extract_rows(messages)
+                except LLMError as exc:
+                    raise FetchError(f"OS extraction failed: {exc}") from exc
+                prompt_tokens = telemetry.prompt_tokens
+                completion_tokens = telemetry.completion_tokens
+
+            normalized_pairs = []
+            for raw_row in rows:
+                try:
+                    raw = LLMStoragePlanRow(**raw_row)
+                except Exception as exc:
+                    review_entries.append({"row": raw_row, "error": str(exc)})
+                    suspect += 1
+                    continue
+                normalized = normalize_os_row(raw, tb_to_gb=tb_to_gb, plan_url=source.url)
+                if normalized.validation_status != "valid":
+                    review_entries.append({"row": raw_row, "issues": normalized.validation_issues})
+                    suspect += 1
+                    continue
+                normalized_pairs.append((raw, normalized))
+
+            # Deterministic cross-check against the page's comparison matrix
+            # (review-only: mismatches are flagged, never silently accepted).
+            if os_crosscheck is not None:
+                review_entries.extend(os_crosscheck(fetch_result.html, normalized_pairs))
+
+            for raw, normalized in normalized_pairs:
+                offering_id = repo.ensure_offering(
+                    provider_id, source.service_type, normalized.plan_name,
+                    product_family="fixed_bundle", provider_tier_raw="", region="",
+                )
+                repo.record_os_observation(
+                    run_id, offering_id, normalized,
+                    price_raw=raw.price_raw,
+                    currency_raw=raw.currency_raw,
+                    billing_period_raw=raw.billing_period_raw,
+                    evidence=raw.evidence,
+                )
+                observations += 1
+
+        if review_entries:
+            (evidence_dir / "review_queue.json").write_text(
+                json.dumps(review_entries, ensure_ascii=False, indent=2), encoding="utf-8"
+            )
+
+        repo.finish_run(
+            run_id, "success", http_status=fetch_result.http_status,
+            content_hash=content_hash, extractor_config_hash=config_hash,
+            evidence_path=str(evidence_dir), model=_current_model(),
+            schema_version=OS_SCHEMA_VERSION, prompt_tokens=prompt_tokens,
+            completion_tokens=completion_tokens,
+        )
+        outcome.status = "success"
+        outcome.observations = observations
+        outcome.suspect_rows = suspect
+        outcome.prompt_tokens = prompt_tokens
+        outcome.completion_tokens = completion_tokens
+        outcome.detail = {"rates_stored": rates_stored}
+        return outcome
+
+    except Exception as exc:
+        repo.finish_run(run_id, "failed", error=str(exc)[:2000], model=_current_model())
+        outcome.error = str(exc)
+        return outcome
+
+
 def _tier_rates_from_repo(repo: Repository, provider_id: int, mapping: ProviderRateMapping):
     """Build a per-plan rate lookup from the provider's stored Iran rates.
 
@@ -342,7 +544,11 @@ def fetch_source(source: SourceConfig) -> FetchResult:
         from collectors.arvan_fetch import fetch_with_browser
 
         marker = source.navigation.get("ready_marker", "")
-        result = fetch_with_browser(source.url, ready_marker=marker)
+        result = fetch_with_browser(
+            source.url,
+            ready_marker=marker,
+            click_selector=source.navigation.get("click_selector"),
+        )
         return FetchResult(html=result.html, http_status=result.http_status, final_url=result.final_url)
     if source.collection_method == "http":
         import httpx

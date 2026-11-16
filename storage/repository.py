@@ -269,3 +269,100 @@ class Repository:
         """True when identical content was already extracted under the same config."""
         last = self.last_successful_extraction(source_id, extractor_config_hash)
         return last is not None and last["content_hash"] == content_hash
+
+    # -- object storage ----------------------------------------------------
+    # Service-specific persistence (price_gathering_guide.md 7): OS pricing is
+    # never forced into the VM-shaped columns of price_observations.
+
+    def record_os_observation(
+        self, run_id: int, offering_id: int, normalized, *,
+        price_raw: str, currency_raw: str, billing_period_raw: str,
+        evidence: str, overage_storage_toman_gb: str | None = None,
+        overage_traffic_toman_gb: str | None = None, observed_at: str | None = None,
+    ) -> int:
+        """Append one validated Object Storage plan observation (append-only)."""
+        if normalized.validation_status != "valid":
+            raise ValueError("only valid observations may be recorded; suspect rows go to review")
+        cursor = self._connection.execute(
+            """INSERT INTO os_observations (
+                   offering_id, run_id, observed_at, plan_status, price_value,
+                   price_in_toman, currency, billing_period, price_raw, currency_raw,
+                   billing_period_raw, storage_included_gb, traffic_included_gb,
+                   requests_included, storage_unlimited, traffic_unlimited,
+                   requests_unlimited, overage_storage_toman_gb,
+                   overage_traffic_toman_gb, plan_url, validation_status,
+                   validation_issues, evidence)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (
+                offering_id, run_id, observed_at or utc_now_iso(),
+                normalized.plan_status,
+                str(normalized.price_value) if normalized.price_value is not None else None,
+                str(normalized.price_in_toman) if normalized.price_in_toman is not None else None,
+                normalized.currency, normalized.billing_period,
+                price_raw, currency_raw, billing_period_raw,
+                str(normalized.storage_included_gb) if normalized.storage_included_gb is not None else None,
+                str(normalized.traffic_included_gb) if normalized.traffic_included_gb is not None else None,
+                normalized.requests_included,
+                int(normalized.storage_unlimited), int(normalized.traffic_unlimited),
+                int(normalized.requests_unlimited),
+                overage_storage_toman_gb, overage_traffic_toman_gb,
+                normalized.plan_url, normalized.validation_status,
+                json.dumps(normalized.validation_issues, ensure_ascii=False),
+                evidence,
+            ),
+        )
+        self._connection.commit()
+        return int(cursor.lastrowid)
+
+    def latest_os_observations(self, provider_id: int | None = None) -> list[sqlite3.Row]:
+        """Latest valid OS observation per offering, joined with identity."""
+        query = """
+            SELECT o.*, off.plan_name, off.region, off.product_family,
+                   off.provider_id, off.service_type,
+                   p.slug AS provider_slug, p.name AS provider_name
+            FROM offerings off
+            JOIN providers p ON p.id = off.provider_id
+            JOIN os_observations o ON o.id = (
+                SELECT oo.id FROM os_observations oo
+                WHERE oo.offering_id = off.id AND oo.validation_status = 'valid'
+                ORDER BY oo.observed_at DESC, oo.id DESC LIMIT 1
+            )
+            WHERE off.service_type = 'object_storage'
+              AND (? IS NULL OR off.provider_id = ?)
+            ORDER BY p.name, off.plan_name
+        """
+        return self._connection.execute(query, (provider_id, provider_id)).fetchall()
+
+    def record_os_rates(self, run_id: int, provider_id: int, rates: list) -> int:
+        """Store parsed Object Storage PAYG/overage rate rows."""
+        count = 0
+        for rate in rates:
+            self._connection.execute(
+                """INSERT INTO os_rates (
+                       provider_id, run_id, observed_at, category, unit, tier_label,
+                       range_label, range_min_gb, range_max_gb, amount_toman, is_free,
+                       region, evidence)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                (
+                    provider_id, run_id, utc_now_iso(), rate.category, rate.unit,
+                    rate.tier_label, rate.range_label, rate.range_min_gb,
+                    rate.range_max_gb, rate.amount_toman, int(rate.is_free),
+                    getattr(rate, "region", "iran") or "iran", rate.evidence,
+                ),
+            )
+            count += 1
+        self._connection.commit()
+        return count
+
+    def latest_os_rates(self, provider_id: int, region: str = "iran") -> list[sqlite3.Row]:
+        """Newest OS rate row per (category, unit, tier_label, range_label)."""
+        return self._connection.execute(
+            """SELECT r.* FROM os_rates r
+               JOIN (
+                   SELECT category, unit, tier_label, range_label, MAX(id) AS max_id
+                   FROM os_rates WHERE provider_id=? AND region=?
+                   GROUP BY category, unit, tier_label, range_label
+               ) latest ON r.id = latest.max_id
+               ORDER BY r.category, r.tier_label, r.range_min_gb""",
+            (provider_id, region),
+        ).fetchall()

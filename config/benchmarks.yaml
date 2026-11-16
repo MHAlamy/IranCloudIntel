@@ -20,3 +20,18 @@ vm:
   regions:
     scope: iran              # compare Iranian regions only (owner decision 2026-11-15)
     iranian_prefix: ir-      # regions whose code starts with this are treated as Iranian
+
+# Object Storage benchmarks (price_gathering_guide.md 7). Owner decision
+# (2026-11-15): the comparison baseline is Hamravesh's published plans — each
+# scenario is one Hamravesh plan's included capacity. Providers without an
+# exactly matching bundle get a price calculated from their documented PAYG
+# rates. Request charges are excluded from scenarios because Hamravesh
+# publishes no request allowance (unknown ≠ zero).
+object_storage:
+  tb_to_gb: 1024             # provider pages say ترابایت; conversion is explicit here
+  baseline: hamravesh
+  scenarios:
+    base:       {label: پایه,    storage_gb: 100,    traffic_gb: 400}
+    growth:     {label: رشد,     storage_gb: 500,    traffic_gb: 2048}
+    pro:        {label: حرفه‌ای, storage_gb: 5120,   traffic_gb: 20480}
+    dedicated:  {label: اختصاصی, storage_gb: 51200,  traffic_gb: 204800}

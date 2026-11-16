@@ -35,12 +35,18 @@ class FetchResult:
 def fetch_with_browser(
     url: str,
     ready_marker: str,
+    click_selector: str | None = None,
     max_wait_seconds: int = 60,
     viewport_width: int = 1440,
     viewport_height: int = 900,
     locale: str = "fa-IR",
 ) -> FetchResult:
-    """Render `url` in the configured browser and wait for `ready_marker` text."""
+    """Render `url` in the configured browser and wait for `ready_marker` text.
+
+    `click_selector` (optional) is clicked after load and before the marker
+    wait — for pages whose pricing content renders only after a client-side
+    tab switch (e.g. Hamravesh's pricing menu).
+    """
     with sync_playwright() as p:
         browser = launch_browser(p)
         try:
@@ -48,6 +54,26 @@ def fetch_with_browser(
                 viewport={"width": viewport_width, "height": viewport_height}, locale=locale
             )
             response = page.goto(url, wait_until="domcontentloaded", timeout=60_000)
+
+            if click_selector:
+                clicked = False
+                elapsed = 0
+                while elapsed < max_wait_seconds and not clicked:
+                    try:
+                        locator = page.locator(click_selector).first
+                        if locator.count() > 0 and locator.is_visible():
+                            locator.click()
+                            clicked = True
+                            break
+                    except Exception:
+                        pass  # element not ready yet; retry until the deadline
+                    page.wait_for_timeout(2_000)
+                    elapsed += 2
+                if not clicked:
+                    raise FetchError(
+                        f"click selector {click_selector!r} not clickable within "
+                        f"{max_wait_seconds}s on {url}"
+                    )
 
             marker_seen = False
             elapsed = 0

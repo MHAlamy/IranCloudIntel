@@ -29,6 +29,13 @@ def test_committed_configs_load_and_validate():
     assert set(benchmarks.vm.sizes) == {"small", "medium", "large", "very_large"}
     assert benchmarks.vm.sizes["medium"].vcpu == 4
     assert benchmarks.vm.monthly_hours == 730
+    # object-storage benchmarks: Hamravesh plans are the baseline (owner decision)
+    os_b = benchmarks.object_storage
+    assert os_b.baseline == "hamravesh"
+    assert os_b.tb_to_gb == 1024
+    assert set(os_b.scenarios) == {"base", "growth", "pro", "dedicated"}
+    assert os_b.scenarios["growth"].storage_gb == 500
+    assert os_b.scenarios["growth"].traffic_gb == 2048
 
 
 def test_duplicate_provider_slug_rejected(tmp_path):
@@ -65,4 +72,6 @@ def test_tiers_file_shape():
     arvan = tiers.vm.providers["arvan"]
     assert arvan.aliases["basic"] == "economy"
     assert arvan.unknown_label_policy == "review"
-    assert tiers.vm.providers["liara"].default == "standard"
+    # Owner decision 2026-11-15: Liara and ParsPack compare under Economy.
+    assert tiers.vm.providers["liara"].default == "economy"
+    assert tiers.vm.providers["parspack"].default == "economy"

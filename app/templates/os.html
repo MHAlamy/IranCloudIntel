@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% block title %}مقایسه قیمت آبجکت استورج{% endblock %}
+{% block content %}
+<section class="page-head">
+  <h1>مقایسه قیمت آبجکت استورج</h1>
+  <p class="muted">مقایسه بر پایه‌ی پلن‌های منتشرشده‌ی {{ view.baseline_name }} (مبنا) · همه‌ی قیمت‌ها به تومان در ماه · هزینه‌ی درخواست‌ها مستثنی است</p>
+</section>
+
+{% if view.review_flags %}
+<section class="banner banner-warning">
+  <strong>نکته:</strong>
+  <ul>
+    {% for flag in view.review_flags %}<li>{{ flag }}</li>{% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+<section class="card chart-card os-chart">
+  <h2 class="card-title">مقایسه بصری قیمت‌ها</h2>
+  <p class="muted">فرض: مصرف دقیقاً برابر با ظرفیت پلن، بدون مصرف مازاد · در هر سناریو، طول میله‌ها نسبت به گران‌ترین گزینه‌ی همان سناریو مقیاس شده است</p>
+  <div class="chart-legend">
+    {% for item in view.chart.legend %}
+    <span class="legend-item"><span class="swatch {{ item.cls }}"></span>{{ item.name }}</span>
+    {% endfor %}
+  </div>
+  {% for group in view.chart.groups %}
+  <div class="chart-group">
+    <div class="chart-group-title">{{ group.label }} — <span dir="ltr">{{ group.compact }}</span></div>
+    {% for bar in group.bars %}
+    <div class="bar-row">
+      <div class="bar-track">
+        {% if bar.price is not none %}
+        <div class="bar-fill {{ bar.cls }}" style="width: {{ bar.width_pct }}%"></div>
+        {% else %}
+        <div class="bar-fill bar-empty"></div>
+        {% endif %}
+      </div>
+      <span class="bar-price">
+        {%- if bar.price is not none %}{{ bar.price|toman }}{% if bar.badge %} <span class="badge badge-{{ bar.basis }}">{{ bar.badge }}</span>{% endif %}{% else %}—{% endif -%}
+      </span>
+    </div>
+    {% endfor %}
+  </div>
+  {% endfor %}
+</section>
+
+<section class="card table-card">
+  <h2 class="card-title">مقایسه سناریوها (پلن‌های {{ view.baseline_name }})</h2>
+  <table class="price-table">
+    <thead>
+      <tr>
+        <th>سناریو</th>
+        <th>ظرفیت</th>
+        {% for p in view.os_providers %}
+        <th>{{ p.name }}{% if p.is_baseline %} <span class="muted">(مبنا)</span>{% endif %}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for scenario in view.scenarios %}
+      <tr>
+        <td data-label="سناریو">{{ scenario.label }}</td>
+        <td data-label="ظرفیت"><span dir="ltr">{{ scenario.label_compact }}</span></td>
+        {% for p in view.os_providers %}
+        {% set cell = scenario.providers[p.slug] %}
+        <td data-label="{{ p.name }}">
+          {% if cell.price is not none %}{{ cell.price|toman }}{% else %}—{% endif %}
+          <span class="badge badge-{{ cell.basis }}">{{ basis_labels[cell.basis] }}</span>
+          {% for note in cell.notes %}<div class="row-note">{{ note }}</div>{% endfor %}
+        </td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+{% for section in view.provider_sections %}
+<details class="card collapse-card">
+  <summary>پلن‌های منتشرشده — {{ section.name }}</summary>
+  {% for note in section.notes %}<p class="muted">{{ note }}</p>{% endfor %}
+  <table class="price-table">
+    <thead>
+      <tr>
+        <th>پلن</th>
+        <th>قیمت (تومان/ماه)</th>
+        <th>فضای ذخیره‌سازی</th>
+        <th>ترافیک</th>
+        <th>درخواست</th>
+        <th>هر GB فضای اضافه</th>
+        <th>هر GB ترافیک اضافه</th>
+        <th>آخرین بررسی</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for plan in section.plans %}
+      <tr>
+        <td data-label="پلن">
+          {% if plan.offering_id %}<a href="/plan/{{ plan.offering_id }}" class="plan-link">{{ plan.plan_name }}</a>
+          {% else %}{{ plan.plan_name }}{% endif %}
+        </td>
+        <td data-label="قیمت" class="price-cell">
+          {% if plan.status == 'free' %}رایگان{% elif plan.price is not none %}{{ plan.price|toman }}{% else %}—{% endif %}
+          <div class="row-note">{{ plan.status_fa }}</div>
+        </td>
+        <td data-label="فضای ذخیره‌سازی">{{ plan.storage_fa }}</td>
+        <td data-label="ترافیک">{{ plan.traffic_fa }}</td>
+        <td data-label="درخواست">{{ plan.requests_fa }}</td>
+        <td data-label="هر GB فضای اضافه">{{ plan.overage_storage }}</td>
+        <td data-label="هر GB ترافیک اضافه">{{ plan.overage_traffic }}</td>
+        <td data-label="آخرین بررسی">{{ plan.observed_at|jalali_date }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</details>
+{% endfor %}
+
+{% if view.rate_sections %}
+<details class="card collapse-card">
+  <summary>نرخ‌های مصرف مازاد (PAYG)</summary>
+  <p class="muted">همان نرخ‌هایی که قیمت‌های «محاسبه‌شده» از روی آن‌ها ساخته می‌شوند</p>
+  {% for section in view.rate_sections %}
+  <h3 class="rate-group-title">{{ section.provider_name }}</h3>
+  {% for table in section.tables %}
+  <h4 class="rate-group-title">{{ table.title }}</h4>
+  <table class="price-table rate-table">
+    <thead>
+      <tr>
+        <th>ردیف</th>
+        <th>پلکان استفاده</th>
+        <th>واحد</th>
+        <th>نرخ</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in table.rows %}
+      <tr>
+        <td data-label="ردیف">{{ row.tier }}</td>
+        <td data-label="پلکان استفاده">{{ row.range }}</td>
+        <td data-label="واحد">{{ row.unit }}</td>
+        <td data-label="نرخ">{{ row.amount }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endfor %}
+  {% endfor %}
+</details>
+{% endif %}
+
+<section class="legend card">
+  <strong>راهنما:</strong>
+  <span class="badge badge-published">منتشرشده</span> قیمت واقعی بسته‌ی منتشرشده ·
+  <span class="badge badge-calculated">محاسبه‌شده</span> محاسبه از نرخ‌های اعلامی (فرض‌ها در یادداشت ردیف) ·
+  <span class="badge badge-missing">در دسترس نیست</span> هنوز گردآوری نشده
+</section>
+{% endblock %}

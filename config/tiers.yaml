@@ -13,6 +13,9 @@ vm:
         premium: premium
         premium_plus: premium
       unknown_label_policy: review   # unexpected Arvan labels go to analyst review
-    liara: {default: standard}
-    parspack: {default: standard}
+    # Owner decision 2026-11-15: Liara and ParsPack offerings are treated as
+    # cost-oriented and compared under Economy instead of Standard. Their
+    # stored provider_tier_raw values are unchanged; only this mapping moved.
+    liara: {default: economy}
+    parspack: {default: economy}
     cloud_ir: {default: standard}

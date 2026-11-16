@@ -133,15 +133,17 @@ def test_near_miss_exact_cpu_ram_shows_as_approximate():
         plan("16vCPU-32GB-300GB", "standard", "ir-tehran11", 16, 32, 300, 12648810),
         plan("32vCPU-64GB-300GB", "standard", "ir-tehran11", 32, 64, 300, 24349065),
     ]
+    # Owner decision 2026-11-15: ParsPack normalizes to Economy, even though
+    # the stored raw tier label is "standard".
     # Medium: exact baseline bundle -> primary
-    medium = matcher.match_size(quotes, "standard", "medium")
+    medium = matcher.match_size(quotes, "economy", "medium")
     assert [m.plan.plan_name for m in medium.primary] == ["4vCPU-8GB-80GB"]
     # Small: 1/2/25 is a near miss (disk +5)
-    small = matcher.match_size(quotes, "standard", "small")
+    small = matcher.match_size(quotes, "economy", "small")
     assert small.primary == []
     assert [m.plan.plan_name for m in small.near_miss] == ["1vCPU-2GB-25GB"]
     # VeryLarge (32/64/640): 32/64/300 has exact CPU/RAM, disk differs -> near miss
-    very_large = matcher.match_size(quotes, "standard", "very_large")
+    very_large = matcher.match_size(quotes, "economy", "very_large")
     assert very_large.primary == []
     assert [m.plan.plan_name for m in very_large.near_miss] == ["32vCPU-64GB-300GB"]
 

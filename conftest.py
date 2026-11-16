@@ -88,7 +88,9 @@ def _seed(repo: Repository) -> None:
     repo.finish_run(kubit_run, "success", model="", prompt_tokens=0, completion_tokens=0)
     repo.record_rates(kubit_run, kubit, kubit_rates)
 
-    # Liara: fixed-bundle provider, all plans Standard tier, exact baselines.
+    # Liara: fixed-bundle provider; stored provider_tier_raw is "standard"
+    # (preserved raw label) but tiers.yaml maps Liara to Economy since the
+    # owner decision of 2026-11-15. Exact baselines.
     # Comparable price = published monthly + documented 200,000 IPv4 surcharge.
     liara = repo.ensure_provider("liara", "Liara", "https://liara.ir/")
     liara_source = repo.ensure_source(

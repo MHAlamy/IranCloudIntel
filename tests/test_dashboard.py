@@ -100,22 +100,26 @@ def test_vm_calculated_discount_note_only_on_economy(client_tuple):
     assert "تخفیف ۳۰٪" not in arvan_standard   # factor 1.0
     assert "تخفیف ۳۰٪" not in arvan_premium    # factor 1.0
 
-    # Kubit uses full published rates (factor 1.0) even in economy tier
+    # Kubit uses full published rates (factor 1.0) even in economy tier.
+    # Kubit is the last provider in the canonical table order, so splitting on
+    # the LAST occurrence scopes the check to its table row (the chart bar
+    # appears earlier and other providers' notes follow it).
     kubit_economy = client.get("/vm?tier=economy&size=small").text
-    kubit_section = kubit_economy.split("Kubit", 1)[-1]
+    kubit_section = kubit_economy.rsplit("Kubit", 1)[-1]
     assert "تخفیف" not in kubit_section
 
 
 def test_parspack_rows_present_with_adjustment_note(client_tuple):
     client, _ = client_tuple
     fa = lambda n: f"{n:,}".replace(",", "٬").translate(str.maketrans("0123456789", "۰۱۲۳۴۵۶۷۸۹"))
-    standard = client.get("/vm?tier=standard&size=medium").text
+    # Owner decision 2026-11-15: ParsPack compares under Economy.
+    economy = client.get("/vm?tier=economy&size=medium").text
     # Medium quote is an exact baseline config -> published basis + adjustment note
-    assert "ParsPack" in standard
-    assert fa(3408120) in standard  # 3,408,120 monthly (incl. IPv4, 5% discount)
-    assert "شامل" in standard and "تخفیف خرید ماهانه" in standard
+    assert "ParsPack" in economy
+    assert fa(3408120) in economy  # 3,408,120 monthly (incl. IPv4, 5% discount)
+    assert "شامل" in economy and "تخفیف خرید ماهانه" in economy
     # Small: near-miss quote (1/2/25) -> تقریبی with the same note
-    small = client.get("/vm?tier=standard&size=small").text
+    small = client.get("/vm?tier=economy&size=small").text
     assert fa(1227300) in small  # 1,227,300
 
 
@@ -126,13 +130,60 @@ def test_vm_provider_order_consistent_across_views(client_tuple):
     orders = []
     for size in ("small", "medium", "large", "very_large"):
         text = client.get(f"/vm?tier=standard&size={size}").text
-        positions = [text.find(name) for name in expected]
+        # scope to the table: the bar chart above it is intentionally sorted
+        # cheapest-first, not in canonical provider order
+        table_text = text.split('class="price-table"', 1)[-1]
+        positions = [table_text.find(name) for name in expected]
         assert all(pos >= 0 for pos in positions), f"missing provider on {size}"
         assert positions == sorted(positions), f"order broken on {size}"
 
     status = client.get("/status").text
     positions = [status.find(name) for name in expected]
     assert positions == sorted(positions)
+
+
+def test_vm_chart_bars_cheapest_first_and_proportional(client_tuple):
+    """The CSS bar chart orders priced providers cheapest-first and scales the
+    most expensive price to full width (economy/medium seeded prices:
+    ParsPack 3,408,120 < Arvan 3,478,320 < Kubit 3,895,080 < Liara 4,800,000)."""
+    client, _ = client_tuple
+    text = client.get("/vm?tier=economy&size=medium").text
+    assert "مقایسه بصری قیمت‌ها" in text
+    # chart section precedes the table, so first name occurrence is the bar row
+    positions = [text.find(name) for name in ("ParsPack", "ArvanCloud", "Kubit", "Liara")]
+    assert all(p >= 0 for p in positions)
+    assert positions == sorted(positions), "bars not ordered cheapest-first"
+    assert 'style="width: 100%"' in text  # Liara is the most expensive
+    assert "bar-published" in text and "bar-calculated" in text
+
+
+def test_vm_chart_marks_missing_providers(client_tuple):
+    """Providers with no usable price in the selection get an empty dashed
+    track and an em-dash price — never a zero-width bar."""
+    client, _ = client_tuple
+    text = client.get("/vm?tier=standard&size=small").text
+    assert "bar-empty" in text  # Liara/ParsPack compare under Economy now
+    assert "bar-price-none" in text
+
+
+def test_vm_chart_absent_when_no_prices_at_all():
+    """With no priced rows at all the chart section is omitted entirely."""
+    import sys as _sys
+    from pathlib import Path as _Path
+    _sys.path.insert(0, str(_Path(__file__).resolve().parent.parent))
+    from app.data import build_vm_view
+    from storage.repository import Repository
+
+    import tempfile
+
+    with tempfile.TemporaryDirectory() as tmp:
+        db = _Path(tmp) / "empty.db"
+        repo = Repository(db)
+        try:
+            view = build_vm_view(repo, "standard", "medium")
+        finally:
+            repo.close()
+    assert "chart" not in view  # chart section omitted entirely
 
 
 def test_plan_detail_shows_history_and_verification(client_tuple):

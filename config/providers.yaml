@@ -16,6 +16,31 @@ providers:
         navigation:
           ready_marker: "eco-small"     # text that proves real content rendered
           tabs: [basic, standard, premium]
+      - id: arvan_object_storage
+        service_type: object_storage
+        url: https://www.arvancloud.ir/fa/pricing/cloud-storage
+        collection_method: playwright   # JS challenge (same as the VM page)
+        region_scope: iran
+        enabled: true
+        navigation:
+          ready_marker: "مصرف مازاد"    # proves the PAYG section rendered
+          llm_plan_extraction: true     # plan cards via LLM; PAYG tables parsed deterministically
+
+  - slug: hamravesh
+    name: Hamravesh
+    official_url: https://hamravesh.com/
+    sources:
+      - id: hamravesh_object_storage
+        service_type: object_storage
+        url: https://hamravesh.com/pricing?service=object_storage
+        collection_method: playwright   # pricing data loads client-side per service tab
+        region_scope: iran
+        enabled: true
+        navigation:
+          click_text: "آبجکت استورج"    # menu item that switches the pricing table
+          click_selector: 'li.ant-menu-item:has-text("آبجکت استورج")'
+          ready_marker: "هر GB فضای اضافه"   # proves the OS table rendered
+          llm_plan_extraction: false    # clean attribute matrix -> deterministic parser
 
   - slug: liara
     name: Liara
@@ -43,6 +68,14 @@ providers:
         enabled: true
         navigation:
           bundle_extraction: false
+      - id: parspack_object_storage
+        service_type: object_storage
+        url: https://parspack.com/cloud-storage
+        collection_method: playwright   # interactive calculator quotes
+        region_scope: iran
+        enabled: true
+        navigation:
+          bundle_extraction: false      # quote calculator, not published bundles
 
   - slug: kubit
     name: Kubit
@@ -57,3 +90,11 @@ providers:
         navigation:
           tabs: [rates]
           bundle_extraction: false   # rate-table-only provider (no published VM bundles)
+      - id: kubit_object_storage
+        service_type: object_storage
+        url: https://kubit.cloud/fa/pricing/
+        collection_method: http   # static page, no challenge
+        region_scope: iran
+        enabled: true
+        navigation:
+          bundle_extraction: false   # free base plan + PAYG tables -> deterministic parser

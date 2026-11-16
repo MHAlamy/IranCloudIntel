@@ -131,11 +131,11 @@ Initial analyst-maintained mapping (not a verified CPU or performance benchmark)
 | Arvan | Standard | Standard |
 | Arvan | Premium | Premium |
 | Arvan | Premium Plus, if observed as a resource class | Premium |
-| Liara | VM / Cloud Server offerings in scope | Standard |
-| ParsPack | VM / Cloud Server and any VPS families explicitly included in scope | Standard |
-| Cloud.ir | VM / Cloud Server and any VPS families explicitly included in scope | Standard |
+| ~~Liara~~ | ~~VM / Cloud Server offerings in scope~~ ~~Standard~~ | **Economy** (owner decision 2026-11-15) |
+| ~~ParsPack~~ | ~~VM / Cloud Server and any VPS families explicitly included in scope~~ ~~Standard~~ | **Economy** (owner decision 2026-11-15) |
+| ~~Cloud.ir~~ | ~~VM / Cloud Server and any VPS families explicitly included in scope~~ ~~Standard~~ | Standard — Cloud.ir dropped from scope (owner decision 2026-11-15) |
 
-All non-Arvan VM offerings in scope belong to Standard for V1. Revise later as market knowledge improves. Do not create an Unclassified dashboard tier. Preserve the provider's native tier and family in storage; flag unexpected Arvan labels for analyst review rather than silently guessing. Mapping changes must be versioned and should not rewrite raw price history.
+~~All non-Arvan VM offerings in scope belong to Standard for V1.~~ **Owner decision 2026-11-15:** Liara and ParsPack are treated as cost-oriented offerings and compare under Economy; Arvan's Standard/Premium tabs and Kubit's gen-4 remain Standard, and Kubit gen-3 stays Economy. Their stored `provider_tier_raw` values are unchanged — only the normalization mapping moved. Revise later as market knowledge improves. Do not create an Unclassified dashboard tier. Preserve the provider's native tier and family in storage; flag unexpected Arvan labels for analyst review rather than silently guessing. Mapping changes must be versioned and should not rewrite raw price history.
 
 ### 6.2 Reference instance sizes
 
@@ -174,7 +174,7 @@ Only rank records with sufficiently comparable, known prices and matching CPU/RA
 
 ## 7. Object Storage and CDN (V1)
 
-Apply the same separation of collection, extraction, normalization and comparison. Collect original units, free allowances, usage tiers, geographic distinctions, billing periods, mandatory plan fees and optional extras. These two services need service-specific benchmarks; do not reuse VM tiers or sizes.
+Apply the same separation of collection, extraction, normalization and comparison. Collect original units, free allowances, usage tiers, geographic distinctions, billing periods, mandatory plan fees and optional extras. These two services need service-specific benchmarks; do not reuse VM tiers or sizes. — **Implementation update 2026-11-16 (Object Storage first version):** service-specific `os_observations`/`os_rates` tables (schema v3); sources registered for Arvan (Playwright + LLM plan cards, deterministic PAYG parsing) and Hamravesh (Playwright tab click + deterministic matrix parsing). Owner decisions: Hamravesh's plans are the comparison baseline; scenario prices for sizes without an exact Arvan bundle are calculated from Arvan's documented PAYG rates. Standing assumptions, each visible in the dashboard: TB = 1024 GB; Arvan PAYG rates treated as monthly (page states no period); request charges excluded from scenarios (Hamravesh publishes no request allowance). Arvan's FAQ overage figures contradict its own rate table — both stored, divergence flagged for review, never silently arbitrated. — **Update 2026-11-16 (Kubit and ParsPack added):** Kubit (`kubit_object_storage`, static HTTP, 0 tokens) has a free base plan with explicitly zero quotas plus documented PAYG tables — plans and rates both parsed deterministically; its negotiable plan (توافقی/قابل مذاکره) normalizes as suspect and goes to review instead of being recorded. Scenario traffic for Kubit is egress to outside the location (خروجی خارج موقعیت, 750/GB) — the closest analog of the baseline's unspecified «ترافیک», chosen explicitly and labeled, with ingress/inside-egress and request charges excluded. ParsPack (`parspack_object_storage`, Playwright calculator) publishes no bundles: the calculator prices storage only (HDD/SSD × ایران/اروپا × period), so the owner-selected configuration is HDD, ایران, ۱ ماهه, and each slider stop is recorded as a storage-only quote (no traffic allowance — caveat shown on the dashboard); exact storage matches are used where the scenario capacity sits on the slider scale, otherwise the nearest larger quote is shown as تقریبی with its real capacity. Precedence for every provider's scenario cell: exact published bundle → PAYG calculation → storage-only quote → nearest larger (approximate).
 
 - **Object Storage:** capacity GB/GiB-month, ingress/egress, request classes and their billing units, minimum fees, storage class, and free quotas. Compare scenario totals only when the relevant tariffs are known. A provisional scenario could use specified storage, egress and read/write request counts; obtain owner approval for the actual values.
 - **CDN:** base subscription, bandwidth/traffic rates and geography, request charges, included quotas, overage rates, and billing tiers. A scenario should explicitly specify traffic volume and other billable dimensions, and distinguish free versus paid plans.
@@ -190,7 +190,7 @@ Use the providers' actual tariff schedules (including progressive or volume-base
 - Visible reference CPU, RAM and disk specification.
 - Optional include-one-public-IPv4 toggle; show its effect only for known prices.
 - Provider rows: Arvan, Liara, ParsPack, Cloud.ir; show plan name, actual CPU/RAM/disk, base or scenario price in Toman/month, relevant inclusions and last successful check.
-- Sort comparable records by selected price. Keep nonmatching/missing providers visibly distinct, with a reason. Economy and Premium may have only Arvan in V1; this is expected, not a defect.
+- Sort comparable records by selected price. Keep nonmatching/missing providers visibly distinct, with a reason. ~~Economy and Premium may have only Arvan in V1; this is expected, not a defect.~~ **Update 2026-11-15:** after the owner's tier decision, Economy contains Arvan (calculated), Liara and ParsPack (published bundles) and Kubit (calculated); Premium may contain only Arvan — that remains expected, not a defect.
 - Show sources and a details view covering raw data, price qualifiers, evidence and history. A simple horizontal price chart is optional, based on the same filtered comparison data as the table.
 
 Suggested wireframe (values deliberately omitted):
@@ -264,8 +264,8 @@ vm:
         premium: premium
         premium_plus: premium
       unknown_label_policy: review
-    liara: {default: standard}
-    parspack: {default: standard}
+    liara: {default: economy}    # owner decision 2026-11-15
+    parspack: {default: economy} # owner decision 2026-11-15
     cloud_ir: {default: standard}
 ```
 
@@ -288,7 +288,7 @@ Minimum test cases:
 - Dynamic tab selection captures distinct contents; changing tabs cannot incorrectly reuse a prior tier's data.
 - Persian digits and Rial/Toman conversion; hourly/monthly distinction; explicit null versus zero.
 - A small/medium/large/very-large size maps to the exact required CPU/RAM pair.
-- All non-Arvan in-scope VM offerings map to Standard; Arvan's three tiers remain distinct.
+- Arvan's three tiers remain distinct; Liara, ParsPack and Kubit gen-3 map to Economy, Kubit gen-4 to Standard (owner decision 2026-11-15).
 - A 4/8 plan with a different disk is displayed with the real disk size; an 8/16 plan is not treated as an exact Medium match.
 - Different regions and product families remain distinguishable; bundled IPv4 is never double-charged.
 - Nonlinear prices are preserved; missing plans and ambiguous prices are flagged; collection failure retains the previous accepted price.

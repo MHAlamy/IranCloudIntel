@@ -8,23 +8,31 @@ See `PROJECT_GUIDE.md` for the full specification, `price_gathering_guide.md`
 for the collection/comparison methodology, `v1_milestones.md` for progress,
 and `AGENTS.md` for agent working rules.
 
-## Status (2026-11-15)
+## Status (2026-11-15/16)
 
 Milestones 1–4 essentially complete: four VM providers collected, validated
-and visualized in a Persian RTL dashboard at `http://localhost:8000`.
+and visualized in a Persian RTL dashboard at `http://localhost:8000`. Object
+Storage comparison is live for all four providers (Hamravesh's published
+plans as the comparison baseline; Arvan and Kubit calculated from documented
+PAYG rates; ParsPack storage-only calculator quotes).
 
 | Provider | Collection mode | What the dashboard shows |
 |---|---|---|
-| ArvanCloud | Playwright (JS challenge) + LLM extraction (GPT-5-Mini via Arvan AIaaS) | Published bundles (3 tiers) verified against their PAYG rate table, plus calculated baseline prices |
+| ArvanCloud | Playwright (JS challenge) + LLM extraction (GPT-5-Mini via Arvan AIaaS) | VM: published bundles (3 tiers) verified against their PAYG rate table, plus calculated baseline prices. Object Storage: 4 plans + full PAYG overage tables; scenario prices calculated from documented rates |
 | Liara | Plain HTTP, deterministic parser | Published fixed bundles (all four baselines match exactly; +200,000/mo documented IPv4) |
-| ParsPack | Playwright drives their calculator | Baseline quotes (daily × 30 × 0.95 + fixed 150,000/mo IPv4) |
-| Kubit | Plain HTTP, deterministic parser | Calculated from per-component rates (gen-3→Economy, gen-4→Standard) |
+| ParsPack | Playwright drives their calculator | VM: baseline quotes (daily × 30 × 0.95 + fixed 150,000/mo IPv4). Object Storage: storage-only calculator quotes (HDD, ایران, ۱ ماهه; no traffic allowance) |
+| Kubit | Plain HTTP, deterministic parser | VM: calculated from per-component rates (gen-3→Economy, gen-4→Standard). Object Storage: free base plan (zero quotas) + PAYG tables; scenario prices calculated from documented rates |
+| Hamravesh | Playwright (client-side service tab), deterministic parser | Object Storage: 5 plans with included storage/traffic and documented overage rates (baseline provider) |
 
 Every price row carries a basis badge: منتشرشده (published) / محاسبه‌شده
 (calculated from documented rates) / تقریبی (nearest config) / در دسترس نیست.
+A pure-CSS bar chart above the comparison table visualizes provider prices
+for the current tier/size selection, cheapest first, color-coded by basis.
 Dates display in the Jalali calendar; all prices in monthly Toman; Iranian
 regions only (owner decisions recorded in `v1_milestones.md` and
-`price_gathering_guide.md`).
+`price_gathering_guide.md`). Tier mapping (owner decision 2026-11-15):
+Liara and ParsPack compare under Economy; Standard holds Arvan and Kubit
+gen-4; Premium is Arvan-only.
 
 ## Local development (Windows, native)
 
@@ -70,6 +78,6 @@ Useful inspection scripts: `scripts/db_report.py`, `scripts/check_verification.p
 
 ## Remaining for V1
 
-Object Storage + CDN coverage, then deployment to one Ubuntu VM (Docker
-Compose, Nginx, HTTPS), scheduling, backups to Object Storage, and CI/CD via
-GitHub Actions — see `v1_milestones.md` milestones 5–6.
+CDN coverage. Then deployment to one Ubuntu VM (Docker Compose, Nginx,
+HTTPS), scheduling, backups to Object Storage, and CI/CD via GitHub Actions —
+see `v1_milestones.md` milestones 5–6.

@@ -111,6 +111,25 @@ class BenchmarksFile(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     vm: VMBenchmarks
+    object_storage: "ObjectStorageBenchmarks" = Field(
+        default_factory=lambda: ObjectStorageBenchmarks()  # type: ignore[call-arg]
+    )
+
+
+class OSScenario(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    label: str
+    storage_gb: Decimal = Field(ge=0)
+    traffic_gb: Decimal = Field(ge=0)
+
+
+class ObjectStorageBenchmarks(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    tb_to_gb: int = Field(default=1024, ge=1)
+    baseline: str = ""
+    scenarios: dict[str, OSScenario] = Field(default_factory=dict)
 
 
 def _load_yaml(path: Path) -> dict:

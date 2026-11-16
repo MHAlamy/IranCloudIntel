@@ -20,9 +20,11 @@ from fastapi.templating import Jinja2Templates  # noqa: E402
 
 from app.data import (  # noqa: E402
     BASIS_LABELS_FA,
+    OS_BASIS_LABELS_FA,
     SIZE_LABELS_FA,
     TIER_LABELS_FA,
     VERIFICATION_LABELS_FA,
+    build_os_view,
     build_status_view,
     build_vm_view,
 )
@@ -76,6 +78,19 @@ def create_app(db_path: str | Path | None = None) -> FastAPI:
                 "basis_labels": BASIS_LABELS_FA,
                 "verification_labels": VERIFICATION_LABELS_FA,
             },
+        )
+
+    @app.get("/object-storage", response_class=HTMLResponse)
+    def object_storage(request: Request):
+        repo = Repository(db_path)
+        try:
+            view = build_os_view(repo)
+        finally:
+            repo.close()
+        return templates.TemplateResponse(
+            request,
+            "os.html",
+            {"view": view, "basis_labels": OS_BASIS_LABELS_FA},
         )
 
     @app.get("/plan/{offering_id}", response_class=HTMLResponse)

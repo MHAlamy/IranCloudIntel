@@ -31,6 +31,7 @@
   --success: #47d16a;
   --warning: #ffac23;
   --error: #ff7161;
+  --info: #4fb8ff;
 }
 
 * { box-sizing: border-box; }
@@ -129,6 +130,79 @@ body {
 
 .legend { font-size: 13px; color: var(--muted); }
 
+/* object-storage page */
+.rate-group-title { font-size: 14px; margin: 14px 0 6px; color: var(--text); }
+.rate-table { margin-bottom: 10px; }
+
+/* grouped scenario bars: colors identify the provider via a single legend */
+.os-chart .bar-price { color: var(--text); font-weight: 500; white-space: normal; }
+.os-chart .bar-fill.os-hamravesh { background: var(--success); }
+.os-chart .bar-fill.os-arvan { background: var(--brand-soft); opacity: 0.9; }
+.os-chart .bar-fill.os-parspack { background: var(--warning); }
+.os-chart .bar-fill.os-kubit { background: var(--info); }
+.chart-legend { display: flex; gap: 18px; margin: 4px 0 10px; font-size: 13px; flex-wrap: wrap; }
+.legend-item { display: inline-flex; align-items: center; gap: 6px; }
+.swatch { width: 12px; height: 12px; border-radius: 4px; display: inline-block; }
+.swatch.os-hamravesh { background: var(--success); }
+.swatch.os-arvan { background: var(--brand-soft); opacity: 0.9; }
+.swatch.os-parspack { background: var(--warning); }
+.swatch.os-kubit { background: var(--info); }
+.chart-group { margin: 14px 0 18px; }
+.chart-group:last-child { margin-bottom: 6px; }
+.chart-group-title {
+  font-size: 13px; color: var(--muted); margin-bottom: 6px;
+  padding-bottom: 4px; border-bottom: 1px solid var(--elevated);
+}
+
+/* collapsible cards (native <details>): closed until the user clicks */
+.collapse-card { padding: 0; }
+.collapse-card > summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 14px 18px;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--text);
+  user-select: none;
+}
+.collapse-card > summary::-webkit-details-marker { display: none; }
+.collapse-card > summary::after {
+  content: "◂";
+  display: inline-block;
+  margin-inline-start: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  transition: transform 0.15s ease;
+}
+.collapse-card[open] > summary::after { transform: rotate(-90deg); }
+.collapse-card > summary:hover { color: var(--brand-soft); }
+.collapse-card .table-card { padding: 0 12px 12px; }
+.collapse-card .muted { padding: 0 18px 8px; }
+.collapse-card .rate-group-title { padding: 0 18px; }
+
+/* price comparison bars (pure CSS, RTL: bars grow from the right) */
+.chart-card { padding: 14px 18px; }
+.bar-row { display: flex; align-items: center; gap: 10px; margin: 7px 0; }
+.bar-provider {
+  flex: 0 0 96px; font-size: 13px; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.bar-track {
+  flex: 1 1 auto; height: 18px; background: var(--elevated);
+  border-radius: 6px; overflow: hidden;
+}
+.bar-fill { height: 100%; border-radius: 6px; }
+.bar-published { background: var(--success); }
+.bar-calculated { background: var(--brand-soft); }
+.bar-approximate { background: var(--warning); }
+.bar-empty { width: 100%; background: transparent; border: 1px dashed var(--border); }
+.bar-price {
+  flex: 0 0 110px; font-size: 13px; font-weight: 700;
+  color: var(--success); white-space: nowrap;
+}
+.bar-price-none { color: var(--muted); font-weight: 400; }
+.chart-note { font-size: 12px; margin-top: 8px; }
+
 /* status page */
 .status-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
 .status-card { padding: 14px 18px; }
@@ -142,6 +216,8 @@ body {
 .back-link:hover { text-decoration: underline; }
 
 @media (max-width: 720px) {
+  .bar-provider { flex-basis: 76px; }
+  .bar-price { flex-basis: 92px; font-size: 12px; }
   .price-table thead { display: none; }
   .price-table td { display: block; border-bottom: none; padding: 4px 10px; }
   .price-table tr { display: block; border-bottom: 1px solid var(--elevated); padding: 8px 0; }

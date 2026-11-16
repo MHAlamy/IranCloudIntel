@@ -65,7 +65,7 @@ def test_tier_normalization_arvan(matcher):
     assert matcher.normalize_tier("arvan", "premium") == "premium"
     assert matcher.normalize_tier("arvan", "premium_plus") == "premium"
     assert matcher.normalize_tier("arvan", "something-new") == "review"
-    assert matcher.normalize_tier("liara", "whatever") == "standard"  # default mapping
+    assert matcher.normalize_tier("liara", "whatever") == "economy"  # owner decision 2026-11-15
 
 
 def test_region_scope_prefix():
