@@ -1,92 +1,103 @@
 {% extends "base.html" %}
-{% block title %}مقایسه قیمت آبجکت استورج{% endblock %}
+{% from "macros.html" import coming_soon %}
+{% block title %}آبجکت استورج | رصد بازار خدمات ابری ایران{% endblock %}
 {% block content %}
-<section class="banner banner-warning">مبالغ این صفحه جمع جزئی هستند، نه هزینه کامل قابل مقایسه. نرخ‌های فرضی و قیمت‌های صرفاً ذخیره‌سازی، برآورد مشروط‌اند؛ هزینه ناشناخته صفر نیست.</section>
-<section class="page-head">
-  <h1>مقایسه قیمت آبجکت استورج</h1>
-  <p class="muted">مقایسه بر پایه‌ی پلن‌های منتشرشده‌ی {{ view.baseline_name }} (مبنا) · همه‌ی قیمت‌ها به تومان در ماه · هزینه‌ی درخواست‌ها مستثنی است</p>
+<header class="product-head">
+  <h1>آبجکت استورج</h1>
+</header>
+
+<section class="product-section">
+  <h2 class="section-title">مقایسه قیمت</h2>
+  <p class="section-note muted">مقایسه بر پایه‌ی پلن‌های منتشرشده‌ی {{ view.baseline_name }} (مبنا) · همه‌ی قیمت‌ها به تومان در ماه · هزینه‌ی درخواست‌ها مستثنی است</p>
+
+  <section class="banner banner-warning">مبالغ این صفحه جمع جزئی هستند، نه هزینه کامل قابل مقایسه. نرخ‌های فرضی و قیمت‌های صرفاً ذخیره‌سازی، برآورد مشروط‌اند؛ هزینه ناشناخته صفر نیست.</section>
+
+  {% include 'os_comparison.html' %}
+
+  {% for section in view.provider_sections %}
+  <details class="card collapse-card">
+    <summary>پلن‌های منتشرشده — {{ section.name }}</summary>
+    {% for note in section.notes %}<p class="muted">{{ note }}</p>{% endfor %}
+    <table class="price-table">
+      <thead>
+        <tr>
+          <th>پلن</th>
+          <th>قیمت (تومان/ماه)</th>
+          <th>فضای ذخیره‌سازی</th>
+          <th>ترافیک</th>
+          <th>درخواست</th>
+          <th>هر GB فضای اضافه</th>
+          <th>هر GB ترافیک اضافه</th>
+          <th>آخرین بررسی</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for plan in section.plans %}
+        <tr>
+          <td data-label="پلن">
+            {% if plan.offering_id %}<a href="/plan/{{ plan.offering_id }}" class="plan-link">{{ plan.plan_name }}</a>
+            {% else %}{{ plan.plan_name }}{% endif %}
+          </td>
+          <td data-label="قیمت" class="price-cell">
+            {% if plan.status == 'free' %}رایگان{% elif plan.price is not none %}{{ plan.price|toman }}{% else %}—{% endif %}
+            <div class="row-note">{{ plan.status_fa }}</div>
+          </td>
+          <td data-label="فضای ذخیره‌سازی">{{ plan.storage_fa }}</td>
+          <td data-label="ترافیک">{{ plan.traffic_fa }}</td>
+          <td data-label="درخواست">{{ plan.requests_fa }}</td>
+          <td data-label="هر GB فضای اضافه">{{ plan.overage_storage }}</td>
+          <td data-label="هر GB ترافیک اضافه">{{ plan.overage_traffic }}</td>
+          <td data-label="آخرین بررسی">{{ plan.observed_at|jalali_date }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </details>
+  {% endfor %}
+
+  {% if view.rate_sections %}
+  <details class="card collapse-card">
+    <summary>نرخ‌های مصرف مازاد (PAYG)</summary>
+    <p class="muted">همان نرخ‌هایی که قیمت‌های «محاسبه‌شده» از روی آن‌ها ساخته می‌شوند</p>
+    {% for section in view.rate_sections %}
+    <h3 class="rate-group-title">{{ section.provider_name }}</h3>
+    {% for table in section.tables %}
+    <h4 class="rate-group-title">{{ table.title }}</h4>
+    <table class="price-table rate-table">
+      <thead>
+        <tr>
+          <th>ردیف</th>
+          <th>پلکان استفاده</th>
+          <th>واحد</th>
+          <th>نرخ</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in table.rows %}
+        <tr>
+          <td data-label="ردیف">{{ row.tier }}</td>
+          <td data-label="پلکان استفاده">{{ row.range }}</td>
+          <td data-label="واحد">{{ row.unit }}</td>
+          <td data-label="نرخ">{{ row.amount }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endfor %}
+    {% endfor %}
+  </details>
+  {% endif %}
+
+  <section class="legend card">
+    <strong>راهنما:</strong>
+    <span class="badge badge-published">منتشرشده</span> قیمت واقعی بسته‌ی منتشرشده ·
+    <span class="badge badge-calculated">محاسبه‌شده</span> محاسبه از نرخ‌های اعلامی (فرض‌ها در یادداشت ردیف) ·
+    <span class="badge badge-missing">در دسترس نیست</span> هنوز گردآوری نشده
+  </section>
+
+  {% include 'freshness.html' %}
 </section>
 
-{% include 'os_comparison.html' %}
-
-{% for section in view.provider_sections %}
-<details class="card collapse-card">
-  <summary>پلن‌های منتشرشده — {{ section.name }}</summary>
-  {% for note in section.notes %}<p class="muted">{{ note }}</p>{% endfor %}
-  <table class="price-table">
-    <thead>
-      <tr>
-        <th>پلن</th>
-        <th>قیمت (تومان/ماه)</th>
-        <th>فضای ذخیره‌سازی</th>
-        <th>ترافیک</th>
-        <th>درخواست</th>
-        <th>هر GB فضای اضافه</th>
-        <th>هر GB ترافیک اضافه</th>
-        <th>آخرین بررسی</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for plan in section.plans %}
-      <tr>
-        <td data-label="پلن">
-          {% if plan.offering_id %}<a href="/plan/{{ plan.offering_id }}" class="plan-link">{{ plan.plan_name }}</a>
-          {% else %}{{ plan.plan_name }}{% endif %}
-        </td>
-        <td data-label="قیمت" class="price-cell">
-          {% if plan.status == 'free' %}رایگان{% elif plan.price is not none %}{{ plan.price|toman }}{% else %}—{% endif %}
-          <div class="row-note">{{ plan.status_fa }}</div>
-        </td>
-        <td data-label="فضای ذخیره‌سازی">{{ plan.storage_fa }}</td>
-        <td data-label="ترافیک">{{ plan.traffic_fa }}</td>
-        <td data-label="درخواست">{{ plan.requests_fa }}</td>
-        <td data-label="هر GB فضای اضافه">{{ plan.overage_storage }}</td>
-        <td data-label="هر GB ترافیک اضافه">{{ plan.overage_traffic }}</td>
-        <td data-label="آخرین بررسی">{{ plan.observed_at|jalali_date }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</details>
-{% endfor %}
-
-{% if view.rate_sections %}
-<details class="card collapse-card">
-  <summary>نرخ‌های مصرف مازاد (PAYG)</summary>
-  <p class="muted">همان نرخ‌هایی که قیمت‌های «محاسبه‌شده» از روی آن‌ها ساخته می‌شوند</p>
-  {% for section in view.rate_sections %}
-  <h3 class="rate-group-title">{{ section.provider_name }}</h3>
-  {% for table in section.tables %}
-  <h4 class="rate-group-title">{{ table.title }}</h4>
-  <table class="price-table rate-table">
-    <thead>
-      <tr>
-        <th>ردیف</th>
-        <th>پلکان استفاده</th>
-        <th>واحد</th>
-        <th>نرخ</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for row in table.rows %}
-      <tr>
-        <td data-label="ردیف">{{ row.tier }}</td>
-        <td data-label="پلکان استفاده">{{ row.range }}</td>
-        <td data-label="واحد">{{ row.unit }}</td>
-        <td data-label="نرخ">{{ row.amount }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-  {% endfor %}
-  {% endfor %}
-</details>
-{% endif %}
-
-<section class="legend card">
-  <strong>راهنما:</strong>
-  <span class="badge badge-published">منتشرشده</span> قیمت واقعی بسته‌ی منتشرشده ·
-  <span class="badge badge-calculated">محاسبه‌شده</span> محاسبه از نرخ‌های اعلامی (فرض‌ها در یادداشت ردیف) ·
-  <span class="badge badge-missing">در دسترس نیست</span> هنوز گردآوری نشده
-</section>
+{{ coming_soon("مقایسه قابلیت‌ها") }}
+{{ coming_soon("مقایسه عملکرد") }}
 {% endblock %}

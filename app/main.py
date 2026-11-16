@@ -13,10 +13,11 @@ ROOT = Path(__file__).resolve().parent.parent
 load_dotenv(ROOT / ".env")
 
 from fastapi import FastAPI, Request  # noqa: E402
-from fastapi.responses import HTMLResponse, RedirectResponse  # noqa: E402
+from fastapi.responses import HTMLResponse  # noqa: E402
 from fastapi.staticfiles import StaticFiles  # noqa: E402
 from fastapi.templating import Jinja2Templates  # noqa: E402
 
+from config.loader import load_products  # noqa: E402
 from app.data import (  # noqa: E402
     BASIS_LABELS_FA,
     OS_BASIS_LABELS_FA,
@@ -53,8 +54,10 @@ def create_app(db_path: str | Path | None = None) -> FastAPI:
         return {"status": "ok"}
 
     @app.get("/", response_class=HTMLResponse)
-    def index():
-        return RedirectResponse(url="/vm")
+    def index(request: Request):
+        return templates.TemplateResponse(
+            request, "home.html", {"catalog": load_products()}
+        )
 
     @app.get("/vm", response_class=HTMLResponse)
     def vm(request: Request, tier: str = "standard", size: str = "medium"):

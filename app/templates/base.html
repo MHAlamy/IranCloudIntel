@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}داشبورد ابری{% endblock %}</title>
+  <title>{% block title %}رصد بازار خدمات ابری ایران{% endblock %}</title>
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
   <header class="topbar">
     <div class="container topbar-inner">
-      <a class="brand" href="/vm">
+      <a class="brand" href="/">
         <span class="brand-dot"></span>
-        رصد ابر ایران
+        رصد بازار خدمات ابری ایران
       </a>
       <nav class="nav">
-        <a href="/vm" class="nav-link">مقایسه سرور ابری</a>
+        <a href="/vm" class="nav-link">سرور ابری</a>
         <a href="/object-storage" class="nav-link">آبجکت استورج</a>
         <a href="/status" class="nav-link">وضعیت منابع</a>
       </nav>
@@ -23,11 +23,6 @@
 
   <main class="container">
     {% block content %}{% endblock %}
-    {% if view is defined %}{% for source in view.freshness|default([]) %}
-    <p>{{ source.provider }} · {% if source.stale %}داده قدیمی / نیازمند بررسی{% else %}به‌روز{% endif %}
-    · آخرین تلاش: {{ source.last_checked|jalali }} · آخرین تأیید: {{ source.last_verified|jalali }}</p>
-    {% endfor %}{% endif %}
-
   </main>
 
   <footer class="footer">

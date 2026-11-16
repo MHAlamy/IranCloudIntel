@@ -172,7 +172,10 @@ def _seed(repo: Repository) -> None:
 
 def test_os_page_renders_scenarios(os_client):
     text = os_client.get("/object-storage").text
-    assert "مقایسه قیمت آبجکت استورج" in text
+    assert "آبجکت استورج" in text
+    assert "مقایسه قیمت" in text
+    assert "مقایسه قابلیت‌ها" in text
+    assert "مقایسه عملکرد" in text
     for label in ("پایه", "رشد", "حرفه‌ای", "اختصاصی"):
         assert label in text
 

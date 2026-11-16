@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}رصد بازار خدمات ابری ایران{% endblock %}
+{% block content %}
+<section class="hero">
+  <h1>رصد بازار خدمات ابری ایران</h1>
+  <p>مقایسه‌ی قیمت، قابلیت‌ها و عملکرد محصولات ابری تأمین‌کنندگان ایرانی</p>
+</section>
+
+<section class="card product-map">
+  <h2 class="card-title">محصولات</h2>
+  <div class="layer-table">
+    {% for layer in catalog.layers %}
+    <div class="layer-row">
+      <div class="layer-label">
+        <span class="layer-acronym">{{ layer.acronym }}</span>
+        <span class="layer-name">{{ layer.name_fa }}</span>
+      </div>
+      <div class="product-tiles">
+        {% for product in layer.products %}
+          {% if product.enabled %}
+          <a class="product-tile" href="{{ product.route }}">{{ product.name_fa }}</a>
+          {% else %}
+          <span class="product-tile disabled" aria-disabled="true">
+            {{ product.name_fa }}<span class="soon-badge">به‌زودی</span>
+          </span>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="card methodology">
+  <h2 class="card-title">این داشبورد چگونه کار می‌کند؟</h2>
+  <p>
+    داده‌های این داشبورد از صفحات رسمی قیمت تأمین‌کنندگان ایرانی، منابع
+    ساختاریافته‌ی عمومی و اسناد رسمی گردآوری می‌شود. هر مشاهده با نشانی منبع،
+    زمان ثبت و شاهد متنی نگهداری می‌شود تا مقایسه‌ها قابل پیگیری باشند.
+  </p>
+  <p>
+    در کنار واکشی خودکار، از کاتالوگ‌های قیمت و داده‌های تحلیلی که به‌صورت
+    دستی نگهداری می‌شوند استفاده می‌کنیم. برای مقایسه‌ی عملکرد نیز آزمون‌های
+    خودکار و دوره‌ای در نظر گرفته شده است تا شاخص‌هایی مانند تأخیر، توان
+    عبوری و کارایی ذخیره‌سازی در شرایط یکسان سنجیده شوند.
+  </p>
+  <p>
+    مقایسه‌ها همیشه مبنای خود را نشان می‌دهند؛ داده‌ی نامشخص صفر در نظر گرفته
+    نمی‌شود و تاریخچه‌ی قیمت‌ها حفظ می‌شود.
+  </p>
+</section>
+{% endblock %}

@@ -152,6 +152,54 @@ def load_benchmarks(config_dir: Path = CONFIG_DIR) -> BenchmarksFile:
     return BenchmarksFile(**_load_yaml(config_dir / "benchmarks.yaml"))
 
 
+class ProductEntry(BaseModel):
+    """One product tile on the homepage layer map."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    slug: str = Field(min_length=1, pattern=r"^[a-z0-9_]+$")
+    name_fa: str = Field(min_length=1)
+    route: str | None = None
+    enabled: bool = False
+
+    @model_validator(mode="after")
+    def _route_matches_enabled(self) -> "ProductEntry":
+        if self.enabled and not (self.route or "").startswith("/"):
+            raise ValueError(f"enabled product {self.slug!r} needs a route")
+        if not self.enabled and self.route:
+            raise ValueError(f"disabled product {self.slug!r} must not define a route")
+        return self
+
+
+class ProductLayer(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    id: str = Field(min_length=1, pattern=r"^[a-z0-9_]+$")
+    acronym: str = Field(min_length=1)
+    name_fa: str = Field(min_length=1)
+    products: list[ProductEntry] = Field(min_length=1)
+
+
+class ProductsCatalog(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    layers: list[ProductLayer] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _unique_ids(self) -> "ProductsCatalog":
+        layer_ids = [layer.id for layer in self.layers]
+        if len(layer_ids) != len(set(layer_ids)):
+            raise ValueError("duplicate layer id in products.yaml")
+        slugs = [product.slug for layer in self.layers for product in layer.products]
+        if len(slugs) != len(set(slugs)):
+            raise ValueError("duplicate product slug in products.yaml")
+        return self
+
+
+def load_products(config_dir: Path = CONFIG_DIR) -> ProductsCatalog:
+    return ProductsCatalog(**_load_yaml(config_dir / "products.yaml"))
+
+
 class QuoteTarget(BaseModel):
     model_config = ConfigDict(extra="forbid")
 

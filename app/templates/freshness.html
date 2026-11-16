@@ -1,0 +1,15 @@
+{% if view.freshness %}
+<section class="card freshness-card">
+  <h3 class="card-title">تازگی داده‌ها</h3>
+  <ul class="freshness-list">
+    {% for source in view.freshness %}
+    <li>
+      {{ source.provider }} ·
+      {% if source.stale %}داده قدیمی / نیازمند بررسی{% else %}به‌روز{% endif %} ·
+      آخرین تلاش: {{ source.last_checked|jalali }} ·
+      آخرین تأیید: {{ source.last_verified|jalali }}
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}

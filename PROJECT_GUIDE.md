@@ -58,3 +58,10 @@ shared `price_chart.html`, one selected scenario via pills, horizontal provider
 labels, price-basis colors and cheapest-first bars scaled within that selection.
 Place the chart above a provider-row table. Keep missing data, calculation basis,
 subtotals, assumptions and freshness visible. Raw plan/rate details remain separate.
+
+Each product page presents a centered product title and three sections: price
+comparison (the existing shared chart and provider-row table), capabilities and
+performance. Until capability/performance data exists, those two sections are
+explicit «به‌زودی» placeholders and must not fabricate data. The homepage shows a
+layered IaaS/CaaS/PaaS product map; only products with a real page are links,
+and the rest are visibly disabled.

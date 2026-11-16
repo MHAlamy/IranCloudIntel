@@ -7,9 +7,11 @@ import yaml
 
 from config.loader import (
     BenchmarksFile,
+    ProductsCatalog,
     ProvidersFile,
     TiersFile,
     load_benchmarks,
+    load_products,
     load_providers,
     load_tiers,
 )
@@ -75,3 +77,48 @@ def test_tiers_file_shape():
     # Owner decision 2026-11-15: Liara and ParsPack compare under Economy.
     assert tiers.vm.providers["liara"].default == "economy"
     assert tiers.vm.providers["parspack"].default == "economy"
+
+
+def test_product_catalog_loads():
+    catalog = load_products()
+    layers = {layer.id: layer for layer in catalog.layers}
+    assert set(layers) == {"iaas", "caas", "paas"}
+    assert [p.slug for p in layers["iaas"].products] == ["vm", "object_storage", "cdn", "gpu"]
+    assert [p.slug for p in layers["caas"].products] == ["kaas"]
+    assert [p.slug for p in layers["paas"].products] == ["cnap", "dbaas", "devops", "aiaas"]
+    assert {p.slug for layer in catalog.layers for p in layer.products if p.enabled} == {
+        "vm", "object_storage"
+    }
+    routes = {p.slug: p.route for layer in catalog.layers for p in layer.products}
+    assert routes["vm"] == "/vm"
+    assert routes["object_storage"] == "/object-storage"
+    assert routes["cdn"] is None
+    cnap = next(p for p in layers["paas"].products if p.slug == "cnap")
+    assert cnap.name_fa == "(CNAP) پلتفرم ابری توسعه اپلیکیشن"
+
+
+def test_product_catalog_rejects_duplicate_slugs():
+    data = {"layers": [
+        {"id": "a", "acronym": "A", "name_fa": "الف",
+         "products": [{"slug": "x", "name_fa": "X"}]},
+        {"id": "b", "acronym": "B", "name_fa": "ب",
+         "products": [{"slug": "x", "name_fa": "X"}]},
+    ]}
+    with pytest.raises(ValueError, match="duplicate product slug"):
+        ProductsCatalog(**data)
+
+
+def test_product_catalog_route_must_match_enabled():
+    enabled_without_route = {"layers": [{
+        "id": "a", "acronym": "A", "name_fa": "الف",
+        "products": [{"slug": "x", "name_fa": "X", "enabled": True}],
+    }]}
+    with pytest.raises(ValueError, match="needs a route"):
+        ProductsCatalog(**enabled_without_route)
+
+    disabled_with_route = {"layers": [{
+        "id": "a", "acronym": "A", "name_fa": "الف",
+        "products": [{"slug": "x", "name_fa": "X", "route": "/x"}],
+    }]}
+    with pytest.raises(ValueError, match="must not define a route"):
+        ProductsCatalog(**disabled_with_route)

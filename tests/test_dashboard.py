@@ -16,19 +16,15 @@ def test_health(client_tuple):
     assert client.get("/health").json() == {"status": "ok"}
 
 
-def test_root_redirects_to_vm(client_tuple):
-    client = client_tuple[0]
-    response = client.get("/", follow_redirects=False)
-    assert response.status_code in (301, 302, 307)
-    assert response.headers["location"].endswith("/vm")
-
-
 def test_vm_default_view_is_persian(client_tuple):
     client = client_tuple[0]
     response = client.get("/vm")
     assert response.status_code == 200
     text = response.text
-    assert "مقایسه قیمت سرور ابری" in text
+    assert "سرور ابری" in text
+    assert "مقایسه قیمت" in text
+    assert "مقایسه قابلیت‌ها" in text
+    assert "مقایسه عملکرد" in text
     assert "استاندارد" in text  # default tier active
     assert "تومان" in text
     assert "منتشرشده" in text

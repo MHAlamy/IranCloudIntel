@@ -1,0 +1,49 @@
+# Product catalogue for the homepage layer map.
+# A product is enabled only when a real dashboard page exists; disabled
+# products must not define a route and render as non-clickable "coming soon"
+# tiles. Order here is the display order on the homepage.
+
+layers:
+  - id: iaas
+    acronym: IaaS
+    name_fa: زیرساخت به‌عنوان سرویس
+    products:
+      - slug: vm
+        name_fa: سرور ابری
+        route: /vm
+        enabled: true
+      - slug: object_storage
+        name_fa: آبجکت استورج
+        route: /object-storage
+        enabled: true
+      - slug: cdn
+        name_fa: شبکه توزیع محتوا (CDN)
+        enabled: false
+      - slug: gpu
+        name_fa: GPUaaS
+        enabled: false
+
+  - id: caas
+    acronym: CaaS
+    name_fa: کانتینر به‌عنوان سرویس
+    products:
+      - slug: kaas
+        name_fa: کوبرنتیز مدیریت‌شده (KaaS)
+        enabled: false
+
+  - id: paas
+    acronym: PaaS
+    name_fa: پلتفرم به‌عنوان سرویس
+    products:
+      - slug: cnap
+        name_fa: (CNAP) پلتفرم ابری توسعه اپلیکیشن
+        enabled: false
+      - slug: dbaas
+        name_fa: دیتابیس ابری (DBaaS)
+        enabled: false
+      - slug: devops
+        name_fa: ابزارهای DevOps
+        enabled: false
+      - slug: aiaas
+        name_fa: AIaaS
+        enabled: false
