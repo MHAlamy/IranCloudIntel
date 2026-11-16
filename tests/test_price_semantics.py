@@ -2,7 +2,7 @@ from decimal import Decimal
 
 import pytest
 
-from app.data import _tier_cost
+from comparison.tariffs import tier_cost as _tier_cost
 from extractors.schema import LLMPlanRow
 from normalization.validate import normalize_llm_row
 

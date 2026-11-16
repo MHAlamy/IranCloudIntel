@@ -104,3 +104,5 @@ Based on `PROJECT_GUIDE.md`; complete one milestone together at a time. Agreed c
 - [x] Audit item 3: regression coverage for failed/partial/empty extraction, stale sources, missing tariff intervals and cache invalidation on parser/config changes. Conservative fingerprints and suspect-only publication guards added.
 
 - [x] Visual consistency: VM and Object Storage share the VM chart template; OS selects one scenario and uses provider-row tables. Basis colors and cheapest-first bars are the default for future charts.
+
+- [x] Audit item 4: service-specific view/pipeline boundaries, shared collector lifecycle/types, pure tariff module, and observable browser waits. 177 non-browser tests and two local delayed-calculator browser checks passed; no live provider checks. See AUDIT_HANDOFF.md.

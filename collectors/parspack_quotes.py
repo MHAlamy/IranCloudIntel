@@ -16,11 +16,11 @@ from dataclasses import dataclass
 from decimal import Decimal
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from util.fingerprint import collection_fingerprint
 from collectors.arvan_clean import sha256_text  # noqa: E402
-from collectors.pipeline import CollectionOutcome, FetchError  # noqa: E402
+from collectors.waits import wait_until
+from collectors.common import start_collection, fail_collection, CollectionOutcome, FetchError  # noqa: E402
 from config.loader import AnalystProviderFacts, ProviderConfig, SourceConfig  # noqa: E402
 from extractors.schema import LLMPlanRow, NormalizedPlanRow  # noqa: E402
 from storage.repository import Repository  # noqa: E402
@@ -67,7 +67,7 @@ def collect_quotes(page, configs: list[dict]) -> list[dict]:
             "e.dispatchEvent(new Event('change', {bubbles: true})); }",
             value,
         )
-        page.wait_for_timeout(500)
+        wait_until(page, lambda: slider.input_value() == str(value), "VM slider value")
 
     def read_currents():
         widget_text = sliders[0].evaluate(
@@ -97,12 +97,29 @@ def collect_quotes(page, configs: list[dict]) -> list[dict]:
 
     quotes = []
     for config in configs:
+        before = read_currents()
+        try:
+            previous_daily = read_daily()
+        except FetchError:
+            previous_daily = None
         set_slider(sliders[0], nearest_ram_position(config["ram"]))
         set_slider(sliders[1], nearest_disk_position(config["disk"]))
         set_slider(sliders[2], nearest_cpu_position(config["cpu"]))
-        page.wait_for_timeout(1_200)
-        currents = read_currents()
-        daily_text = read_daily()
+        expected = dict(ram=f"{RAM_SCALE[nearest_ram_position(config['ram'])]}GB",
+                        disk=f"{DISK_MIN + DISK_STEP * nearest_disk_position(config['disk'])}GB",
+                        cpu=f"{32 if config['cpu'] >= 32 else config['cpu']} Core")
+        def ready_quote():
+            currents = read_currents()
+            if any(currents.get(key, '').replace(' ', '') != value.replace(' ', '') for key, value in expected.items()):
+                return None
+            try:
+                daily = read_daily()
+            except FetchError:
+                return None
+            unchanged = all(before.get(key, "").replace(" ", "") == value.replace(" ", "") for key, value in expected.items())
+            return (currents, daily) if unchanged or previous_daily is None or daily != previous_daily else None
+        currents, daily_text = wait_until(page, ready_quote, "VM resource labels and updated price")
+        previous_daily = daily_text
         daily = Decimal(str(daily_text)
                         .replace("تومان", "").strip()
                         .translate(str.maketrans("۰۱۲۳۴۵۶۷۸۹", "0123456789"))
@@ -128,11 +145,7 @@ def run_parspack_quotes(
 ) -> CollectionOutcome:
     """Collect ParsPack calculator quotes for the baseline configs."""
     outcome = CollectionOutcome(source_id=source.id, status="failed")
-    provider_id = repo.ensure_provider(provider.slug, provider.name, provider.official_url)
-    source_id = repo.ensure_source(
-        provider_id, source.service_type, source.url, source.collection_method, source.region_scope
-    )
-    run_id = repo.start_run(source_id)
+    provider_id, source_id, run_id = start_collection(repo, provider, source)
     try:
         from datetime import datetime, timezone
         from collectors.browser import launch_browser
@@ -143,13 +156,13 @@ def run_parspack_quotes(
             try:
                 page = browser.new_page(viewport={"width": 1440, "height": 900}, locale="fa-IR")
                 page.goto(source.url, wait_until="domcontentloaded", timeout=60_000)
-                page.wait_for_timeout(6_000)
+                page.locator("input[type=range]").first.wait_for(state="visible", timeout=60000)
                 # deterministic starting state: Iran, Tehran11, Ubuntu
                 try:
                     page.locator("select").nth(0).select_option(label="ایران")
-                    page.wait_for_timeout(1_000)
-                except Exception:
-                    pass  # defaults are already Iran/Tehran11/Alma
+                    page.wait_for_function("() => document.querySelector('select')?.selectedOptions[0]?.label === \u0027\u0627\u06cc\u0631\u0627\u0646\u0027")
+                except Exception as exc:
+                    raise FetchError("cannot confirm Iranian calculator region") from exc
                 quotes = collect_quotes(page, [q.model_dump() for q in facts.quotes])
                 stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
                 content_hash = sha256_text(json.dumps(quotes, sort_keys=True))
@@ -207,6 +220,4 @@ def run_parspack_quotes(
         outcome.observations = observations
         return outcome
     except Exception as exc:
-        repo.publish_run(run_id, "failed", error=str(exc)[:2000])
-        outcome.error = str(exc)
-        return outcome
+        return fail_collection(repo, run_id, outcome, exc, evidence_path=str(evidence_dir) if 'evidence_dir' in locals() else None)

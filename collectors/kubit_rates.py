@@ -16,7 +16,6 @@ from pathlib import Path
 
 from bs4 import BeautifulSoup
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from normalization.persian import parse_price, to_latin_digits  # noqa: E402
 

@@ -8,10 +8,8 @@ waits until a configurable readiness marker proves real content rendered.
 from __future__ import annotations
 
 import sys
-from dataclasses import dataclass
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from playwright.sync_api import sync_playwright  # noqa: E402
 
@@ -21,15 +19,7 @@ if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
     sys.stdout.reconfigure(encoding="utf-8")
 
 
-class FetchError(RuntimeError):
-    """Raised when the page cannot be fetched or real content never appears."""
-
-
-@dataclass
-class FetchResult:
-    html: str
-    http_status: int | None
-    final_url: str
+from collectors.common import FetchError, FetchResult
 
 
 def fetch_with_browser(
@@ -55,38 +45,11 @@ def fetch_with_browser(
             )
             response = page.goto(url, wait_until="domcontentloaded", timeout=60_000)
 
+            page.set_default_timeout(max_wait_seconds * 1000)
             if click_selector:
-                clicked = False
-                elapsed = 0
-                while elapsed < max_wait_seconds and not clicked:
-                    try:
-                        locator = page.locator(click_selector).first
-                        if locator.count() > 0 and locator.is_visible():
-                            locator.click()
-                            clicked = True
-                            break
-                    except Exception:
-                        pass  # element not ready yet; retry until the deadline
-                    page.wait_for_timeout(2_000)
-                    elapsed += 2
-                if not clicked:
-                    raise FetchError(
-                        f"click selector {click_selector!r} not clickable within "
-                        f"{max_wait_seconds}s on {url}"
-                    )
-
-            marker_seen = False
-            elapsed = 0
-            while elapsed < max_wait_seconds:
-                page.wait_for_timeout(5_000)
-                elapsed += 5
-                if ready_marker and page.locator(f"text={ready_marker}").count() > 0:
-                    marker_seen = True
-                    break
-            if ready_marker and not marker_seen:
-                raise FetchError(
-                    f"content marker {ready_marker!r} not seen within {max_wait_seconds}s on {url}"
-                )
+                page.locator(click_selector).first.click()
+            if ready_marker:
+                page.get_by_text(ready_marker, exact=False).first.wait_for(state='attached')
             html = page.content()
             return FetchResult(
                 html=html,

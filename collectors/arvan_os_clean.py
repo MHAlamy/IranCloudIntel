@@ -19,7 +19,6 @@ from pathlib import Path
 
 from bs4 import BeautifulSoup
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 START_ANCHOR = "قیمت فضای ابری"
 END_ANCHOR = "مصرف مازاد"

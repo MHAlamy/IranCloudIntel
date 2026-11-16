@@ -29,11 +29,11 @@ from datetime import datetime, timezone
 from decimal import Decimal
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from util.fingerprint import collection_fingerprint
 from collectors.arvan_clean import sha256_text  # noqa: E402
-from collectors.pipeline import CollectionOutcome  # noqa: E402
+from collectors.waits import wait_until
+from collectors.common import start_collection, fail_collection, CollectionOutcome  # noqa: E402
 from config.loader import ProviderConfig, SourceConfig  # noqa: E402
 from extractors.os_schema import LLMStoragePlanRow  # noqa: E402
 from normalization.os_validate import normalize_os_row  # noqa: E402
@@ -89,26 +89,30 @@ def read_quote(page) -> tuple[int, int] | None:
 def collect_storage_quotes(page) -> list[dict]:
     """Walk the slider across its full scale and quote every stop."""
     for value in (DISK_TYPE, LOCATION, PERIOD):
+        page.locator(f'input[type=radio][value="{value}"]').wait_for(state="attached")
         checked = page.evaluate(_ACTIVATE_RADIO, value)
         if not checked:
             raise RuntimeError(f"ParsPack storage radio {value!r} not found/activatable")
-        page.wait_for_timeout(400)
+        page.wait_for_function("v => document.querySelector(`input[type=radio][value=${v}]`)?.checked", arg=value)
 
     slider = page.locator("input[type=range]").first
-    slider.evaluate("e => e.focus()")
-    page.wait_for_timeout(300)
+    slider.wait_for(state="visible")
+    page.wait_for_function("() => !document.querySelector('input[type=range]').disabled")
+    slider.focus()
     max_pos = int(slider.evaluate("e => e.max"))
     page.keyboard.press("Home")
-    page.wait_for_timeout(400)
+    wait_until(page, lambda: slider.input_value() == "0", "storage slider Home")
 
     quotes: list[dict] = []
+    previous = None
     for position in range(0, max_pos + 1):
         current = int(slider.input_value())
         for _ in range(position - current):
             page.keyboard.press("ArrowRight")
-            page.wait_for_timeout(120)
-        page.wait_for_timeout(700)
-        read = read_quote(page)
+            wait_until(page, lambda: int(slider.input_value()) > current, "storage slider movement")
+            current = int(slider.input_value())
+        read = wait_until(page, lambda: (q if (q := read_quote(page)) is not None and int(slider.input_value()) == position and (previous is None or q[0] != previous[0] and q[1] != previous[1]) else None), f"storage quote at position {position}")
+        previous = read
         if read is None:
             raise RuntimeError(f"ParsPack storage quote unreadable at slider position {position}")
         storage_gb, monthly = read
@@ -150,11 +154,7 @@ def run_parspack_os(
 ) -> CollectionOutcome:
     """Collect ParsPack storage calculator quotes as object-storage observations."""
     outcome = CollectionOutcome(source_id=source.id, status="failed")
-    provider_id = repo.ensure_provider(provider.slug, provider.name, provider.official_url)
-    source_id = repo.ensure_source(
-        provider_id, source.service_type, source.url, source.collection_method, source.region_scope
-    )
-    run_id = repo.start_run(source_id)
+    provider_id, source_id, run_id = start_collection(repo, provider, source)
     try:
         from playwright.sync_api import sync_playwright
 
@@ -165,7 +165,7 @@ def run_parspack_os(
             try:
                 page = browser.new_page(viewport={"width": 1440, "height": 900}, locale="fa-IR")
                 page.goto(source.url, wait_until="domcontentloaded", timeout=90_000)
-                page.wait_for_timeout(8_000)
+                page.locator("input[type=radio]").first.wait_for(state="attached", timeout=60000)
                 quotes = collect_storage_quotes(page)
                 stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
                 cleaned = quotes_markdown(quotes, source.url)
@@ -233,9 +233,7 @@ def run_parspack_os(
         outcome.observations = observations
         return outcome
     except Exception as exc:
-        repo.publish_run(run_id, "failed", error=str(exc)[:2000])
-        outcome.error = str(exc)
-        return outcome
+        return fail_collection(repo, run_id, outcome, exc, evidence_path=str(evidence_dir) if 'evidence_dir' in locals() else None)
 
 
 def _format_fa(number: int) -> str:

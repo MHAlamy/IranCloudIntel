@@ -24,7 +24,6 @@ from pathlib import Path
 
 from bs4 import BeautifulSoup
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from collectors.arvan_os_rates import OSRateRow  # noqa: E402
 from collectors.arvan_clean import sha256_text  # noqa: E402
