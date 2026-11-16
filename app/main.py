@@ -66,6 +66,7 @@ def create_app(db_path: str | Path | None = None) -> FastAPI:
         repo = Repository(db_path)
         try:
             view = build_vm_view(repo, tier, size)
+            view["freshness"] = repo.freshness("vm")
         finally:
             repo.close()
         return templates.TemplateResponse(
@@ -85,6 +86,7 @@ def create_app(db_path: str | Path | None = None) -> FastAPI:
         repo = Repository(db_path)
         try:
             view = build_os_view(repo)
+            view["freshness"] = repo.freshness("object_storage")
         finally:
             repo.close()
         return templates.TemplateResponse(

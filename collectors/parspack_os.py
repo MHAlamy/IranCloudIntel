@@ -180,7 +180,7 @@ def run_parspack_os(
                 browser.close()
 
         if not force and repo.should_skip_extraction(source_id, content_hash, _CONFIG_HASH):
-            repo.finish_run(
+            repo.publish_run(
                 run_id, "success", http_status=200, content_hash=content_hash,
                 extractor_config_hash=_CONFIG_HASH, evidence_path=str(evidence_dir),
             )
@@ -223,7 +223,7 @@ def run_parspack_os(
             )
             observations += 1
 
-        repo.finish_run(
+        repo.publish_run(
             run_id, "success", http_status=200, content_hash=content_hash,
             extractor_config_hash=_CONFIG_HASH, evidence_path=str(evidence_dir),
         )
@@ -231,7 +231,7 @@ def run_parspack_os(
         outcome.observations = observations
         return outcome
     except Exception as exc:
-        repo.finish_run(run_id, "failed", error=str(exc)[:2000])
+        repo.publish_run(run_id, "failed", error=str(exc)[:2000])
         outcome.error = str(exc)
         return outcome
 

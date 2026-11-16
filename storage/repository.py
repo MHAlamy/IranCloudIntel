@@ -22,6 +22,8 @@ class Repository:
     def __init__(self, db_path: str | Path):
         init_db(db_path)
         self._connection = connect(db_path)
+        for table in ('price_observations', 'os_observations', 'resource_rates', 'os_rates'):
+            self._connection.execute(f"CREATE TEMP VIEW published_{table} AS SELECT t.* FROM main.{table} t JOIN collection_runs cr ON cr.id=t.run_id WHERE cr.status='success'")
 
     def close(self) -> None:
         self._connection.close()
@@ -87,6 +89,41 @@ class Repository:
         )
         self._connection.commit()
         return int(cursor.lastrowid)
+
+    def _check_publication(self, run_id: int, content_hash: str | None) -> None:
+        source = self._connection.execute('SELECT source_id FROM collection_runs WHERE id=?', (run_id,)).fetchone()[0]
+        previous = self._connection.execute("SELECT id, content_hash FROM collection_runs WHERE source_id=? AND status='success' ORDER BY id DESC LIMIT 1", (source,)).fetchone()
+        count = sum(self._connection.execute(f'SELECT COUNT(*) FROM main.{t} WHERE run_id=?', (run_id,)).fetchone()[0] for t in ('price_observations','os_observations','resource_rates','os_rates'))
+        if not count:
+            if previous and content_hash and previous['content_hash'] == content_hash:
+                return  # successful unchanged recheck
+            raise ValueError('empty collection cannot be published')
+        # Missing previously accepted identities require review, not silent partial publication.
+        for table, key in (('price_observations','offering_id'), ('os_observations','offering_id'), ('resource_rates',"category || ':' || unit || ':' || tier_label || ':' || region"), ('os_rates',"category || ':' || unit || ':' || tier_label || ':' || range_label || ':' || region")):
+            old = {r[0] for r in self._connection.execute(f"SELECT {key} FROM main.{table} WHERE run_id IN (SELECT id FROM collection_runs WHERE source_id=? AND status='success')", (source,))}
+            new = {r[0] for r in self._connection.execute(f'SELECT {key} FROM main.{table} WHERE run_id=?', (run_id,))}
+            if old - new:
+                raise ValueError(f'incomplete {table}: previously accepted identities missing; review required')
+
+    def freshness(self, service: str, max_age_hours: int = 48) -> list[dict]:
+        from datetime import datetime, timezone
+        result = []
+        for source in self.list_sources():
+            if source['service_type'] != service:
+                continue
+            runs = self.source_runs(source['id'], limit=1)
+            latest = runs[0] if runs else None
+            accepted = self._connection.execute("SELECT * FROM collection_runs WHERE source_id=? AND status='success' ORDER BY id DESC LIMIT 1", (source['id'],)).fetchone()
+            checked = accepted['finished_at'] if accepted else None
+            stale = not checked or (datetime.now(timezone.utc)-datetime.fromisoformat(checked)).total_seconds() > max_age_hours*3600 or (latest is not None and latest['status'] != 'success')
+            result.append(dict(provider=source['provider_name'], last_checked=latest['started_at'] if latest else None, last_verified=checked, stale=stale))
+        return result
+
+    def publish_run(self, run_id: int, status: str, **metadata) -> None:
+        """Collector completion: validate before atomic visibility transition."""
+        if status == 'success':
+            self._check_publication(run_id, metadata.get('content_hash'))
+        self.finish_run(run_id, status, **metadata)
 
     def finish_run(
         self, run_id: int, status: str, http_status: int | None = None,
@@ -161,7 +198,7 @@ class Repository:
             FROM offerings off
             JOIN providers p ON p.id = off.provider_id
             JOIN price_observations o ON o.id = (
-                SELECT po.id FROM price_observations po
+                SELECT po.id FROM published_price_observations po
                 WHERE po.offering_id = off.id AND po.validation_status = 'valid'
                 ORDER BY po.observed_at DESC, po.id DESC LIMIT 1
             )
@@ -173,7 +210,7 @@ class Repository:
 
     def offering_history(self, offering_id: int) -> list[sqlite3.Row]:
         return self._connection.execute(
-            """SELECT * FROM price_observations WHERE offering_id=?
+            """SELECT * FROM published_price_observations WHERE offering_id=?
                ORDER BY observed_at DESC, id DESC""",
             (offering_id,),
         ).fetchall()
@@ -202,13 +239,15 @@ class Repository:
         self._connection.commit()
         return count
 
-    def latest_rates(self, provider_id: int, region: str = "iran") -> list[sqlite3.Row]:
+    def latest_rates(self, provider_id: int, region: str = "iran", staged_run_id: int | None = None) -> list[sqlite3.Row]:
         """Newest rate row per (category, unit, tier_label) for a provider/region."""
+        if staged_run_id is not None:
+            return self._connection.execute('SELECT * FROM main.resource_rates WHERE provider_id=? AND region=? AND run_id=?', (provider_id, region, staged_run_id)).fetchall()
         return self._connection.execute(
-            """SELECT r.* FROM resource_rates r
+            """SELECT r.* FROM published_resource_rates r
                JOIN (
                    SELECT category, unit, tier_label, MAX(id) AS max_id
-                   FROM resource_rates WHERE provider_id=? AND region=?
+                   FROM published_resource_rates WHERE provider_id=? AND region=?
                    GROUP BY category, unit, tier_label
                ) latest ON r.id = latest.max_id
                ORDER BY r.category, r.tier_label""",
@@ -248,7 +287,7 @@ class Repository:
 
     def rate_count(self, provider_id: int) -> int:
         row = self._connection.execute(
-            "SELECT COUNT(*) AS c FROM resource_rates WHERE provider_id=?", (provider_id,)
+            "SELECT COUNT(*) AS c FROM published_resource_rates WHERE provider_id=?", (provider_id,)
         ).fetchone()
         return int(row["c"])
 
@@ -323,7 +362,7 @@ class Repository:
             FROM offerings off
             JOIN providers p ON p.id = off.provider_id
             JOIN os_observations o ON o.id = (
-                SELECT oo.id FROM os_observations oo
+                SELECT oo.id FROM published_os_observations oo
                 WHERE oo.offering_id = off.id AND oo.validation_status = 'valid'
                 ORDER BY oo.observed_at DESC, oo.id DESC LIMIT 1
             )
@@ -357,10 +396,10 @@ class Repository:
     def latest_os_rates(self, provider_id: int, region: str = "iran") -> list[sqlite3.Row]:
         """Newest OS rate row per (category, unit, tier_label, range_label)."""
         return self._connection.execute(
-            """SELECT r.* FROM os_rates r
+            """SELECT r.* FROM published_os_rates r
                JOIN (
                    SELECT category, unit, tier_label, range_label, MAX(id) AS max_id
-                   FROM os_rates WHERE provider_id=? AND region=?
+                   FROM published_os_rates WHERE provider_id=? AND region=?
                    GROUP BY category, unit, tier_label, range_label
                ) latest ON r.id = latest.max_id
                ORDER BY r.category, r.tier_label, r.range_min_gb""",

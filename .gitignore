@@ -38,3 +38,7 @@ logs/
 Thumbs.db
 Desktop.ini
 .DS_Store
+
+# Isolated local pytest working directories
+.pytest_*_tmp/
+.pytest_publication_*/

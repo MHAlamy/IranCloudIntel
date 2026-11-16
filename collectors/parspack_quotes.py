@@ -162,7 +162,7 @@ def run_parspack_quotes(
 
         config_hash = "parspack-quote-v1"
         if not force and repo.should_skip_extraction(source_id, content_hash, config_hash):
-            repo.finish_run(run_id, "success", http_status=200, content_hash=content_hash,
+            repo.publish_run(run_id, "success", http_status=200, content_hash=content_hash,
                             extractor_config_hash=config_hash, evidence_path=str(evidence_dir))
             outcome.status = "success"
             outcome.skipped = True
@@ -200,12 +200,12 @@ def run_parspack_quotes(
             repo.record_observation(run_id, offering_id, raw, normalized)
             observations += 1
 
-        repo.finish_run(run_id, "success", http_status=200, content_hash=content_hash,
+        repo.publish_run(run_id, "success", http_status=200, content_hash=content_hash,
                         extractor_config_hash=config_hash, evidence_path=str(evidence_dir))
         outcome.status = "success"
         outcome.observations = observations
         return outcome
     except Exception as exc:
-        repo.finish_run(run_id, "failed", error=str(exc)[:2000])
+        repo.publish_run(run_id, "failed", error=str(exc)[:2000])
         outcome.error = str(exc)
         return outcome

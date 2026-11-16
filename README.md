@@ -81,3 +81,21 @@ Useful inspection scripts: `scripts/db_report.py`, `scripts/check_verification.p
 CDN coverage. Then deployment to one Ubuntu VM (Docker Compose, Nginx,
 HTTPS), scheduling, backups to Object Storage, and CI/CD via GitHub Actions —
 see `v1_milestones.md` milestones 5–6.
+
+## Publication and freshness
+
+Collectors stage rows under a running collection attempt. Dashboard reads expose
+only successful runs; `Repository.publish_run` validates completeness before the
+single status update that makes a collection visible. Failed/staged rows remain
+available for diagnosis but cannot affect prices, rates or displayed history.
+Unchanged successful rechecks refresh verification time without duplicating prices.
+
+Empty collections and collections missing previously accepted plan/rate identities
+are rejected. This is deliberately conservative: genuine removals or renamed plans
+require analyst review; automatic retirement is not implemented. First collections
+cannot detect a plausible omitted plan without a source-specific expected inventory.
+Existing historical successes are trusted, not retroactively revalidated.
+
+VM and Object Storage pages show per-source latest attempt, successful verification,
+and stale status (48-hour verification threshold, or latest attempt not successful).
+A running attempt is provisionally marked stale until it completes.

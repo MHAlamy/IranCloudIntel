@@ -119,7 +119,7 @@ def run_collection(
         (evidence_dir / "cleaned.md").write_text(combined_markdown, encoding="utf-8")
 
         if not force and repo.should_skip_extraction(source_id, content_hash, config_hash):
-            repo.finish_run(
+            repo.publish_run(
                 run_id, "success", http_status=fetch_result.http_status,
                 content_hash=content_hash, extractor_config_hash=config_hash,
                 evidence_path=str(evidence_dir), model=_current_model(),
@@ -136,7 +136,7 @@ def run_collection(
         if rates_parser is not None:
             rates_stored = repo.record_rates(run_id, provider_id, rates_parser(fetch_result.html))
             if rate_mappings and provider.slug in rate_mappings:
-                rates_lookup = _tier_rates_from_repo(repo, provider_id, rate_mappings[provider.slug])
+                rates_lookup = _tier_rates_from_repo(repo, provider_id, rate_mappings[provider.slug], run_id)
 
         # Deterministic-bundle providers (e.g. Liara): plans parsed directly,
         # no LLM call. Comparable price includes the provider's documented
@@ -177,7 +177,7 @@ def run_collection(
                 repo.record_observation(run_id, offering_id, raw, normalized)
                 recorded += 1
 
-            repo.finish_run(
+            repo.publish_run(
                 run_id, "success", http_status=fetch_result.http_status,
                 content_hash=content_hash, extractor_config_hash=config_hash,
                 evidence_path=str(evidence_dir), model=_current_model(),
@@ -191,7 +191,7 @@ def run_collection(
         # Rate-table-only sources (no published VM bundles, e.g. Kubit):
         # store rates and finish; no LLM call, no bundle observations.
         if not bundle_extraction:
-            repo.finish_run(
+            repo.publish_run(
                 run_id, "success", http_status=fetch_result.http_status,
                 content_hash=content_hash, extractor_config_hash=config_hash,
                 evidence_path=str(evidence_dir), model=_current_model(),
@@ -223,6 +223,8 @@ def run_collection(
                 prompt_tokens += telemetry.prompt_tokens
                 completion_tokens += telemetry.completion_tokens
 
+                if not rows:
+                    raise FetchError(f"empty extraction for tab {tab}")
                 for raw_row in rows:
                     try:
                         plan_row = LLMPlanRow(**raw_row)
@@ -270,7 +272,7 @@ def run_collection(
                 json.dumps(review_entries, ensure_ascii=False, indent=2), encoding="utf-8"
             )
 
-        repo.finish_run(
+        repo.publish_run(
             run_id, "success", http_status=fetch_result.http_status,
             content_hash=content_hash, extractor_config_hash=config_hash,
             evidence_path=str(evidence_dir), model=_current_model(),
@@ -285,7 +287,7 @@ def run_collection(
         return outcome
 
     except Exception as exc:
-        repo.finish_run(run_id, "failed", error=str(exc)[:2000], model=_current_model())
+        repo.publish_run(run_id, "failed", error=str(exc)[:2000], model=_current_model())
         outcome.error = str(exc)
         return outcome
 
@@ -355,7 +357,7 @@ def run_os_collection(
         (evidence_dir / "cleaned.md").write_text(cleaned, encoding="utf-8")
 
         if not force and repo.should_skip_extraction(source_id, content_hash, config_hash):
-            repo.finish_run(
+            repo.publish_run(
                 run_id, "success", http_status=fetch_result.http_status,
                 content_hash=content_hash, extractor_config_hash=config_hash,
                 evidence_path=str(evidence_dir), model=_current_model(),
@@ -473,7 +475,7 @@ def run_os_collection(
                 json.dumps(review_entries, ensure_ascii=False, indent=2), encoding="utf-8"
             )
 
-        repo.finish_run(
+        repo.publish_run(
             run_id, "success", http_status=fetch_result.http_status,
             content_hash=content_hash, extractor_config_hash=config_hash,
             evidence_path=str(evidence_dir), model=_current_model(),
@@ -489,18 +491,18 @@ def run_os_collection(
         return outcome
 
     except Exception as exc:
-        repo.finish_run(run_id, "failed", error=str(exc)[:2000], model=_current_model())
+        repo.publish_run(run_id, "failed", error=str(exc)[:2000], model=_current_model())
         outcome.error = str(exc)
         return outcome
 
 
-def _tier_rates_from_repo(repo: Repository, provider_id: int, mapping: ProviderRateMapping):
+def _tier_rates_from_repo(repo: Repository, provider_id: int, mapping: ProviderRateMapping, run_id: int):
     """Build a per-plan rate lookup from the provider's stored Iran rates.
 
     Returns an object with .rates_for(plan_name) -> TierRates | None, or None
     when the provider's rate table is unusable for verification.
     """
-    rows = repo.latest_rates(provider_id, region="iran")
+    rows = repo.latest_rates(provider_id, region="iran", staged_run_id=run_id)
     by_key = {(r["category"], r["unit"], r["tier_label"]): r for r in rows}
     ipv4_row = next((r for (cat, _, label), r in by_key.items() if cat == "ipv4" and "اول" in label), None)
     if ipv4_row is None:

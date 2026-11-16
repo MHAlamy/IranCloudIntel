@@ -6,6 +6,14 @@ Based on `PROJECT_GUIDE.md`; complete one milestone together at a time. Agreed c
 
 **Status (2026-11-15/16):** Milestones 1–4 essentially complete — four VM sources collected/validated (Arvan bundles+rates with deterministic verification, Liara bundles, ParsPack calculator quotes, Kubit rate table; zero-LLM collection for three of four), SQLite history, matching engine, and the Persian RTL dashboard running at `http://localhost:8000`. **Object Storage first version live (2026-11-16):** all four OS providers collected and compared at `/object-storage` — Hamravesh (baseline, published plans), Arvan (PAYG-calculated), Kubit (free base plan + PAYG tables, deterministic HTTP, 0 tokens), ParsPack (storage-only calculator quotes, Playwright, 0 tokens). Remaining for V1: CDN coverage, then deployment (M5) and automation (M6).
 
+## Audit remediation ? publication and freshness (2026-11-16)
+
+- [x] Stage collection writes and atomically publish through successful run status; hide failed/running observations and rates from dashboard reads and history.
+- [x] Reject empty results and missing previously accepted identities; preserve last accepted prices. Genuine removals require analyst review.
+- [x] Show latest attempt, successful verification and stale status on both comparison panels; unchanged rechecks refresh verification.
+- [x] Regression checks for cross-connection visibility, incomplete/empty attempts, failed fallback and unchanged recovery. Full non-browser suite: 159 passed.
+- No live collection or migration of the existing runtime database performed. Earlier successful runs remain trusted.
+
 ## Current PC baseline
 
 - Windows 11 Enterprise, ~24 GB RAM; native **Python 3.14.6** (via `py` launcher) with project `.venv`; Git 2.54; VS Code with the `.venv` interpreter configured.

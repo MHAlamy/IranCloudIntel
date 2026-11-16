@@ -182,7 +182,7 @@ def build_vm_view(repo: Repository, tier: str, size_key: str) -> dict:
     rates_providers = {
         row["slug"]
         for row in repo._connection.execute(
-            "SELECT DISTINCT p.slug AS slug FROM resource_rates r JOIN providers p ON p.id = r.provider_id"
+            "SELECT DISTINCT p.slug AS slug FROM published_resource_rates r JOIN providers p ON p.id = r.provider_id"
         ).fetchall()
     }
     latest_observed_by_provider: dict[str, str] = {}
@@ -193,7 +193,7 @@ def build_vm_view(repo: Repository, tier: str, size_key: str) -> dict:
     # "last checked" comes from the latest rate collection run
     for row in repo._connection.execute(
         """SELECT p.slug AS slug, MAX(r.observed_at) AS m
-           FROM resource_rates r JOIN providers p ON p.id = r.provider_id
+           FROM published_resource_rates r JOIN providers p ON p.id = r.provider_id
            GROUP BY p.slug"""
     ).fetchall():
         if row["m"] and row["m"] > latest_observed_by_provider.get(row["slug"], ""):
