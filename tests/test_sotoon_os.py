@@ -27,6 +27,15 @@ EXPECTED_TOTALS = {
     "dedicated": Decimal("558553200"),
 }
 
+# Same scenarios, but 80% of egress is served through Sotoon's CDN and is not
+# billed as Object Storage traffic (only the remaining 20% is charged).
+EXPECTED_CDN_TOTALS = {
+    "base": Decimal("611000"),
+    "growth": Decimal("3039000"),
+    "pro": Decimal("29429600"),
+    "dedicated": Decimal("282897200"),
+}
+
 
 def sotoon_config():
     provider = next(p for p in load_providers().providers if p.slug == "sotoon")
@@ -181,6 +190,37 @@ def test_view_calculates_sotoon_with_requests_and_provenance(imported_os):
     assert not any("هزینه درخواست‌ها و مالیات" in note for note in row["notes"])
 
 
+@pytest.mark.parametrize("scenario_key", EXPECTED_TOTALS)
+def test_cdn_offload_adds_a_second_sotoon_result(imported_os, scenario_key):
+    repo, _, _, _ = imported_os
+    view = build_os_view(repo, scenario_key)
+    sotoon_rows = [r for r in view["comparison_rows"] if r["slug"] == "sotoon"]
+    assert [r["provider_name"] for r in sotoon_rows] == ["Sotoon", "Sotoon + CDN"]
+    full, cdn = sotoon_rows
+    assert full["price"] == EXPECTED_TOTALS[scenario_key]
+    assert cdn["price"] == EXPECTED_CDN_TOTALS[scenario_key]
+    assert cdn["price"] < full["price"]
+    assert cdn["provenance"] == "manual"
+    assert cdn["basis"] == "calculated"
+
+
+def test_both_sotoon_results_explain_the_traffic_assumption(imported_os):
+    repo, _, _, _ = imported_os
+    view = build_os_view(repo, "base")
+    full, cdn = [r for r in view["comparison_rows"] if r["slug"] == "sotoon"]
+
+    assert full["plan_name"] == "پیکربندی معادل (کل ترافیک)"
+    assert any("کل ترافیک سناریو" in note and "CDN" in note for note in full["notes"])
+
+    assert "۲۰٪" in cdn["plan_name"]
+    assert any("۸۰٪ ترافیک از CDN" in note for note in cdn["notes"])
+    assert any("هزینه‌ی خود CDN در این عدد نیست" in note for note in cdn["notes"])
+    # the request estimate and provenance apply to both results
+    for row in (full, cdn):
+        assert any("درخواست برآوردی" in note for note in row["notes"])
+        assert any("منبع دستی" in note for note in row["notes"])
+
+
 def test_scenarios_expose_the_request_estimate(imported_os):
     repo, _, _, _ = imported_os
     view = build_os_view(repo, "growth")
@@ -194,9 +234,11 @@ def test_dashboard_renders_sotoon_with_manual_badge(imported_os):
     with TestClient(create_app(db)) as client:
         text = client.get("/object-storage?scenario=base").text
         assert "Sotoon" in text
+        assert "Sotoon + CDN" in text
         assert "badge-manual" in text and "دستی" in text
         assert "منبع دستی" in text
         assert "برآورد" in text
         assert "۱۴۰۵/۱۲/۲۹" in text
+        assert "۸۰٪ ترافیک از CDN" in text
         # the rate table shows the request unit and the manual provenance
         assert "هر ۱۰۰۰ درخواست" in text

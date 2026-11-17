@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pytest
 import yaml
+from decimal import Decimal
 
 from config.loader import (
     BenchmarksFile,
@@ -38,6 +39,9 @@ def test_committed_configs_load_and_validate():
     assert set(os_b.scenarios) == {"base", "growth", "pro", "dedicated"}
     assert os_b.scenarios["growth"].storage_gb == 500
     assert os_b.scenarios["growth"].traffic_gb == 2048
+    assert os_b.scenarios["base"].requests == 100000
+    # Sotoon does not bill Object Storage egress for traffic served via its CDN.
+    assert os_b.traffic_offloads["sotoon"].cdn_share == Decimal("0.8")
     # PaaS/CNAP: four compute references, Liara silver comparison.
     assert set(benchmarks.paas.selections) == {"s1", "s2", "s3", "s4"}
     assert benchmarks.paas.selections["s4"].disk_gb == 640

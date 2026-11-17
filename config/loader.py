@@ -144,12 +144,26 @@ class OSScenario(BaseModel):
     requests: int = Field(default=0, ge=0)
 
 
+class OSTrafficOffload(BaseModel):
+    """Share of scenario traffic served through a provider's own CDN.
+
+    Traffic served through the CDN is not billed as Object Storage egress, so
+    the dashboard can show a second, CDN-assisted price.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    cdn_share: Decimal = Field(ge=0, le=1)
+    label: str = ""
+
+
 class ObjectStorageBenchmarks(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     tb_to_gb: int = Field(default=1024, ge=1)
     baseline: str = ""
     scenarios: dict[str, OSScenario] = Field(default_factory=dict)
+    traffic_offloads: dict[str, OSTrafficOffload] = Field(default_factory=dict)
 
 
 def _load_yaml(path: Path) -> dict:

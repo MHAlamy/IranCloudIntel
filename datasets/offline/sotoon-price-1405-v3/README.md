@@ -52,6 +52,11 @@ and a `source_pdf_page` column on every row.
 - Requests are charged using the per-scenario estimate in `benchmarks.yaml`
   (a low-end figure, ~4 MiB average object). No Sotoon bundle exists, so the
   comparison price is always calculated and marked «دستی».
+- The brochure says traffic served from Object Storage through Sotoon's CDN is
+  not billed as storage egress. The dashboard therefore shows two Sotoon
+  results: full traffic, and a CDN-assisted one that prices only 20% of the
+  scenario traffic (80% offload, configured in `benchmarks.yaml`). The CDN's own
+  tariff is a separate product and is not added.
 - Inbound traffic and tax are excluded.
 
 ### Provenance

@@ -127,6 +127,17 @@ the four scenarios fall well inside the same bands under either reading. Sotoon
 has a single request rate for HiCap, charged per 1,000 requests. Inbound traffic
 and tax are excluded.
 
+### Sotoon CDN offload
+
+Sotoon does not bill Object Storage egress for traffic served through its own
+CDN (the brochure states that storage-origin CDN traffic is free). The dashboard
+therefore shows **two Sotoon results per scenario**: the full-traffic price, and
+a CDN-assisted price that charges only the remaining share (default: 80% of
+traffic via CDN, so 20% is priced). The CDN's own traffic tariff is a separate
+product and is not included in either number; both rows carry a note saying so.
+The share is configured in `benchmarks.yaml` (`traffic_offloads`) and applies
+only to providers listed there.
+
 ## PaaS (CNAP)
 
 Four compute references (owner decision 2026-11-16): 1 vCPU + 2 GB RAM / 20 GB

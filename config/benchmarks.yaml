@@ -40,6 +40,14 @@ object_storage:
     pro:        {label: حرفه‌ای, storage_gb: 5120,   traffic_gb: 20480,  requests: 5000000}
     dedicated:  {label: اختصاصی, storage_gb: 51200,  traffic_gb: 204800, requests: 50000000}
 
+  # Sotoon does not bill Object Storage egress for traffic served through its
+  # own CDN (owner decision 2026-11-17). The dashboard shows both the full
+  # traffic price and a CDN-assisted price that charges only the remaining
+  # share; the CDN's own traffic tariff is a separate product and is not added.
+  traffic_offloads:
+    sotoon:
+      cdn_share: 0.8
+
 # PaaS/CNAP compute references. CPU/RAM are owner requirements (2026-11-16).
 # SSD follows Liara silver's published plans (20/80/320 GB); the 640 GB value
 # for the 32/64 reference is the same doubling pattern because Liara does not

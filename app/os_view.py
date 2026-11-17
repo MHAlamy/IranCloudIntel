@@ -321,14 +321,45 @@ def build_os_view(repo: Repository, scenario_key: str | None = None) -> dict:
         return _cell(None, "missing", "", provider_notes)
 
     scenarios = []
+    offloads = benchmarks.traffic_offloads
     for key, scenario in benchmarks.scenarios.items():
         storage_gb = Decimal(str(scenario.storage_gb))
         traffic_gb = Decimal(str(scenario.traffic_gb))
-        providers = {}
+        cells: list[dict] = []
         for slug in os_provider_slugs:
             cell = resolve_cell(slug, storage_gb, traffic_gb, scenario.requests)
+            cell["slug"] = slug
+            cell["display_name"] = provider_names.get(slug, slug)
             cell["provenance"] = "manual" if slug in provenance_by_provider else "live"
-            providers[slug] = cell
+            offload = offloads.get(slug)
+            if offload and cell["price"] is not None:
+                provider_name = provider_names.get(slug, slug)
+                share = offload.cdn_share
+                remaining_share = Decimal(1) - share
+                cell["plan_name"] = "پیکربندی معادل (کل ترافیک)"
+                cell["notes"].insert(0, (
+                    "کل ترافیک سناریو با نرخ خروجی آبجکت استوریج قیمت خورده است؛ "
+                    f"اگر بخشی از ترافیک از CDN {provider_name} عبور کند، این هزینه کمتر می‌شود"
+                ))
+                variant = resolve_cell(
+                    slug, storage_gb, traffic_gb * remaining_share, scenario.requests
+                )
+                variant["slug"] = slug
+                variant["display_name"] = f"{provider_name} + CDN"
+                variant["provenance"] = cell["provenance"]
+                variant["plan_name"] = (
+                    f"پیکربندی معادل ({format_number(remaining_share * 100)}٪ ترافیک، با CDN)"
+                )
+                variant["notes"].insert(0, (
+                    f"فرض: {format_number(share * 100)}٪ ترافیک از CDN {provider_name} عبور می‌کند "
+                    "و به‌عنوان خروجی آبجکت استوریج محاسبه نمی‌شود؛ فقط "
+                    f"{format_number(remaining_share * 100)}٪ ترافیک با نرخ خروجی قیمت خورده است. "
+                    "هزینه‌ی خود CDN در این عدد نیست"
+                ))
+                cells.append(cell)
+                cells.append(variant)
+                continue
+            cells.append(cell)
         scenarios.append({
             "key": key,
             "label": scenario.label,
@@ -340,14 +371,14 @@ def build_os_view(repo: Repository, scenario_key: str | None = None) -> dict:
             "traffic_fa": _format_gb(traffic_gb),
             "requests": scenario.requests,
             "requests_fa": format_toman(scenario.requests, False),
-            "providers": providers,
+            "providers": cells,
         })
 
     selected = next((s for s in scenarios if s['key'] == scenario_key), scenarios[0] if scenarios else None)
     comparison_rows = []
     if selected:
-        for slug in os_provider_slugs:
-            comparison_rows.append(dict(selected['providers'][slug], provider_name=provider_names.get(slug, slug)))
+        for cell in selected['providers']:
+            comparison_rows.append(dict(cell, provider_name=cell['display_name']))
     priced = sorted((r for r in comparison_rows if r['price'] is not None), key=lambda r: r['price'])
     missing = [r for r in comparison_rows if r['price'] is None]
     maximum = max((r['price'] for r in priced), default=Decimal(0))
