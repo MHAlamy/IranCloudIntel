@@ -95,14 +95,37 @@ Use Hamravesh's configured capacity/traffic scenarios as the baseline; reference
 amounts are in `benchmarks.yaml`, not duplicated here. Prefer an exact published
 bundle, then documented PAYG calculation, then exact storage-only quote, then
 nearest larger quote with actual capacity and an approximation label.
-These are subtotals: requests and tax are excluded; unknown extra charges are not
-zero. Arvan PAYG period is assumed monthly; the published rate table is the
+These are subtotals: tax is excluded and unknown extra charges are not zero.
+Requests are excluded for every provider that publishes no request allowance
+(the Hamravesh baseline included); they are included only where the provider
+bills requests separately, using the scenario's estimated request count. Arvan
+PAYG period is assumed monthly; the published rate table is the
 authoritative tariff and the marketing FAQ is not collected (owner decision
 2026-11-16). Kubit uses egress outside location as the explicitly provisional traffic
 analog. ParsPack HDD/Iran/one-month quotes omit traffic and are not complete totals.
 Only progressive tariffs are implemented: contiguous, nonoverlapping intervals,
 known nonnegative rates and coverage of usage are required. Volume tariffs need
 an explicit adapter. Preserve free quotas, classes, minimums and geography.
+
+### Request estimates
+
+`benchmarks.yaml` gives each scenario a monthly request count. It assumes large
+objects (about 4 MiB on average), which keeps the request charge at the low end:
+underestimating the request price is preferred over overestimating it. The
+estimate is shown next to the scenario reference and in the calculated row note,
+so it is never mistaken for a measured value.
+
+### Sotoon (HiCap)
+
+Only the HiCap class in the Neda datacenter is compared (owner decision
+2026-11-17). Capacity, egress and request rates come from the manually imported
+price list; there is no published Sotoon Object Storage bundle, so the price is
+always calculated. Egress bands are transcribed with textual labels
+(`first_50_GB`, `next_450_GB`, …) and converted to contiguous numeric bounds
+using the configured `tb_to_gb`; the document does not say decimal or binary, but
+the four scenarios fall well inside the same bands under either reading. Sotoon
+has a single request rate for HiCap, charged per 1,000 requests. Inbound traffic
+and tax are excluded.
 
 ## PaaS (CNAP)
 

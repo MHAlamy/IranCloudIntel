@@ -139,6 +139,9 @@ class OSScenario(BaseModel):
     label: str
     storage_gb: Decimal = Field(ge=0)
     traffic_gb: Decimal = Field(ge=0)
+    # Analyst estimate of monthly requests, used only for providers that bill
+    # requests separately. Deliberately a low-end figure.
+    requests: int = Field(default=0, ge=0)
 
 
 class ObjectStorageBenchmarks(BaseModel):

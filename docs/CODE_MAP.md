@@ -8,8 +8,8 @@
 | PaaS extraction/publication | `collectors/paas_pipeline.py`, `hamravesh_paas.py`, `arvan_paas.py`, `liara_paas.py` | `test_paas_pipeline.py`, `test_paas_parsers.py` |
 | PaaS comparison/rendering | `app/paas_view.py`, `app/templates/paas.html` | `test_paas_dashboard.py` |
 | Schema v5 PaaS service type | `storage/migrations/v5__paas.sql` | `test_paas_pipeline.py` |
-| Manual (offline) import | `collectors/offline_pipeline.py`, `sotoon_offline.py`, `storage/migrations/v6__manual_sources.sql` | `test_sotoon_offline.py` |
-| Offline dataset packages | `datasets/offline/<source_id>/` (manifest + CSV) | `test_sotoon_offline.py`, `test_benchmark_pivot.py` |
+| Manual (offline) import | `collectors/offline_pipeline.py`, `sotoon_offline.py`, `storage/migrations/v6__manual_sources.sql` | `test_sotoon_offline.py`, `test_sotoon_os.py` |
+| Offline dataset packages | `datasets/offline/<source_id>/` (manifest + CSV) | `test_sotoon_offline.py`, `test_sotoon_os.py`, `test_benchmark_pivot.py` |
 | Benchmark pivot (display) | `comparison/benchmarks.py` (long CSV is the only stored source) | `test_benchmark_pivot.py` |
 | ParsPack interaction | `collectors/parspack_quotes.py`, `parspack_os.py`, `waits.py` | `test_waits.py` (browser cases are opt-in) |
 | Provider parsers | `collectors/{provider}*.py` | `test_liara.py`, `test_kubit.py`, `test_rates.py`, `test_os_parsers.py` |

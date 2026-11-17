@@ -275,13 +275,20 @@ def test_os_chart_follows_selected_scenario(os_client):
         soup = BeautifulSoup(text, 'html.parser')
         chart = soup.select_one('.chart-card')
         assert len(soup.select('.chart-card')) == 1
-        assert len(chart.select('.bar-provider')) == 4
+        # one bar per configured OS provider; Sotoon has no data in this seeded
+        # database, so it appears last as an empty track
+        assert len(chart.select('.bar-provider')) == 5
+        assert len(chart.select('.bar-price-none')) == 1
         assert not chart.select('.chart-group, .swatch')
         assert chart.select('.bar-calculated')
         assert len(chart.select('[style="width: 100%"]')) == 1
-        prices = [int(''.join(c for c in el.get_text() if c.isdigit())) for el in chart.select('.bar-price')]
+        priced = [
+            el for el in chart.select('.bar-price')
+            if 'bar-price-none' not in (el.get('class') or [])
+        ]
+        prices = [int(''.join(c for c in el.get_text() if c.isdigit())) for el in priced]
         assert prices == sorted(prices)
-        assert len(soup.select('.table-card')[0].select('tbody tr')) == 4
+        assert len(soup.select('.table-card')[0].select('tbody tr')) == 5
     assert 'bar-approximate' in BeautifulSoup(pro, 'html.parser').select_one('.chart-card').decode()
     assert BeautifulSoup(base, 'html.parser').select_one('.chart-card').decode() != BeautifulSoup(pro, 'html.parser').select_one('.chart-card').decode()
 

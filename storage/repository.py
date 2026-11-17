@@ -454,12 +454,17 @@ class Repository:
     def latest_os_rates(self, provider_id: int, region: str = "iran") -> list[sqlite3.Row]:
         """Newest OS rate row per (category, unit, tier_label, range_label)."""
         return self._connection.execute(
-            """SELECT r.* FROM published_os_rates r
+            """SELECT r.*, s.collection_method AS collection_method,
+                      cr.source_document AS source_document,
+                      cr.valid_until AS valid_until
+               FROM published_os_rates r
+               JOIN collection_runs cr ON cr.id = r.run_id
+               JOIN sources s ON s.id = cr.source_id
                JOIN (
                    SELECT category, unit, tier_label, range_label, MAX(id) AS max_id
                    FROM published_os_rates WHERE provider_id=? AND region=?
                    GROUP BY category, unit, tier_label, range_label
                ) latest ON r.id = latest.max_id
-               ORDER BY r.category, r.tier_label, r.range_min_gb""",
+               ORDER BY r.category, r.tier_label, CAST(r.range_min_gb AS REAL)""",
             (provider_id, region),
         ).fetchall()

@@ -22,6 +22,7 @@ OS_STATUS_LABELS_FA = {
 _OS_RATE_GROUPS = [
     ("storage", "فضای ذخیره‌سازی"),
     ("traffic", "ترافیک"),
+    ("requests", "درخواست‌ها"),
     ("requests_read", "درخواست خواندن"),
     ("requests_write", "درخواست نوشتن"),
     ("feature", "قابلیت‌ها"),
@@ -43,6 +44,14 @@ OS_RATE_FILTERS = {
         "storage": lambda r: True,
         "traffic": lambda r: "خروجی" in (r["tier_label"] or "") and "خارج" in (r["tier_label"] or ""),
     },
+    # Sotoon: only the imported HiCap class is compared. Request charges are
+    # included here because Sotoon bills them separately (owner decision
+    # 2026-11-17); the scenario request count is a low-end analyst estimate.
+    "sotoon": {
+        "storage": lambda r: (r["tier_label"] or "") == "HiCap",
+        "traffic": lambda r: (r["tier_label"] or "") == "HiCap",
+        "requests": {"category": "requests", "per_requests": 1000},
+    },
 }
 
 # Provider-level caveats shown with plan tables and scenario cells.
@@ -59,17 +68,32 @@ OS_PROVIDER_NOTES = {
         "۱۰٪ مالیات بر ارزش افزوده به تعرفه‌ها اضافه می‌شود (طبق صفحه کوبیت)",
         "پلن پایه رایگان با سهمیه صفر است؛ کل مصرف طبق تعرفه‌های مصرف مازاد محاسبه می‌شود",
     ],
+    "sotoon": [
+        "محاسبه از تعرفه‌ی HiCap دیتاسنتر ندا؛ شامل هزینه‌ی درخواست‌ها با برآورد محافظه‌کارانه",
+        "ترافیک ورودی و مالیات لحاظ نشده‌اند",
+    ],
 }
 
 
+def _manual_source_note(provenance: dict) -> str:
+    parts = []
+    if provenance.get("source_document"):
+        parts.append(f"منبع دستی: {provenance['source_document']}")
+    if provenance.get("valid_until"):
+        from util.jalali import format_jalali
+        parts.append(f"معتبر تا {format_jalali(provenance['valid_until'], with_time=False)}")
+    return " · ".join(parts)
+
+
 def _rates_scenario_price(
-    rates: list[dict], storage_gb: Decimal, traffic_gb: Decimal, filters: dict,
-) -> tuple[Decimal | None, list[str]]:
+    rates: list[dict], storage_gb: Decimal, traffic_gb: Decimal, requests: int,
+    filters: dict,
+) -> tuple[Decimal | None, list[str], bool]:
     """Calculated scenario price from a provider's documented PAYG rates.
 
-    Request charges stay excluded for every provider: the Hamravesh baseline
-    publishes no request allowance, so including them would compare unlike
-    assumptions (unknown ≠ zero).
+    Request charges are included only for providers whose filter defines a
+    request rate (currently Sotoon); the Hamravesh baseline publishes no request
+    allowance, so other providers keep them excluded (unknown ≠ zero).
     """
     storage_rows = [
         {"range_min_gb": r["range_min_gb"], "range_max_gb": r["range_max_gb"],
@@ -84,13 +108,35 @@ def _rates_scenario_price(
     storage_cost, storage_ok = _tier_cost(storage_rows, storage_gb)
     traffic_cost, traffic_ok = _tier_cost(traffic_rows, traffic_gb)
     if storage_cost is None or not storage_ok:
-        return None, ["حجم ذخیره‌سازی سناریو فراتر از پلکان‌های نرخ منتشرشده است"]
+        return None, ["حجم ذخیره‌سازی سناریو فراتر از پلکان‌های نرخ منتشرشده است"], False
     if traffic_cost is None or not traffic_ok:
-        return None, ["حجم ترافیک سناریو فراتر از پلکان‌های نرخ منتشرشده است"]
+        return None, ["حجم ترافیک سناریو فراتر از پلکان‌های نرخ منتشرشده است"], False
+
+    request_cost = Decimal(0)
+    includes_requests = False
+    request_spec = filters.get("requests")
+    if request_spec:
+        request_rows = [
+            {"range_min_gb": r["range_min_gb"], "range_max_gb": r["range_max_gb"],
+             "amount": r["amount_toman"], "is_free": bool(r["is_free"])}
+            for r in rates if r["category"] == request_spec["category"]
+        ]
+        if not request_rows:
+            # The provider bills requests but the rate is missing: never treat
+            # an unknown charge as zero.
+            return None, ["نرخ درخواست منتشرشده یافت نشد"], False
+        units = Decimal(requests) / Decimal(request_spec["per_requests"])
+        request_cost, request_ok = _tier_cost(request_rows, units)
+        if request_cost is None or not request_ok:
+            return None, ["نرخ درخواست منتشرشده برای این حجم قابل محاسبه نیست"], False
+        includes_requests = True
+
     notes: list[str] = []
     if storage_rows and traffic_rows:
         notes.append("محاسبه از نرخ‌های مصرف مازاد (PAYG) منتشرشده؛ شامل سهمیه‌های رایگان مستندشده")
-    return storage_cost + traffic_cost, notes
+    if includes_requests:
+        notes.append(f"شامل {format_toman(requests, False)} درخواست برآوردی در ماه")
+    return storage_cost + traffic_cost + request_cost, notes, includes_requests
 
 
 def _format_gb(value) -> str:
@@ -135,6 +181,15 @@ def build_os_view(repo: Repository, scenario_key: str | None = None) -> dict:
             rates = repo.latest_os_rates(pid)
             if rates:
                 rates_by_provider[slug] = rates
+
+    # Manual (offline) providers carry the document and its validity on the run.
+    provenance_by_provider: dict[str, dict] = {}
+    for slug, rates in rates_by_provider.items():
+        if rates[0]["collection_method"] == "manual":
+            provenance_by_provider[slug] = {
+                "source_document": rates[0]["source_document"] or "",
+                "valid_until": rates[0]["valid_until"] or "",
+            }
 
     def plan_public_row(row) -> dict:
         return {
@@ -184,10 +239,19 @@ def build_os_view(repo: Repository, scenario_key: str | None = None) -> dict:
                 return row
         return None
 
-    def _cell(price, basis: str, plan_name: str, notes: list[str]) -> dict:
-        return {"price": price, "basis": basis, "plan_name": plan_name, "notes": notes + ["جمع جزئی؛ هزینه درخواست‌ها و مالیات لحاظ نشده است"]}
+    def _cell(
+        price, basis: str, plan_name: str, notes: list[str],
+        requests_included: bool = False,
+    ) -> dict:
+        partial = (
+            "جمع جزئی؛ مالیات لحاظ نشده است" if requests_included
+            else "جمع جزئی؛ هزینه درخواست‌ها و مالیات لحاظ نشده است"
+        )
+        return {"price": price, "basis": basis, "plan_name": plan_name, "notes": notes + [partial]}
 
-    def resolve_cell(slug: str, storage_gb: Decimal, traffic_gb: Decimal) -> dict:
+    def resolve_cell(
+        slug: str, storage_gb: Decimal, traffic_gb: Decimal, requests: int,
+    ) -> dict:
         """One provider's comparable price at one baseline consumption point.
 
         Precedence for every provider: an exactly matching published bundle
@@ -200,6 +264,9 @@ def build_os_view(repo: Repository, scenario_key: str | None = None) -> dict:
         plans = plans_by_provider.get(slug, [])
         rates = rates_by_provider.get(slug)
         provider_notes = list(OS_PROVIDER_NOTES.get(slug, []))
+        manual = provenance_by_provider.get(slug)
+        if manual:
+            provider_notes.insert(0, _manual_source_note(manual))
 
         if slug == baseline_slug:
             row = find_plan(plans, storage_gb, traffic_gb)
@@ -216,10 +283,18 @@ def build_os_view(repo: Repository, scenario_key: str | None = None) -> dict:
 
         if rates is not None:
             filters = OS_RATE_FILTERS.get(slug)
-            price, notes = _rates_scenario_price(rates, storage_gb, traffic_gb, filters) if filters else (None, [])
+            if filters:
+                price, notes, requests_included = _rates_scenario_price(
+                    rates, storage_gb, traffic_gb, requests, filters
+                )
+            else:
+                price, notes, requests_included = None, [], False
             if price is None:
                 return _cell(None, "missing", "", notes + provider_notes)
-            return _cell(price, "calculated", "پیکربندی معادل", notes + provider_notes)
+            return _cell(
+                price, "calculated", "پیکربندی معادل", notes + provider_notes,
+                requests_included=requests_included,
+            )
 
         storage_only = [
             p for p in plans
@@ -249,6 +324,11 @@ def build_os_view(repo: Repository, scenario_key: str | None = None) -> dict:
     for key, scenario in benchmarks.scenarios.items():
         storage_gb = Decimal(str(scenario.storage_gb))
         traffic_gb = Decimal(str(scenario.traffic_gb))
+        providers = {}
+        for slug in os_provider_slugs:
+            cell = resolve_cell(slug, storage_gb, traffic_gb, scenario.requests)
+            cell["provenance"] = "manual" if slug in provenance_by_provider else "live"
+            providers[slug] = cell
         scenarios.append({
             "key": key,
             "label": scenario.label,
@@ -258,10 +338,9 @@ def build_os_view(repo: Repository, scenario_key: str | None = None) -> dict:
             ),
             "storage_fa": _format_gb(storage_gb),
             "traffic_fa": _format_gb(traffic_gb),
-            "providers": {
-                slug: resolve_cell(slug, storage_gb, traffic_gb)
-                for slug in os_provider_slugs
-            },
+            "requests": scenario.requests,
+            "requests_fa": format_toman(scenario.requests, False),
+            "providers": providers,
         })
 
     selected = next((s for s in scenarios if s['key'] == scenario_key), scenarios[0] if scenarios else None)
@@ -299,7 +378,13 @@ def build_os_view(repo: Repository, scenario_key: str | None = None) -> dict:
             if rows:
                 tables.append({"title": title, "rows": rows})
         if tables:
-            rate_sections.append({"provider_name": provider_names.get(slug, slug), "tables": tables})
+            manual = provenance_by_provider.get(slug)
+            rate_sections.append({
+                "provider_name": provider_names.get(slug, slug),
+                "manual": manual is not None,
+                "provenance_note": _manual_source_note(manual) if manual else "",
+                "tables": tables,
+            })
 
     return {
         "os_providers": [

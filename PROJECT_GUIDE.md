@@ -79,6 +79,8 @@ Neither roadmap stage justifies extra infrastructure or autonomous production ed
   (`collectors/offline_pipeline.py`). Schema v6 allows `collection_method:
   manual` and stores `source_document`/`valid_until` on the run; the VM dashboard
   shows a «دستی» badge, the source document and the validity date for those rows.
+  Manual sources can import plans (VM) or Object Storage rate tables; both keep
+  the same provenance.
 
 ## Reliability and operating constraints
 

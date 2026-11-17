@@ -17,13 +17,19 @@ from __future__ import annotations
 
 import csv
 import json
+import re
 from decimal import Decimal
 from pathlib import Path
 
 from collectors.common import FetchError
-from collectors.offline_pipeline import OfflineCollection, OfflinePlan
+from collectors.offline_pipeline import (
+    OfflineCollection,
+    OfflineOsRate,
+    OfflinePlan,
+    OfflineRateCollection,
+)
 from config.loader import SourceConfig, load_benchmarks
-from util.format import format_toman
+from util.format import format_number, format_toman
 
 ROOT = Path(__file__).resolve().parent.parent
 UNIT_VCPU = 1
@@ -192,4 +198,181 @@ def collect_sotoon_offline(source: SourceConfig) -> OfflineCollection:
         region=source.navigation.get("region", "Neda"),
         disk_sku=source.navigation.get("disk_sku", "mana_2_premium"),
         sizes=load_benchmarks().vm.sizes,
+    )
+
+
+# -- Object Storage (HiCap) -------------------------------------------------
+
+_BAND_RE = re.compile(r"^(first|next)_(\d+)_(GB|TB)$")
+_ABOVE_RE = re.compile(r"^above_(\d+)_(PB)$")
+
+
+def _read_os_rows(package: Path) -> list[dict]:
+    path = package / "prices" / "object_storage.csv"
+    if not path.exists():
+        raise FetchError(f"offline package has no Object Storage price file: {path}")
+    with path.open(encoding="utf-8-sig", newline="") as handle:
+        return list(csv.DictReader(handle))
+
+
+def _toman(irr: int) -> str:
+    return str(Decimal(irr) / IRR_PER_TOMAN)
+
+
+def _band_bounds(label: str, cursor: Decimal, tb_to_gb: int) -> tuple[Decimal, Decimal | None]:
+    """Successive-tier bounds from a label such as `next_450_GB` or `above_1_PB`.
+
+    The catalogue mixes GB/TB/PB without saying decimal or binary; `tb_to_gb` is
+    the configured assumption (1024). The document's bands are contiguous, so
+    each band starts where the previous one ended.
+    """
+    match = _BAND_RE.match(label)
+    if match:
+        size = Decimal(match.group(2))
+        if match.group(3) == "TB":
+            size *= Decimal(tb_to_gb)
+        return cursor, cursor + size
+    if _ABOVE_RE.match(label):
+        return cursor, None
+    raise FetchError(f"unsupported Sotoon egress band label: {label!r}")
+
+
+def _band_label(min_gb: Decimal, max_gb: Decimal | None) -> str:
+    if max_gb is None:
+        return f"بیش از {format_number(min_gb)} گیگابایت"
+    return f"{format_number(min_gb)} تا {format_number(max_gb)} گیگابایت"
+
+
+def _os_cleaned_markdown(
+    manifest: dict, region: str, storage_class: str, rates: list[OfflineOsRate],
+) -> str:
+    lines = [
+        f"# {manifest.get('title', 'Sotoon price list')} (v{manifest.get('catalogue_version', '?')})",
+        "",
+        f"Object Storage class: {storage_class} · region: {region} · "
+        f"valid until {manifest.get('document_cover_valid_until', 'unknown')}",
+        "",
+        "| category | tier | range | unit | Toman |",
+        "| --- | --- | --- | --- | --- |",
+    ]
+    for rate in rates:
+        amount = "رایگان" if rate.is_free else (rate.amount_toman or "—")
+        lines.append(
+            f"| {rate.category} | {rate.tier_label} | {rate.range_label or '—'} | "
+            f"{rate.unit} | {amount} |"
+        )
+    return "\n".join(lines) + "\n"
+
+
+def build_os_collection(
+    package: Path, region: str, storage_class: str, tb_to_gb: int,
+) -> OfflineRateCollection:
+    """HiCap capacity, egress bands and request rate for one datacenter."""
+    manifest = _read_manifest(package)
+    rows = _read_os_rows(package)
+    class_rows = [r for r in rows if r["storage_class"] == storage_class]
+    if not class_rows:
+        raise FetchError(f"Sotoon price list has no {storage_class!r} class")
+
+    capacity = [
+        r for r in class_rows
+        if r["charge_component"] == "capacity" and r["region"] == region
+    ]
+    if len(capacity) != 1:
+        raise FetchError(
+            f"Sotoon {storage_class} {region} capacity rows: expected 1, got {len(capacity)}"
+        )
+    capacity_row = capacity[0]
+    capacity_irr = int(capacity_row["price_irr"])
+    rates = [
+        OfflineOsRate(
+            category="storage",
+            unit="هر گیگابایت",
+            tier_label=storage_class,
+            range_label="",
+            range_min_gb=None,
+            range_max_gb=None,
+            amount_toman=_toman(capacity_irr),
+            is_free=False,
+            evidence=(
+                f"Sotoon price list v{manifest.get('catalogue_version', '?')} "
+                f"p.{capacity_row['source_pdf_page']} ({region}, {storage_class}): "
+                f"capacity {capacity_irr:,} IRR/GB-month"
+            ),
+        )
+    ]
+
+    cursor = Decimal(0)
+    egress = [r for r in class_rows if r["charge_component"] == "egress_band"]
+    if not egress:
+        raise FetchError(f"Sotoon {storage_class} publishes no egress bands")
+    for row in egress:
+        label = (row["notes"] or "").strip()
+        low, high = _band_bounds(label, cursor, tb_to_gb)
+        cursor = high if high is not None else cursor
+        irr = int(row["price_irr"])
+        rates.append(
+            OfflineOsRate(
+                category="traffic",
+                unit="هر گیگابایت",
+                tier_label=storage_class,
+                range_label=_band_label(low, high),
+                range_min_gb=str(low),
+                range_max_gb=str(high) if high is not None else None,
+                amount_toman=_toman(irr),
+                is_free=False,
+                evidence=(
+                    f"Sotoon price list v{manifest.get('catalogue_version', '?')} "
+                    f"p.{row['source_pdf_page']} ({storage_class} egress, {label}): "
+                    f"{irr:,} IRR/GB"
+                ),
+            )
+        )
+
+    requests = [r for r in class_rows if r["charge_component"] == "requests"]
+    if len(requests) != 1:
+        raise FetchError(
+            f"Sotoon {storage_class} request rows: expected 1, got {len(requests)}"
+        )
+    request_row = requests[0]
+    request_irr = int(request_row["price_irr"])
+    rates.append(
+        OfflineOsRate(
+            category="requests",
+            unit="هر ۱۰۰۰ درخواست",
+            tier_label=storage_class,
+            range_label="",
+            range_min_gb=None,
+            range_max_gb=None,
+            amount_toman=_toman(request_irr),
+            is_free=False,
+            evidence=(
+                f"Sotoon price list v{manifest.get('catalogue_version', '?')} "
+                f"p.{request_row['source_pdf_page']} ({storage_class} requests): "
+                f"{request_irr:,} IRR per 1,000 requests"
+            ),
+        )
+    )
+
+    return OfflineRateCollection(
+        rates=rates,
+        source_document=f"Sotoon price list v{manifest.get('catalogue_version', '?')} (Spring 1405)",
+        valid_until=manifest.get("valid_until"),
+        cleaned=_os_cleaned_markdown(manifest, region, storage_class, rates),
+        extra_files={
+            "manifest.json": (package / "manifest.json").read_text(encoding="utf-8"),
+            "source_object_storage.csv": (
+                package / "prices" / "object_storage.csv"
+            ).read_text(encoding="utf-8-sig"),
+        },
+    )
+
+
+def collect_sotoon_os_offline(source: SourceConfig) -> OfflineRateCollection:
+    benchmarks = load_benchmarks().object_storage
+    return build_os_collection(
+        package=ROOT / source.url,
+        region=source.navigation.get("region", "Neda"),
+        storage_class=source.navigation.get("storage_class", "HiCap"),
+        tb_to_gb=benchmarks.tb_to_gb,
     )

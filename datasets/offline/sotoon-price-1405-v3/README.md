@@ -26,8 +26,10 @@ and a `source_pdf_page` column on every row.
 
 ## How the dashboard uses it
 
-`collectors/sotoon_offline.py` imports the VM file only (owner decisions
-2026-11-17):
+`collectors/sotoon_offline.py` imports two services (owner decisions
+2026-11-17).
+
+### VM
 
 - **Neda** datacenter is the comparison region.
 - Dedicated compute compares as **Premium**, shared compute as **Standard**.
@@ -38,10 +40,27 @@ and a `source_pdf_page` column on every row.
   دیسک مانا نوع ۲ (premium) rate, `mana_2_premium` (205,000 IRR/GB in Neda). The
   disk class is shown in the VM row note and on the plan detail page. The result
   is labelled calculated, never published.
-- The run records this document and `valid_until` (2027-03-20, the end of
-  Esfand 1405). Re-importing unchanged data is skipped by content hash.
 
-The other four files are not imported yet.
+### Object Storage
+
+- Only the **HiCap** class in **Neda** is imported: capacity
+  (39,000 IRR/GB-month), the nine egress bands and the single request rate
+  (1,100 IRR per 1,000 requests).
+- Egress labels (`first_50_GB`, `next_450_GB`, …) become contiguous numeric
+  bands with the configured `tb_to_gb`; the document does not state decimal or
+  binary, but the scenarios sit well inside the same bands either way.
+- Requests are charged using the per-scenario estimate in `benchmarks.yaml`
+  (a low-end figure, ~4 MiB average object). No Sotoon bundle exists, so the
+  comparison price is always calculated and marked «دستی».
+- Inbound traffic and tax are excluded.
+
+### Provenance
+
+The run records this document and `valid_until` (2027-03-20, the end of Esfand
+1405). Re-importing unchanged data is skipped by content hash. Both services
+show the manual badge, source document and validity date on the dashboard.
+
+The other three files (KaaS, DBaaS, CDN) are not imported yet.
 
 ## Read before using
 

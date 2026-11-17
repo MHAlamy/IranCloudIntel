@@ -7,7 +7,7 @@
       {% endfor %}
     </div>
   </div>
-  {% if view.selected_scenario %}<div class="target">مرجع: {{ view.selected_scenario.storage_fa }} ذخیره‌سازی · {{ view.selected_scenario.traffic_fa }} ترافیک</div>{% endif %}
+  {% if view.selected_scenario %}<div class="target">مرجع: {{ view.selected_scenario.storage_fa }} ذخیره‌سازی · {{ view.selected_scenario.traffic_fa }} ترافیک · {{ view.selected_scenario.requests_fa }} درخواست در ماه <span class="muted">(برآورد)</span></div>{% endif %}
 </section>
 
 {% include 'price_chart.html' %}
@@ -22,7 +22,10 @@
         <td data-label="پلن">{{ row.plan_name }}{% for note in row.notes %}<div class="row-note">{{ note }}</div>{% endfor %}</td>
         <td data-label="مرجع"><span dir="ltr">{{ view.selected_scenario.label_compact }}</span></td>
         <td data-label="قیمت" class="price-cell">{{ row.price|toman }}</td>
-        <td data-label="مبنا"><span class="badge badge-{{ row.basis }}">{{ basis_labels[row.basis] }}</span></td>
+        <td data-label="مبنا">
+          <span class="badge badge-{{ row.basis }}">{{ basis_labels[row.basis] }}</span>
+          {% if row.provenance == 'manual' %}<span class="badge badge-manual">دستی</span>{% endif %}
+        </td>
       </tr>
       {% endfor %}
     </tbody>

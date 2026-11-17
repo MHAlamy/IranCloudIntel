@@ -4,6 +4,7 @@ The seeded app fixture (`client_tuple`) lives in conftest.py so that
 test_kubit.py can share the same seeded view.
 """
 
+import re
 import sys
 from decimal import Decimal
 from pathlib import Path
@@ -53,7 +54,9 @@ def test_vm_no_verification_badges_or_region_column(client_tuple):
 def test_vm_date_only_last_checked(client_tuple):
     client = client_tuple[0]
     text = client.get("/vm").text
-    assert "۱۳:۳۰" not in text  # no time-of-day in the table
+    # scope to the table: the freshness panel legitimately shows times
+    table = text.split('class="price-table"', 1)[-1].split("</table>", 1)[0]
+    assert not re.search(r"[۰-۹]{2}:[۰-۹]{2}", table)  # no time-of-day in the table
 
 
 def test_vm_medium_shows_calculated_price_for_economy(client_tuple):

@@ -140,3 +140,12 @@ providers:
         navigation:
           region: Neda              # owner decision 2026-11-17: middle datacenter
           disk_sku: mana_2_premium  # owner decision 2026-11-17: دیسک مانا نوع ۲ (premium)
+      - id: sotoon_object_storage_price_list
+        service_type: object_storage
+        url: datasets/offline/sotoon-price-1405-v3
+        collection_method: manual   # transcribed price list; no network fetch, no LLM
+        region_scope: iran
+        enabled: true
+        navigation:
+          region: Neda              # owner decision 2026-11-17: middle datacenter
+          storage_class: HiCap      # owner decision 2026-11-17: HiCap class

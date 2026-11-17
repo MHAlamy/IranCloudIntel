@@ -30,11 +30,15 @@ vm:
 object_storage:
   tb_to_gb: 1024             # provider pages say ترابایت; conversion is explicit here
   baseline: hamravesh
+  # `requests` is an analyst estimate of monthly API calls per scenario. It is
+  # only charged where the provider bills requests separately (Sotoon HiCap).
+  # The estimate assumes large objects (~4 MiB average), so it is deliberately
+  # at the low end: underestimating the request cost is preferred.
   scenarios:
-    base:       {label: پایه,    storage_gb: 100,    traffic_gb: 400}
-    growth:     {label: رشد,     storage_gb: 500,    traffic_gb: 2048}
-    pro:        {label: حرفه‌ای, storage_gb: 5120,   traffic_gb: 20480}
-    dedicated:  {label: اختصاصی, storage_gb: 51200,  traffic_gb: 204800}
+    base:       {label: پایه,    storage_gb: 100,    traffic_gb: 400,    requests: 100000}
+    growth:     {label: رشد,     storage_gb: 500,    traffic_gb: 2048,   requests: 500000}
+    pro:        {label: حرفه‌ای, storage_gb: 5120,   traffic_gb: 20480,  requests: 5000000}
+    dedicated:  {label: اختصاصی, storage_gb: 51200,  traffic_gb: 204800, requests: 50000000}
 
 # PaaS/CNAP compute references. CPU/RAM are owner requirements (2026-11-16).
 # SSD follows Liara silver's published plans (20/80/320 GB); the 640 GB value

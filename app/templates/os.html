@@ -8,7 +8,7 @@
 
 <section class="product-section">
   <h2 class="section-title">مقایسه قیمت</h2>
-  <p class="section-note muted">مقایسه بر پایه‌ی پلن‌های منتشرشده‌ی {{ view.baseline_name }} (مبنا) · همه‌ی قیمت‌ها به تومان در ماه · هزینه‌ی درخواست‌ها مستثنی است</p>
+  <p class="section-note muted">مقایسه بر پایه‌ی پلن‌های منتشرشده‌ی {{ view.baseline_name }} (مبنا) · همه‌ی قیمت‌ها به تومان در ماه · هزینه‌ی درخواست‌ها فقط برای تأمین‌کنندگانی که جداگانه صورتحساب می‌کنند (با برآورد) لحاظ شده است</p>
 
   <section class="banner banner-warning">مبالغ این صفحه جمع جزئی هستند، نه هزینه کامل قابل مقایسه. نرخ‌های فرضی و قیمت‌های صرفاً ذخیره‌سازی، برآورد مشروط‌اند؛ هزینه ناشناخته صفر نیست.</section>
 
@@ -61,6 +61,7 @@
     <p class="muted">همان نرخ‌هایی که قیمت‌های «محاسبه‌شده» از روی آن‌ها ساخته می‌شوند</p>
     {% for section in view.rate_sections %}
     <h3 class="rate-group-title">{{ section.provider_name }}</h3>
+    {% if section.manual %}<p class="muted">{{ section.provenance_note }}</p>{% endif %}
     {% for table in section.tables %}
     <h4 class="rate-group-title">{{ table.title }}</h4>
     <table class="price-table rate-table">
@@ -92,6 +93,7 @@
     <strong>راهنما:</strong>
     <span class="badge badge-published">منتشرشده</span> قیمت واقعی بسته‌ی منتشرشده ·
     <span class="badge badge-calculated">محاسبه‌شده</span> محاسبه از نرخ‌های اعلامی (فرض‌ها در یادداشت ردیف) ·
+    <span class="badge badge-manual">دستی</span> قیمت واردشده از سند آفلاین، نه گردآوری خودکار ·
     <span class="badge badge-missing">در دسترس نیست</span> هنوز گردآوری نشده
   </section>
 

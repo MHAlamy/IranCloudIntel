@@ -49,9 +49,12 @@ def test_committed_configs_load_and_validate():
     assert paas_sources == {"arvan_paas", "hamravesh_paas", "liara_paas"}
     # Sotoon VM prices come from a transcribed price list, not a fetched page.
     sotoon = next(p for p in providers.providers if p.slug == "sotoon")
-    assert [s.id for s in sotoon.sources] == ["sotoon_vm_price_list"]
-    assert sotoon.sources[0].collection_method == "manual"
+    assert [(s.id, s.service_type, s.collection_method) for s in sotoon.sources] == [
+        ("sotoon_vm_price_list", "vm", "manual"),
+        ("sotoon_object_storage_price_list", "object_storage", "manual"),
+    ]
     assert sotoon.sources[0].navigation["region"] == "Neda"
+    assert sotoon.sources[1].navigation["storage_class"] == "HiCap"
 
 
 def test_duplicate_provider_slug_rejected(tmp_path):

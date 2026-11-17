@@ -43,8 +43,8 @@ from collectors.liara_plans import parse_liara_plans  # noqa: E402
 from collectors.parspack_os import run_parspack_os  # noqa: E402
 from collectors.parspack_quotes import run_parspack_quotes  # noqa: E402
 from collectors.paas_pipeline import run_paas_collection  # noqa: E402
-from collectors.offline_pipeline import run_offline_collection  # noqa: E402
-from collectors.sotoon_offline import collect_sotoon_offline  # noqa: E402
+from collectors.offline_pipeline import run_offline_collection, run_offline_rates_collection  # noqa: E402
+from collectors.sotoon_offline import collect_sotoon_offline, collect_sotoon_os_offline  # noqa: E402
 from collectors.pipeline import fetch_source, run_collection, run_os_collection  # noqa: E402
 from comparison.rate_check import load_rate_mappings  # noqa: E402
 from extractors.llm import LLMClient  # noqa: E402
@@ -66,8 +66,10 @@ PAAS_COLLECTION = {
 }
 
 # Manual (offline) sources: transcribed documents, no fetch and no LLM.
+# Keyed by (provider, service) because one document can feed several services.
 OFFLINE_COLLECTION = {
-    "sotoon": collect_sotoon_offline,
+    ("sotoon", "vm"): (run_offline_collection, collect_sotoon_offline),
+    ("sotoon", "object_storage"): (run_offline_rates_collection, collect_sotoon_os_offline),
 }
 
 OS_COLLECTION = {
@@ -119,16 +121,17 @@ def main() -> int:
                         continue
                     print(f"--- collecting {source.id} ---")
                     if source.collection_method == "manual":
-                        collector = OFFLINE_COLLECTION.get(provider.slug)
-                        if collector is None:
-                            print(f"    ERROR: no offline loader for {provider.slug}")
+                        entry = OFFLINE_COLLECTION.get((provider.slug, source.service_type))
+                        if entry is None:
+                            print(f"    ERROR: no offline loader for {provider.slug}/{source.service_type}")
                             exit_code = 1
                             continue
-                        outcome = run_offline_collection(
+                        pipeline, loader = entry
+                        outcome = pipeline(
                             provider=provider,
                             source=source,
                             repo=repository,
-                            loader=collector,
+                            loader=loader,
                             evidence_root=ROOT / "evidence",
                             force=args.force,
                         )
