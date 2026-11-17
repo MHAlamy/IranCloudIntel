@@ -20,10 +20,10 @@ ROOT = Path(__file__).resolve().parent.parent
 PACKAGE = ROOT / "datasets" / "offline" / "sotoon-price-1405-v3"
 
 # Neda datacenter: E1 (shared) 1 vCPU + 2 GB = 11,200,000 IRR,
-# C1 (dedicated) = 18,700,000 IRR, mana_1_standard disk = 195,000 IRR/GB.
+# C1 (dedicated) = 18,700,000 IRR, mana_2_premium disk = 205,000 IRR/GB.
 SHARED_UNIT = Decimal("1120000")
 DEDICATED_UNIT = Decimal("1870000")
-DISK_PER_GB = Decimal("19500")
+DISK_PER_GB = Decimal("20500")
 
 EXPECTED = {
     ("standard", "small"): SHARED_UNIT + 20 * DISK_PER_GB,
@@ -48,7 +48,7 @@ def fa(amount: int | Decimal) -> str:
 
 def test_reference_prices_scale_from_the_one_vcpu_unit():
     collection = build_collection(
-        PACKAGE, region="Neda", disk_sku="mana_1_standard",
+        PACKAGE, region="Neda", disk_sku="mana_2_premium",
         sizes=load_benchmarks().vm.sizes,
     )
     size_by_vcpu = {1: "small", 4: "medium", 16: "large", 32: "very_large"}
@@ -65,7 +65,7 @@ def test_reference_prices_scale_from_the_one_vcpu_unit():
 
 def test_evidence_keeps_page_source_and_validity():
     collection = build_collection(
-        PACKAGE, region="Neda", disk_sku="mana_1_standard",
+        PACKAGE, region="Neda", disk_sku="mana_2_premium",
         sizes=load_benchmarks().vm.sizes,
     )
     medium = next(
@@ -75,8 +75,10 @@ def test_evidence_keeps_page_source_and_validity():
     assert "Neda" in medium.evidence
     assert "11,200,000 IRR" in medium.evidence
     assert "×4" in medium.evidence
-    assert "195,000 IRR" in medium.evidence
+    assert "205,000 IRR" in medium.evidence
+    assert "mana_2_premium" in medium.evidence
     assert "end of Esfand 1405" in medium.evidence
+    assert medium.disk_type == "دیسک مانا نوع ۲ (پرمیوم)"
 
 
 def test_non_unit_reference_size_is_rejected():
@@ -84,7 +86,7 @@ def test_non_unit_reference_size_is_rejected():
 
     with pytest.raises(FetchError, match="not a multiple"):
         build_collection(
-            PACKAGE, region="Neda", disk_sku="mana_1_standard",
+            PACKAGE, region="Neda", disk_sku="mana_2_premium",
             sizes={"odd": BenchmarkSize(vcpu=2, ram_gb=3, disk_gb=20)},
         )
 
@@ -94,7 +96,7 @@ def test_unknown_region_is_rejected():
 
     with pytest.raises(FetchError, match="1 vCPU \\+ 2 GB"):
         build_collection(
-            PACKAGE, region="Nowhere", disk_sku="mana_1_standard",
+            PACKAGE, region="Nowhere", disk_sku="mana_2_premium",
             sizes=load_benchmarks().vm.sizes,
         )
 
@@ -150,6 +152,8 @@ def test_view_marks_sotoon_rows_as_manual_calculated(imported):
     assert any("منبع دستی" in note for note in row.notes)
     assert any("معتبر تا" in note for note in row.notes)
     assert any("۱ برابر بسته‌ی" in note for note in row.notes)
+    assert any("دیسک مانا نوع ۲ (پرمیوم)" in note for note in row.notes)
+    assert row.disk_type == "دیسک مانا نوع ۲ (پرمیوم)"
 
 
 def test_view_premium_uses_the_dedicated_unit(imported):
@@ -194,3 +198,4 @@ def test_plan_detail_keeps_document_and_page(imported):
         assert "معتبر تا ۱۴۰۵/۱۲/۲۹" in text
         assert "Sotoon price list v3 p.4 (Neda)" in text  # evidence keeps the page
         assert "E1 shared" in text
+        assert "دیسک مانا نوع ۲ (پرمیوم)" in text

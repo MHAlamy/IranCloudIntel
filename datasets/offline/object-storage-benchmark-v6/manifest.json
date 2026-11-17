@@ -28,13 +28,9 @@
       "shape": "one row per provider and S3 API capability",
       "rows": 44,
       "source_pages": [15, 16]
-    },
-    "derived/four_provider_overview.csv": {
-      "sha256": "55a140d15fb616cc7ee11bdcb87d81afb811cc90af9a7dea8e537aa3bc41fe44",
-      "derived_from": "benchmark/observations.csv",
-      "warning": "Wide display table for manual checking and dashboard preview. Not a controlled four-way experiment; regenerate rather than edit by hand."
     }
   },
+  "display_note": "Wide provider tables are built at display time from benchmark/observations.csv (comparison/benchmarks.py). No derived CSV is stored, so there is one source of truth.",
   "provider_aliases": {
     "Hamravesh": "Hamravesh HS3 / SeaweedFS",
     "Arvan": "Arvan ir-thr-at1 / Ceph RGW",
@@ -172,7 +168,7 @@
     "The metric vocabulary mixes base metrics with run-level aggregates and one-off diagnostics: 28 labels, of which 67 rows use names such as throughput_run_min, list_empty_bucket_latency_p50_low or put_latency_p99_64kib. Normalize to a controlled vocabulary before ingestion.",
     "Six rows have an empty object_size, and aggregation has nine distinct values; both need a defined schema before they can be observation identity keys.",
     "Capability statuses for Arvan are mostly not_tested or blocked_by_account. Render them as unknown, never as unsupported.",
-    "derived/four_provider_overview.csv must be regenerated from observations.csv; a consistency test should guard against drift."
+    "The wide provider table is built in code from observations.csv; do not reintroduce a derived CSV."
   ],
   "ingestion_guidance": "Validate (run_id,provider,workload,metric,object_size,aggregation) as an observation identity, but repeated one-off diagnostics may require an observation_sequence key; preserve source_pdf_page. Store methodology JSON by run ID; show warnings on panel.",
   "manual_review_status": "draft_for_user_verification"

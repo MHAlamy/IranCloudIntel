@@ -35,7 +35,9 @@ and a `source_pdf_page` column on every row.
   price list publishes. Larger references are `unit price × vCPU`
   (4/8 = 4 × unit, 16/32 = 16 ×, 32/64 = 32 ×).
 - Sotoon bills disk separately, so the reference disk is added at the
-  `mana_1_standard` rate. The result is labelled calculated, never published.
+  دیسک مانا نوع ۲ (premium) rate, `mana_2_premium` (205,000 IRR/GB in Neda). The
+  disk class is shown in the VM row note and on the plan detail page. The result
+  is labelled calculated, never published.
 - The run records this document and `valid_until` (2027-03-20, the end of
   Esfand 1405). Re-importing unchanged data is skipped by content hash.
 

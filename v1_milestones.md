@@ -39,7 +39,10 @@ Historical detail is preserved in `docs/archive/2026-11-16_v1_milestones.md`.
   Darakub and Arvan calculated from published monthly resource rates.
 - [x] Sotoon VM from an offline price list: schema v6 manual sources, Neda
   datacenter, dedicated/shared mapped to Premium/Standard, reference sizes built
-  from the 1 vCPU + 2 GB unit, with document/validity provenance in the UI.
+  from the 1 vCPU + 2 GB unit plus the دیسک مانا نوع ۲ (premium) disk, with
+  document/validity provenance in the UI.
+- [x] Offline benchmark package keeps only the long-format table; wide provider
+  pivots are built in code (`comparison/benchmarks.py`).
 
 ## Release gates
 
@@ -55,4 +58,4 @@ See `AUDIT_HANDOFF.md` for audit changes/limits and `docs/CODE_MAP.md` for code 
 
 Audit cleanup validation: 183 default tests passed (4 browser tests deselected); two synthetic browser tests passed separately. Dependency consistency check passed. No paid/provider collection or deployment performed.
 
-Current validation (2026-11-17): 212 default tests passed (4 browser tests deselected). Sotoon VM prices imported from the offline package with no network calls and no LLM.
+Current validation (2026-11-17): 217 default tests passed (4 browser tests deselected). Sotoon VM prices imported from the offline package with no network calls and no LLM.

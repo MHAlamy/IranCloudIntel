@@ -66,8 +66,9 @@ publishes them through the same observation/run path as the network collectors
   Premium and shared compute is Standard (`tiers.yaml`); larger configurations
   are built from the 1 vCPU + 2 GB unit at `unit price × vCPU`, because the
   price list publishes only 1-vCPU bundles. Disk is billed separately by Sotoon,
-  so the reference disk is added at the documented standard disk rate
-  (`mana_1_standard`). All of this is labelled calculated, never published.
+  so the reference disk is added at the دیسک مانا نوع ۲ (premium) rate
+  (`mana_2_premium`); the disk class is shown in the row note and the plan
+  detail. All of this is labelled calculated, never published.
 
 ## VM comparison
 
@@ -84,8 +85,9 @@ publishes them through the same observation/run path as the network collectors
   it is an estimate. Arvan Economy's empirical 0.7 compute factor is provisional.
   Rate-based calculations and their assumptions must remain explicit.
 - Sotoon's VM rows are calculated from a manually imported price list: unit
-  price × vCPU plus the reference disk. They are compared at exact reference
-  resources, so they rank as calculated matches and carry the «دستی» badge.
+  price × vCPU plus the reference disk (دیسک مانا نوع ۲). They are compared at
+  exact reference resources, so they rank as calculated matches and carry the
+  «دستی» badge.
 
 ## Object Storage
 

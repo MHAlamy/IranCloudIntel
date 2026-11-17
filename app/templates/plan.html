@@ -10,6 +10,7 @@
     {{ latest.vcpu|pnum if latest and latest.vcpu else '—' }} <span dir="ltr">vCPU</span> ·
     {{ latest.ram_gb|pnum if latest and latest.ram_gb else '—' }} گیگابایت رم ·
     {{ latest.disk_gb|pnum if latest and latest.disk_gb else '—' }} گیگابایت دیسک
+    {%- if latest and latest.disk_type %} ({{ latest.disk_type }}){% endif %}
   </p>
   {% if history and history[0].collection_method == 'manual' %}
   <p class="muted">

@@ -5,9 +5,9 @@ Owner decisions (2026-11-17):
 - dedicated compute compares as Premium and shared compute as Standard
   (mapping lives in config/tiers.yaml);
 - larger configurations are built from the 1 vCPU + 2 GB unit: compute price =
-  unit price × vCPU. The reference disk is added at the documented standard
-  disk rate, because Sotoon bills disk separately while the other providers
-  include it in their bundles.
+  unit price × vCPU;
+- the reference disk uses the دیسک مانا نوع ۲ (premium) class, because Sotoon
+  bills disk separately while the other providers include it in their bundles.
 
 The document is offline and manually transcribed, so no network call and no
 LLM are involved. Every derived price keeps the source page and the document's
@@ -29,6 +29,17 @@ ROOT = Path(__file__).resolve().parent.parent
 UNIT_VCPU = 1
 UNIT_RAM_GB = 2
 IRR_PER_TOMAN = 10
+
+# Display labels for the disk classes printed in the price list (page 4).
+DISK_LABELS = {
+    "local_disk": "دیسک محلی",
+    "mana_1_standard": "دیسک مانا نوع ۱ (استاندارد)",
+    "mana_2_premium": "دیسک مانا نوع ۲ (پرمیوم)",
+    "mana_3_ultra": "دیسک مانا نوع ۳ (اولترا)",
+    "mana_4_ultra2": "دیسک مانا نوع ۴ (اولترا ۲)",
+    "mana_5_ultra3": "دیسک مانا نوع ۵ (اولترا ۳)",
+    "mana_6_ultra5": "دیسک مانا نوع ۶ (اولترا ۵)",
+}
 
 
 def _read_manifest(package: Path) -> dict:
@@ -81,7 +92,7 @@ def _disk_rate(rows: list[dict], region: str, sku: str) -> tuple[int, int]:
 
 def _cleaned_markdown(
     manifest: dict, region: str, units: dict[str, dict], disk_irr: int,
-    disk_sku: str, plans: list[OfflinePlan],
+    disk_sku: str, disk_label: str, plans: list[OfflinePlan],
 ) -> str:
     lines = [
         f"# {manifest.get('title', 'Sotoon price list')} (v{manifest.get('catalogue_version', '?')})",
@@ -97,7 +108,7 @@ def _cleaned_markdown(
         )
     lines += [
         "",
-        f"Disk {disk_sku}: {disk_irr:,} IRR/GB-month",
+        f"Disk {disk_label} ({disk_sku}): {disk_irr:,} IRR/GB-month",
         "",
         "## Derived reference sizes",
         "",
@@ -120,6 +131,7 @@ def build_collection(
     rows = _read_rows(package)
     units = _unit_prices(rows, region)
     disk_irr, disk_page = _disk_rate(rows, region, disk_sku)
+    disk_label = DISK_LABELS.get(disk_sku, disk_sku)
     region_code = f"ir-{region.lower()}"  # Iranian region code, see comparison.matching
 
     plans: list[OfflinePlan] = []
@@ -148,6 +160,7 @@ def build_collection(
                     region=region_code,
                     product_family="manual_calculated",
                     pricing_type="configurable_quote",
+                    disk_type=disk_label,
                     evidence=(
                         f"Sotoon price list v{manifest.get('catalogue_version', '?')} "
                         f"p.{row['source_pdf_page']} ({region}): {row['sku']} {allocation} "
@@ -164,7 +177,7 @@ def build_collection(
         plans=plans,
         source_document=f"Sotoon price list v{manifest.get('catalogue_version', '?')} (Spring 1405)",
         valid_until=manifest.get("valid_until"),
-        cleaned=_cleaned_markdown(manifest, region, units, disk_irr, disk_sku, plans),
+        cleaned=_cleaned_markdown(manifest, region, units, disk_irr, disk_sku, disk_label, plans),
         extra_files={
             "manifest.json": (package / "manifest.json").read_text(encoding="utf-8"),
             "source_vm_gen2.csv": (package / "prices" / "vm_gen2.csv").read_text(encoding="utf-8-sig"),
@@ -177,6 +190,6 @@ def collect_sotoon_offline(source: SourceConfig) -> OfflineCollection:
     return build_collection(
         package=package,
         region=source.navigation.get("region", "Neda"),
-        disk_sku=source.navigation.get("disk_sku", "mana_1_standard"),
+        disk_sku=source.navigation.get("disk_sku", "mana_2_premium"),
         sizes=load_benchmarks().vm.sizes,
     )

@@ -67,6 +67,7 @@ class VmRow:
     provenance: str = "live"  # live | manual
     source_document: str = ""
     valid_until: str = ""
+    disk_type: str = ""
 
 
 def build_plan_views(repo: Repository, matcher: VMMatcher) -> list[PlanView]:
@@ -87,6 +88,7 @@ def build_plan_views(repo: Repository, matcher: VMMatcher) -> list[PlanView]:
                 observed_at=row["observed_at"],
                 validation_status=row["validation_status"],
                 provider_tier_raw=row["provider_tier_raw"] or "",
+                disk_type=row["disk_type"] or "",
                 provenance="manual" if row["collection_method"] == "manual" else "live",
                 source_document=row["source_document"] or "",
                 valid_until=row["valid_until"] or "",
@@ -105,11 +107,14 @@ def _manual_source_note(source_document: str, valid_until: str) -> str:
     return " · ".join(parts)
 
 
-def _manual_calculation_note(vcpu: int, disk_gb: Decimal, allocation: str) -> str:
+def _manual_calculation_note(
+    vcpu: int, disk_gb: Decimal, allocation: str, disk_type: str,
+) -> str:
     kind = "اختصاصی" if allocation == "dedicated" else "اشتراکی"
+    disk = disk_type or "دیسک"
     return (
         f"محاسبه: {format_number(vcpu)} برابر بسته‌ی ۱ vCPU + ۲ GB {kind} "
-        f"+ {format_number(disk_gb)} گیگابایت دیسک"
+        f"+ {format_number(disk_gb)} گیگابایت {disk}"
     )
 
 
@@ -227,7 +232,7 @@ def build_vm_view(repo: Repository, tier: str, size_key: str) -> dict:
                 rate_verification: str = "not_applicable", observed_at: str = "",
                 offering_id: int | None = None, notes: list[str] | None = None,
                 provenance: str = "live", source_document: str = "",
-                valid_until: str = ""):
+                valid_until: str = "", disk_type: str = ""):
         notes = list(notes or [])
         if offering_id:
             history = repo.offering_history(offering_id)
@@ -243,7 +248,7 @@ def build_vm_view(repo: Repository, tier: str, size_key: str) -> dict:
             rate_verification=rate_verification, observed_at=observed_at,
             offering_id=offering_id, notes=notes or [],
             provenance=provenance, source_document=source_document,
-            valid_until=valid_until,
+            valid_until=valid_until, disk_type=disk_type,
         ))
 
     for slug in sorted(set(collected_providers) | {p.slug for p in providers_file.providers}):
@@ -257,7 +262,9 @@ def build_vm_view(repo: Repository, tier: str, size_key: str) -> dict:
                     notes.append(_parspack_adjustment_note(parspack_facts))
                 if manual:
                     notes.append(_manual_source_note(p.source_document, p.valid_until))
-                    notes.append(_manual_calculation_note(p.vcpu, p.disk_gb, p.provider_tier_raw))
+                    notes.append(_manual_calculation_note(
+                        p.vcpu, p.disk_gb, p.provider_tier_raw, p.disk_type
+                    ))
                 add_row(
                     slug, p.price_in_toman, "calculated" if manual else "published",
                     plan_name=p.plan_name,
@@ -265,6 +272,7 @@ def build_vm_view(repo: Repository, tier: str, size_key: str) -> dict:
                     observed_at=p.observed_at, offering_id=_offering_id(repo, slug, p),
                     notes=notes, provenance=p.provenance,
                     source_document=p.source_document, valid_until=p.valid_until,
+                    disk_type=p.disk_type,
                 )
             continue
 
@@ -316,6 +324,7 @@ def build_vm_view(repo: Repository, tier: str, size_key: str) -> dict:
                 observed_at=p.observed_at, offering_id=_offering_id(repo, slug, p),
                 notes=notes, provenance=p.provenance,
                 source_document=p.source_document, valid_until=p.valid_until,
+                disk_type=p.disk_type,
             )
             continue
 

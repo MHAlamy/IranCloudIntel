@@ -37,8 +37,10 @@ datasets/offline/<source_id>/
   manifest.json     source document, version, validity, file checksums, caveats
   README.md         what the package contains and what to review
   <kind>/           the CSVs, grouped by what they measure
-  derived/          generated views; never edit by hand
 ```
+
+No derived files are stored: wide or pivoted tables are presentation and are
+built in code from the long-format source, so there is one source of truth.
 
 Adding a package means creating one folder named after its `source_id`, a
 `manifest.json` with real checksums, a `README.md`, and a row in the table above.

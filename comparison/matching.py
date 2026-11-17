@@ -44,6 +44,7 @@ class PlanView:
     observed_at: str
     validation_status: str
     provider_tier_raw: str = ""  # provider-native label, kept for display notes
+    disk_type: str = ""          # disk class label, e.g. دیسک مانا نوع ۲ (پرمیوم)
     provenance: str = "live"     # live | manual (transcribed offline document)
     source_document: str = ""    # document behind a manual import
     valid_until: str = ""        # document validity date (ISO) for manual imports

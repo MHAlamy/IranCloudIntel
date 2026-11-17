@@ -139,4 +139,4 @@ providers:
         enabled: true
         navigation:
           region: Neda              # owner decision 2026-11-17: middle datacenter
-          disk_sku: mana_1_standard  # standard block storage class
+          disk_sku: mana_2_premium  # owner decision 2026-11-17: دیسک مانا نوع ۲ (premium)

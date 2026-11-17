@@ -15,10 +15,13 @@ Object Storage «مقایسه عملکرد» and «مقایسه قابلیت‌�
 |---|---|---|
 | `benchmark/observations.csv` | 3–14 | Long format: one row per `run_id`, provider, workload, metric, object size, aggregation (214 rows) |
 | `benchmark/capabilities.csv` | 15–16 | S3 API compatibility matrix, one row per provider and capability (44 rows) |
-| `derived/four_provider_overview.csv` | — | Wide display table generated from `observations.csv`; not a source of truth |
 
 `manifest.json` holds the run conditions, metric definitions, provider aliases
 and comparability rules. Read `conditions_by_run` before plotting anything.
+
+Wide, one-column-per-provider tables are **built in code** from
+`observations.csv` (`comparison/benchmarks.py`). No derived CSV is committed, so
+there is a single source of truth and nothing to drift.
 
 ## This is not one controlled experiment
 
@@ -58,6 +61,8 @@ for a valid within-session comparison, and never compute a global winner.
 - Six rows have an empty `object_size`; define how such rows are identified.
 - Arvan capability rows are mostly `not_tested` or `blocked_by_account`. Show
   them as unknown, never as unsupported.
+- The wide provider table is a display pivot, not stored data; build it from
+  `observations.csv` and pick each provider's run explicitly.
 
 The original PDF is not committed. Its path and SHA-256 are recorded in
 `manifest.json` under `original_document`.

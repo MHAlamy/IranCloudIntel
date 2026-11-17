@@ -51,6 +51,7 @@ class OfflinePlan:
     product_family: str
     pricing_type: str
     evidence: str
+    disk_type: str | None = None
 
 
 @dataclass
@@ -111,7 +112,7 @@ def _raw_and_normalized(plan: OfflinePlan, source_url: str) -> tuple[LLMPlanRow,
         vcpu=plan.vcpu,
         ram_gb=float(plan.ram_gb),
         disk_gb=float(plan.disk_gb),
-        disk_type=None,
+        disk_type=plan.disk_type,
         price_raw=plan.price_raw,
         currency_raw="تومان",
         billing_period_raw="ماهانه",
@@ -124,7 +125,7 @@ def _raw_and_normalized(plan: OfflinePlan, source_url: str) -> tuple[LLMPlanRow,
         vcpu=plan.vcpu,
         ram_gb=float(plan.ram_gb),
         disk_gb=float(plan.disk_gb),
-        disk_type=None,
+        disk_type=plan.disk_type,
         price_value=plan.price_toman,
         currency="toman",
         price_in_toman=plan.price_toman,
