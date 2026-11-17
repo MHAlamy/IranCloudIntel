@@ -50,6 +50,9 @@ documentation/tooling cleanup completed. Historical detail is preserved in
 - [x] Sotoon CDN offload: a second Sotoon result prices only 20% of scenario
   traffic (80% served through Sotoon CDN, not billed as storage egress), with
   the assumption explained in both rows.
+- [x] Object Storage page explains its pricing model once in a «نحوه محاسبه قیمت»
+  box (elements, bundled vs PAYG, requests, CDN offload, VAT); per-provider rows
+  only state their own model.
 
 ## Release gates
 
@@ -65,4 +68,4 @@ See `AUDIT_HANDOFF.md` for audit changes/limits and `docs/CODE_MAP.md` for code 
 
 Audit cleanup validation: 183 default tests passed (4 browser tests deselected); two synthetic browser tests passed separately. Dependency consistency check passed. No paid/provider collection or deployment performed.
 
-Current validation (2026-11-17): 234 default tests passed (4 browser tests deselected). Sotoon VM and Object Storage prices imported from the offline package with no network calls and no LLM.
+Current validation (2026-11-17): 236 default tests passed (4 browser tests deselected). Sotoon VM and Object Storage prices imported from the offline package with no network calls and no LLM.

@@ -8,9 +8,9 @@
 
 <section class="product-section">
   <h2 class="section-title">مقایسه قیمت</h2>
-  <p class="section-note muted">مقایسه بر پایه‌ی پلن‌های منتشرشده‌ی {{ view.baseline_name }} (مبنا) · همه‌ی قیمت‌ها به تومان در ماه · هزینه‌ی درخواست‌ها فقط برای تأمین‌کنندگانی که جداگانه صورتحساب می‌کنند (با برآورد) لحاظ شده است</p>
+  <p class="section-note muted">مقایسه بر پایه‌ی پلن‌های منتشرشده‌ی {{ view.baseline_name }} (مبنا) · همه‌ی قیمت‌ها به تومان در ماه</p>
 
-  <section class="banner banner-warning">مبالغ این صفحه جمع جزئی هستند، نه هزینه کامل قابل مقایسه. نرخ‌های فرضی و قیمت‌های صرفاً ذخیره‌سازی، برآورد مشروط‌اند؛ هزینه ناشناخته صفر نیست.</section>
+  {% include 'os_methodology.html' %}
 
   {% include 'os_comparison.html' %}
 

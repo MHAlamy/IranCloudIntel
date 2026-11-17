@@ -120,6 +120,12 @@ body {
 .badge-mismatch { background: rgba(255, 113, 97, 0.12); color: var(--error); border-color: rgba(255, 113, 97, 0.4); }
 .badge-review { background: rgba(255, 172, 35, 0.12); color: var(--warning); border-color: rgba(255, 172, 35, 0.4); }
 
+/* explanatory method box (Object Storage) */
+.method-card p { margin: 8px 0; }
+.method-list { margin: 6px 0 12px; padding-right: 22px; }
+.method-list li { margin: 4px 0; }
+.method-footnote { margin-top: 12px; }
+
 /* banners */
 .banner {
   background: var(--surface); border: 1px solid var(--border);

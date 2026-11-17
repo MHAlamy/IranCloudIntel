@@ -93,7 +93,7 @@ def test_scenario_price_includes_estimated_requests(scenario_key, expected):
     collection = build_os_collection(
         PACKAGE, region="Neda", storage_class="HiCap", tb_to_gb=benchmarks.tb_to_gb
     )
-    price, notes, requests_included = _rates_scenario_price(
+    price, notes = _rates_scenario_price(
         rate_dicts(collection),
         Decimal(str(scenario.storage_gb)),
         Decimal(str(scenario.traffic_gb)),
@@ -101,7 +101,6 @@ def test_scenario_price_includes_estimated_requests(scenario_key, expected):
         OS_RATE_FILTERS["sotoon"],
     )
     assert price == expected
-    assert requests_included is True
     assert any("درخواست برآوردی" in note for note in notes)
 
 
@@ -113,10 +112,10 @@ def test_request_estimate_is_a_low_end_share_of_the_total():
         PACKAGE, region="Neda", storage_class="HiCap", tb_to_gb=benchmarks.tb_to_gb
     )
     rates = rate_dicts(collection)
-    with_requests, _, _ = _rates_scenario_price(
+    with_requests, _ = _rates_scenario_price(
         rates, Decimal("100"), Decimal("400"), scenario.requests, OS_RATE_FILTERS["sotoon"]
     )
-    without_requests, _, _ = _rates_scenario_price(
+    without_requests, _ = _rates_scenario_price(
         rates, Decimal("100"), Decimal("400"), 0, OS_RATE_FILTERS["sotoon"]
     )
     request_cost = with_requests - without_requests
@@ -129,11 +128,10 @@ def test_missing_request_rate_is_not_treated_as_zero():
         PACKAGE, region="Neda", storage_class="HiCap", tb_to_gb=1024
     )
     rates = [r for r in rate_dicts(collection) if r["category"] != "requests"]
-    price, notes, included = _rates_scenario_price(
+    price, notes = _rates_scenario_price(
         rates, Decimal("100"), Decimal("400"), 100000, OS_RATE_FILTERS["sotoon"]
     )
     assert price is None
-    assert included is False
     assert any("یافت نشد" in note for note in notes)
 
 
@@ -184,10 +182,10 @@ def test_view_calculates_sotoon_with_requests_and_provenance(imported_os):
     assert row["provenance"] == "manual"
     assert any("منبع دستی" in note for note in row["notes"])
     assert any("۱۰۰٬۰۰۰ درخواست برآوردی" in note for note in row["notes"])
-    # requests are included for Sotoon, so the partial-total note must not
-    # claim they are excluded
-    assert any(note == "جمع جزئی؛ مالیات لحاظ نشده است" for note in row["notes"])
-    assert not any("هزینه درخواست‌ها و مالیات" in note for note in row["notes"])
+    # the page-level VAT/partial-total caveat moved to the method box; row
+    # notes must not repeat it
+    assert not any("مالیات" in note for note in row["notes"])
+    assert not any("جمع جزئی" in note for note in row["notes"])
 
 
 @pytest.mark.parametrize("scenario_key", EXPECTED_TOTALS)
@@ -242,3 +240,6 @@ def test_dashboard_renders_sotoon_with_manual_badge(imported_os):
         assert "۸۰٪ ترافیک از CDN" in text
         # the rate table shows the request unit and the manual provenance
         assert "هر ۱۰۰۰ درخواست" in text
+        # the single page-level explanation replaces per-row tax caveats
+        assert "نحوه محاسبه قیمت" in text
+        assert text.count("مالیات") == 1

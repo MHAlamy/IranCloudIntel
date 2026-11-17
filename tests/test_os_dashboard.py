@@ -266,6 +266,34 @@ def test_os_layout_convention_chart_before_primary_table(os_client):
     assert 0 < chart_pos < table_pos
 
 
+def test_os_pricing_model_box_precedes_the_table(os_client):
+    """The fragmented page notes are replaced by one explanation box."""
+    from bs4 import BeautifulSoup
+
+    text = os_client.get('/object-storage').text
+    assert text.count('method-card') == 1
+    assert text.find('method-card') < text.find('class="card table-card"')
+    assert "نحوه محاسبه قیمت" in text
+    assert "پلن بسته‌بندی‌شده" in text
+    assert "PAYG" in text
+    assert "بدون مالیات بر ارزش افزوده" in text
+    assert text.count("مالیات") == 1  # stated once, nowhere else
+    # the old warning banner is gone
+    assert "banner-warning" not in text
+
+
+def test_provider_rows_explain_their_own_model(os_client):
+    from bs4 import BeautifulSoup
+
+    soup = BeautifulSoup(os_client.get('/object-storage').text, 'html.parser')
+    rows = soup.select('.card.table-card tbody tr')
+    hamravesh = next(r for r in rows if 'Hamravesh' in r.get_text())
+    text = hamravesh.get_text(" ", strip=True)
+    assert "پلن بسته‌بندی‌شده" in text
+    assert "درخواست" in text
+    assert "مالیات" not in text
+
+
 def test_os_chart_follows_selected_scenario(os_client):
     from bs4 import BeautifulSoup
     base = os_client.get('/object-storage').text

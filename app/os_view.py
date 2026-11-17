@@ -54,23 +54,30 @@ OS_RATE_FILTERS = {
     },
 }
 
-# Provider-level caveats shown with plan tables and scenario cells.
+# Provider-level notes. Each row explains only how that provider's price was
+# produced; the general model and the VAT/partial-total caveats live once in the
+# «نحوه محاسبه قیمت» box at the top of the page.
 OS_PROVIDER_NOTES = {
+    "hamravesh": [
+        "پلن بسته‌بندی‌شده: قیمت همان بسته‌ی منتشرشده برای حجم ذخیره‌سازی و ترافیک سناریو است",
+        "سهمیه یا نرخ درخواست منتشر نشده است",
+    ],
     "arvan": [
-        "فرض: نرخ‌های مصرف مازاد ماهانه‌اند — دوره‌ی صورتحساب در جدول نرخ صفحه صریح نشده است",
-        "هزینه‌ی درخواست‌ها مستثنی است: هم‌روش سهمیه‌ی درخواست منتشر نمی‌کند",
+        "محاسبه از نرخ‌های مصرف مازاد (PAYG) منتشرشده",
+        "نرخ درخواست منتشر نشده است؛ درخواست‌ها لحاظ نشده‌اند",
+        "فرض: نرخ‌های مصرف مازاد ماهانه‌اند — دوره‌ی صورتحساب در صفحه‌ی نرخ صریح نشده است",
     ],
     "parspack": [
-        "ترافیک در تعرفه لحاظ نشده است (ماشین‌حساب فقط حجم ذخیره‌سازی را قیمت‌گذاری می‌کند)",
+        "فقط حجم ذخیره‌سازی قیمت‌گذاری شده است؛ ماشین‌حساب ترافیک و درخواست ندارد",
     ],
     "kubit": [
-        "ترافیک سناریو: خروجی به خارج از موقعیت؛ ورودی، خروجی داخلی و درخواست‌ها لحاظ نشده‌اند",
-        "۱۰٪ مالیات بر ارزش افزوده به تعرفه‌ها اضافه می‌شود (طبق صفحه کوبیت)",
-        "پلن پایه رایگان با سهمیه صفر است؛ کل مصرف طبق تعرفه‌های مصرف مازاد محاسبه می‌شود",
+        "محاسبه از نرخ‌های PAYG؛ ترافیک سناریو = خروجی به خارج از موقعیت",
+        "پلن پایه رایگان با سهمیه‌ی صفر است؛ کل مصرف با نرخ‌های مازاد محاسبه می‌شود",
+        "درخواست‌ها لحاظ نشده‌اند",
     ],
     "sotoon": [
-        "محاسبه از تعرفه‌ی HiCap دیتاسنتر ندا؛ شامل هزینه‌ی درخواست‌ها با برآورد محافظه‌کارانه",
-        "ترافیک ورودی و مالیات لحاظ نشده‌اند",
+        "محاسبه از نرخ‌های HiCap دیتاسنتر ندا؛ درخواست‌ها با برآورد لحاظ شده‌اند",
+        "ترافیک ورودی لحاظ نشده است",
     ],
 }
 
@@ -88,7 +95,7 @@ def _manual_source_note(provenance: dict) -> str:
 def _rates_scenario_price(
     rates: list[dict], storage_gb: Decimal, traffic_gb: Decimal, requests: int,
     filters: dict,
-) -> tuple[Decimal | None, list[str], bool]:
+) -> tuple[Decimal | None, list[str]]:
     """Calculated scenario price from a provider's documented PAYG rates.
 
     Request charges are included only for providers whose filter defines a
@@ -108,12 +115,11 @@ def _rates_scenario_price(
     storage_cost, storage_ok = _tier_cost(storage_rows, storage_gb)
     traffic_cost, traffic_ok = _tier_cost(traffic_rows, traffic_gb)
     if storage_cost is None or not storage_ok:
-        return None, ["حجم ذخیره‌سازی سناریو فراتر از پلکان‌های نرخ منتشرشده است"], False
+        return None, ["حجم ذخیره‌سازی سناریو فراتر از پلکان‌های نرخ منتشرشده است"]
     if traffic_cost is None or not traffic_ok:
-        return None, ["حجم ترافیک سناریو فراتر از پلکان‌های نرخ منتشرشده است"], False
+        return None, ["حجم ترافیک سناریو فراتر از پلکان‌های نرخ منتشرشده است"]
 
     request_cost = Decimal(0)
-    includes_requests = False
     request_spec = filters.get("requests")
     if request_spec:
         request_rows = [
@@ -124,19 +130,18 @@ def _rates_scenario_price(
         if not request_rows:
             # The provider bills requests but the rate is missing: never treat
             # an unknown charge as zero.
-            return None, ["نرخ درخواست منتشرشده یافت نشد"], False
+            return None, ["نرخ درخواست منتشرشده یافت نشد"]
         units = Decimal(requests) / Decimal(request_spec["per_requests"])
         request_cost, request_ok = _tier_cost(request_rows, units)
         if request_cost is None or not request_ok:
-            return None, ["نرخ درخواست منتشرشده برای این حجم قابل محاسبه نیست"], False
-        includes_requests = True
+            return None, ["نرخ درخواست منتشرشده برای این حجم قابل محاسبه نیست"]
 
     notes: list[str] = []
-    if storage_rows and traffic_rows:
-        notes.append("محاسبه از نرخ‌های مصرف مازاد (PAYG) منتشرشده؛ شامل سهمیه‌های رایگان مستندشده")
-    if includes_requests:
+    if any(r["is_free"] for r in rates if r["category"] in ("storage", "traffic")):
+        notes.append("شامل سهمیه‌های رایگان مستندشده")
+    if request_spec:
         notes.append(f"شامل {format_toman(requests, False)} درخواست برآوردی در ماه")
-    return storage_cost + traffic_cost + request_cost, notes, includes_requests
+    return storage_cost + traffic_cost + request_cost, notes
 
 
 def _format_gb(value) -> str:
@@ -239,15 +244,8 @@ def build_os_view(repo: Repository, scenario_key: str | None = None) -> dict:
                 return row
         return None
 
-    def _cell(
-        price, basis: str, plan_name: str, notes: list[str],
-        requests_included: bool = False,
-    ) -> dict:
-        partial = (
-            "جمع جزئی؛ مالیات لحاظ نشده است" if requests_included
-            else "جمع جزئی؛ هزینه درخواست‌ها و مالیات لحاظ نشده است"
-        )
-        return {"price": price, "basis": basis, "plan_name": plan_name, "notes": notes + [partial]}
+    def _cell(price, basis: str, plan_name: str, notes: list[str]) -> dict:
+        return {"price": price, "basis": basis, "plan_name": plan_name, "notes": notes}
 
     def resolve_cell(
         slug: str, storage_gb: Decimal, traffic_gb: Decimal, requests: int,
@@ -273,7 +271,7 @@ def build_os_view(repo: Repository, scenario_key: str | None = None) -> dict:
             if row is None:
                 return _cell(None, "missing", "", [])
             price = Decimal(row["price_in_toman"]) if row["price_in_toman"] is not None else None
-            return _cell(price, "published", row["plan_name"], [])
+            return _cell(price, "published", row["plan_name"], provider_notes)
 
         exact = [p for p in plans if _plan_storage(p) == storage_gb and _plan_traffic(p) == traffic_gb]
         if exact:
@@ -284,17 +282,14 @@ def build_os_view(repo: Repository, scenario_key: str | None = None) -> dict:
         if rates is not None:
             filters = OS_RATE_FILTERS.get(slug)
             if filters:
-                price, notes, requests_included = _rates_scenario_price(
+                price, notes = _rates_scenario_price(
                     rates, storage_gb, traffic_gb, requests, filters
                 )
             else:
-                price, notes, requests_included = None, [], False
+                price, notes = None, []
             if price is None:
                 return _cell(None, "missing", "", notes + provider_notes)
-            return _cell(
-                price, "calculated", "پیکربندی معادل", notes + provider_notes,
-                requests_included=requests_included,
-            )
+            return _cell(price, "calculated", "پیکربندی معادل", notes + provider_notes)
 
         storage_only = [
             p for p in plans
