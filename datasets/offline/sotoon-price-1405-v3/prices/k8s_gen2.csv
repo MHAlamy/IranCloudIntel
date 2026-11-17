@@ -1,0 +1,7 @@
+﻿provider,generation,service,family,sku,price_irr,unit,region,source_id,source_pdf_page,notes
+Sotoon,2,managed_kubernetes,standard,cluster_subscription,170000000,cluster/month,unspecified,sotoon-price-1405-v3,5,"Gen2 KaaS standard subscription, core add-ons included"
+Sotoon,2,managed_kubernetes,standard,node_maintenance,31000000,node/month,unspecified,sotoon-price-1405-v3,5,Separate per-node maintenance fee
+Sotoon,2,managed_kubernetes,premium,cluster_subscription,400000000,cluster/month,unspecified,sotoon-price-1405-v3,5,"Gen2 KaaS premium subscription, core add-ons included"
+Sotoon,2,managed_kubernetes,premium,node_maintenance,39000000,node/month,unspecified,sotoon-price-1405-v3,5,Separate per-node maintenance fee
+Sotoon,2,managed_kubernetes,standard,extra_control_plane_core,11200000,core/month,unspecified,sotoon-price-1405-v3,5,"Only when exceeding included control-plane resource threshold, with coordination"
+Sotoon,2,managed_kubernetes,premium,extra_control_plane_core,21500000,core/month,unspecified,sotoon-price-1405-v3,5,"Only when exceeding included control-plane resource threshold, with coordination"

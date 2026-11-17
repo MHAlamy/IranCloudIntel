@@ -1,0 +1,44 @@
+﻿provider,generation,component,sku,region,price_irr,unit,vcpu,ram_gb,cpu_allocation,source_id,source_pdf_page,notes
+Sotoon,2,compute_bundle,C1,Bourse,20000000,bundle/month,1,2,dedicated,sotoon-price-1405-v3,4,1 vCPU + RAM bundle; attached disk/IP charges are separate
+Sotoon,2,compute_bundle,C1,Neda,18700000,bundle/month,1,2,dedicated,sotoon-price-1405-v3,4,1 vCPU + RAM bundle; attached disk/IP charges are separate
+Sotoon,2,compute_bundle,C1,Sabalan,18200000,bundle/month,1,2,dedicated,sotoon-price-1405-v3,4,1 vCPU + RAM bundle; attached disk/IP charges are separate
+Sotoon,2,compute_bundle,G1,Bourse,22800000,bundle/month,1,4,dedicated,sotoon-price-1405-v3,4,1 vCPU + RAM bundle; attached disk/IP charges are separate
+Sotoon,2,compute_bundle,G1,Neda,21500000,bundle/month,1,4,dedicated,sotoon-price-1405-v3,4,1 vCPU + RAM bundle; attached disk/IP charges are separate
+Sotoon,2,compute_bundle,G1,Sabalan,21000000,bundle/month,1,4,dedicated,sotoon-price-1405-v3,4,1 vCPU + RAM bundle; attached disk/IP charges are separate
+Sotoon,2,compute_bundle,M1,Bourse,27500000,bundle/month,1,8,dedicated,sotoon-price-1405-v3,4,1 vCPU + RAM bundle; attached disk/IP charges are separate
+Sotoon,2,compute_bundle,M1,Neda,26000000,bundle/month,1,8,dedicated,sotoon-price-1405-v3,4,1 vCPU + RAM bundle; attached disk/IP charges are separate
+Sotoon,2,compute_bundle,M1,Sabalan,26000000,bundle/month,1,8,dedicated,sotoon-price-1405-v3,4,1 vCPU + RAM bundle; attached disk/IP charges are separate
+Sotoon,2,compute_bundle,E1,Bourse,11800000,bundle/month,1,2,shared,sotoon-price-1405-v3,4,1 vCPU + RAM bundle; attached disk/IP charges are separate
+Sotoon,2,compute_bundle,E1,Neda,11200000,bundle/month,1,2,shared,sotoon-price-1405-v3,4,1 vCPU + RAM bundle; attached disk/IP charges are separate
+Sotoon,2,compute_bundle,E1,Sabalan,10200000,bundle/month,1,2,shared,sotoon-price-1405-v3,4,1 vCPU + RAM bundle; attached disk/IP charges are separate
+Sotoon,2,disk,local_disk,Bourse,220000,GB/month,,,,sotoon-price-1405-v3,4,
+Sotoon,2,disk,local_disk,Neda,210000,GB/month,,,,sotoon-price-1405-v3,4,
+Sotoon,2,disk,local_disk,Sabalan,200000,GB/month,,,,sotoon-price-1405-v3,4,
+Sotoon,2,disk,mana_1_standard,Bourse,200000,GB/month,,,,sotoon-price-1405-v3,4,
+Sotoon,2,disk,mana_1_standard,Neda,195000,GB/month,,,,sotoon-price-1405-v3,4,
+Sotoon,2,disk,mana_1_standard,Sabalan,195000,GB/month,,,,sotoon-price-1405-v3,4,
+Sotoon,2,disk,mana_2_premium,Bourse,210000,GB/month,,,,sotoon-price-1405-v3,4,
+Sotoon,2,disk,mana_2_premium,Neda,205000,GB/month,,,,sotoon-price-1405-v3,4,
+Sotoon,2,disk,mana_2_premium,Sabalan,205000,GB/month,,,,sotoon-price-1405-v3,4,
+Sotoon,2,disk,mana_3_ultra,Bourse,220000,GB/month,,,,sotoon-price-1405-v3,4,
+Sotoon,2,disk,mana_3_ultra,Neda,215000,GB/month,,,,sotoon-price-1405-v3,4,
+Sotoon,2,disk,mana_3_ultra,Sabalan,215000,GB/month,,,,sotoon-price-1405-v3,4,
+Sotoon,2,disk,mana_4_ultra2,Bourse,233000,GB/month,,,,sotoon-price-1405-v3,4,
+Sotoon,2,disk,mana_4_ultra2,Neda,228000,GB/month,,,,sotoon-price-1405-v3,4,
+Sotoon,2,disk,mana_4_ultra2,Sabalan,228000,GB/month,,,,sotoon-price-1405-v3,4,
+Sotoon,2,disk,mana_5_ultra3,Bourse,250000,GB/month,,,,sotoon-price-1405-v3,4,
+Sotoon,2,disk,mana_5_ultra3,Neda,240000,GB/month,,,,sotoon-price-1405-v3,4,
+Sotoon,2,disk,mana_5_ultra3,Sabalan,240000,GB/month,,,,sotoon-price-1405-v3,4,
+Sotoon,2,disk,mana_6_ultra5,Bourse,270000,GB/month,,,,sotoon-price-1405-v3,4,
+Sotoon,2,disk,mana_6_ultra5,Neda,260000,GB/month,,,,sotoon-price-1405-v3,4,
+Sotoon,2,disk,mana_6_ultra5,Sabalan,260000,GB/month,,,,sotoon-price-1405-v3,4,
+Sotoon,2,backup_image,snapshot_disk,all,195000,GB/month,,,,sotoon-price-1405-v3,4,
+Sotoon,2,backup_image,machine_image,all,195000,GB/month,,,,sotoon-price-1405-v3,4,
+Sotoon,2,backup_image,custom_image,all,195000,GB/month,,,,sotoon-price-1405-v3,4,
+Sotoon,2,compute_extra_ram,additional_ram,all,3500000,GB/month,,,,sotoon-price-1405-v3,4,Additional RAM beyond base bundle; source page 4
+Sotoon,2,network,public_ipv4,all,3500000,IP/month,,,,sotoon-price-1405-v3,4,
+Sotoon,2,network,traffic,all,0,unspecified_volume,Brochure says free traffic; verify any fair-use restrictions,,,sotoon-price-1405-v3,4,
+Sotoon,2,load_balancer,level_1,all,5000000,load_balancer/month,,,,sotoon-price-1405-v3,4,
+Sotoon,2,load_balancer,level_2,all,10000000,load_balancer/month,,,,sotoon-price-1405-v3,4,
+Sotoon,2,load_balancer,level_3,all,15000000,load_balancer/month,,,,sotoon-price-1405-v3,4,
+Sotoon,2,load_balancer,level_4,all,20000000,load_balancer/month,,,,sotoon-price-1405-v3,4,

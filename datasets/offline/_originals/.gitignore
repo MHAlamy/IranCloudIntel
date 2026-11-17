@@ -1,0 +1,6 @@
+# Local-only source documents
+# Keep original PDFs and other confidential documents here; they are never
+# committed. Transcriptions live next to this folder and reference the
+# original by filename and SHA-256 in their manifest.json.
+*
+!.gitignore

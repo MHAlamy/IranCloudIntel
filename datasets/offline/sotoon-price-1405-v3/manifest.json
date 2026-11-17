@@ -1,0 +1,73 @@
+{
+  "format_version": "1.0",
+  "source_id": "sotoon-price-1405-v3",
+  "kind": "price_catalogue",
+  "title": "Sotoon cloud official price list",
+  "publisher": "Sotoon",
+  "catalogue_version": "3",
+  "currency": "IRR",
+  "price_unit_warning": "PDF values are in rials. DO NOT treat as tomans. Convert toman = IRR / 10.",
+  "document_cover_valid_until": "end of Esfand 1405 (Jalali)",
+  "cover_note": "Despite filename Spring 1405, cover states valid until end of Esfand 1405. Confirm superseding documents independently.",
+  "original_document": {
+    "file": "Cloud Price List - Spring 1405-V3.pdf",
+    "local_path": "_originals/Cloud Price List - Spring 1405-V3.pdf",
+    "committed": false,
+    "sha256": "b0bf733f58f34a885d41a8f2724629d9eefd37bd245ebb9027e2226f59ef5381",
+    "pages": 13,
+    "text_layer": "tables are images; the transcription is manual, not OCR"
+  },
+  "datasets": {
+    "prices/vm_gen2.csv": {
+      "service_type": "vm",
+      "source_pages": [4],
+      "sha256": "4af50487b9ea3ca1022087c13efb846710ae1dd4c60acd10e9153f166f6cb473",
+      "pricing": "Compute base + disk GB-month + IP monthly + optional LB; prices vary by data center",
+      "exclusions": "Generation 1 sunset and GPU products"
+    },
+    "prices/k8s_gen2.csv": {
+      "service_type": "kaas",
+      "source_pages": [5],
+      "sha256": "641e9b960e93efe01c8b415fef3aab0702c4683f4261cba24134a637049fc64f",
+      "pricing": "Cluster subscription + per node support, optional extra control-plane resources; underlying worker compute/storage may be billed separately",
+      "scope": "Only Gen2 KaaS; excludes Gen1 legacy cluster tariffs"
+    },
+    "prices/object_storage.csv": {
+      "service_type": "object_storage",
+      "source_pages": [6, 7],
+      "sha256": "99bffa4defda8d99211b043e63477b631a1963e75d828eb199dbb6f811b875ad",
+      "pricing": "Capacity (class and region), request count (class and type), outbound traffic progressive bands; storage-origin traffic from Sotoon CDN free per brochure"
+    },
+    "prices/dbaas_gen2.csv": {
+      "service_type": "dbaas",
+      "source_pages": [9],
+      "sha256": "7ddbe64b425b159a4ee18a1c86dbce05986e53acd6c85088b378a38e12882e07",
+      "pricing": "Gen2 database compute bundle by region + disk GB-month; excludes legacy Gen1"
+    },
+    "prices/cdn.csv": {
+      "service_type": "cdn",
+      "source_pages": [8],
+      "sha256": "449ab6941334a91f39c0da6a2f140d3e4b23be8fb4c917d06d98d091116c06b7",
+      "pricing": "Tiered bandwidth with Iran/outside Iran; requests, image processing, log volume, IP, TLS, DNS, video and smart routing"
+    }
+  },
+  "interpretation_notes": [
+    "Prices are per month for monthly bundles and per gigabyte or request unit for usage tariffs as printed; do not add together unlike metering units.",
+    "Storage traffic bands are preserved by textual successive-tier labels, without inferred numeric thresholds, because the catalogue mixes GB/TB/PB and does not define decimal versus binary conversion.",
+    "Gen2 VM configurations appear to be 1 core plus fixed RAM bundle; source images should be checked for exact CPU and RAM and dedicated/shared classifications before publishing.",
+    "CDN tier schedule does not explicitly specify whether progressive billing applies to every tier; assume incremental only after checkout/API validation.",
+    "All numeric entries were manually transcribed from rendered pages, not generated using OCR. Review against source before production.",
+    "Sotoon Object Storage egress classes page 7 and CDN page 8 both have tiered GB traffic tariffs; do not conflate them.",
+    "Price sheet is standalone offline observation, not a continuously verified live price."
+  ],
+  "open_review_items": [
+    "Every Gen2 compute bundle is 1 vCPU (C1 1/2, G1 1/4, M1 1/8, E1 1/2 shared). The 4/8, 16/32 and 32/64 VM references cannot be matched without an explicit stacking assumption.",
+    "Region is a datacenter (Bourse, Neda, Sabalan) with roughly 10% price spread; the dashboard needs a documented region policy.",
+    "Object Storage egress rows keep textual band labels in notes and leave band_lower/band_upper empty, while CDN rows carry numeric GB bounds. Scenario calculations need numeric bounds for both.",
+    "Object Storage request taxonomy is inconsistent: Archive uses read_requests and partial_read_requests, HiCap and Hiops use a single requests component.",
+    "CDN each_ip is 250,000,000 IRR (25,000,000 Toman) per IP-month, far outside the rest of the sheet. Verify against the source page before publishing.",
+    "CDN log pricing (9,600 IRR per 10,000 logs) and K8s cluster subscriptions (17,000,000 and 40,000,000 Toman per month) also deserve a second look.",
+    "Archive egress is more expensive than HiCap egress, which is unusual; confirm the class ordering was not transposed."
+  ],
+  "manual_review_status": "draft_for_user_verification"
+}

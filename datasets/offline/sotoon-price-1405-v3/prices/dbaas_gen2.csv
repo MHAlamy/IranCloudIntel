@@ -1,0 +1,20 @@
+﻿provider,generation,component,sku,region,price_irr,unit,vcpu,ram_gb,cpu_allocation,source_id,source_pdf_page,notes
+Sotoon,2,db_compute_bundle,G1,Bourse,40500000,bundle/month,1,4,dedicated,sotoon-price-1405-v3,9,Database generation 2 compute; disk separately
+Sotoon,2,db_compute_bundle,G1,Neda,39500000,bundle/month,1,4,dedicated,sotoon-price-1405-v3,9,Database generation 2 compute; disk separately
+Sotoon,2,db_compute_bundle,G1,Sabalan,39000000,bundle/month,1,4,dedicated,sotoon-price-1405-v3,9,Database generation 2 compute; disk separately
+Sotoon,2,db_compute_bundle,M1,Bourse,45500000,bundle/month,1,8,dedicated,sotoon-price-1405-v3,9,Database generation 2 compute; disk separately
+Sotoon,2,db_compute_bundle,M1,Neda,44000000,bundle/month,1,8,dedicated,sotoon-price-1405-v3,9,Database generation 2 compute; disk separately
+Sotoon,2,db_compute_bundle,M1,Sabalan,44000000,bundle/month,1,8,dedicated,sotoon-price-1405-v3,9,Database generation 2 compute; disk separately
+Sotoon,2,db_compute_bundle,C1,Bourse,38000000,bundle/month,1,2,dedicated,sotoon-price-1405-v3,9,Database generation 2 compute; disk separately
+Sotoon,2,db_compute_bundle,C1,Neda,37000000,bundle/month,1,2,dedicated,sotoon-price-1405-v3,9,Database generation 2 compute; disk separately
+Sotoon,2,db_compute_bundle,C1,Sabalan,36500000,bundle/month,1,2,dedicated,sotoon-price-1405-v3,9,Database generation 2 compute; disk separately
+Sotoon,2,db_compute_bundle,E1,Bourse,26000000,bundle/month,1,2,shared,sotoon-price-1405-v3,9,Database generation 2 compute; disk separately
+Sotoon,2,db_compute_bundle,E1,Neda,25000000,bundle/month,1,2,shared,sotoon-price-1405-v3,9,Database generation 2 compute; disk separately
+Sotoon,2,db_compute_bundle,E1,Sabalan,24000000,bundle/month,1,2,shared,sotoon-price-1405-v3,9,Database generation 2 compute; disk separately
+Sotoon,2,db_disk,local_disk,all,400000,GB/month,,,,sotoon-price-1405-v3,9,
+Sotoon,2,db_disk,mana_1_standard,all,380000,GB/month,,,,sotoon-price-1405-v3,9,
+Sotoon,2,db_disk,mana_2_premium,all,400000,GB/month,,,,sotoon-price-1405-v3,9,
+Sotoon,2,db_disk,mana_3_ultra,all,420000,GB/month,,,,sotoon-price-1405-v3,9,
+Sotoon,2,db_disk,mana_4_ultra2,all,430000,GB/month,,,,sotoon-price-1405-v3,9,
+Sotoon,2,db_disk,mana_5_ultra3,all,440000,GB/month,,,,sotoon-price-1405-v3,9,
+Sotoon,2,db_disk,mana_6_ultra5,all,460000,GB/month,,,,sotoon-price-1405-v3,9,

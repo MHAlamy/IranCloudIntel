@@ -1,0 +1,41 @@
+﻿provider,storage_class,region,charge_component,price_irr,billing_unit,band_lower,band_upper,source_id,source_pdf_page,notes
+Sotoon,Archive,Bourse,capacity,11000,GB/month,,,sotoon-price-1405-v3,6,
+Sotoon,Archive,Neda,capacity,11000,GB/month,,,sotoon-price-1405-v3,6,
+Sotoon,Archive,Sabalan,capacity,11000,GB/month,,,sotoon-price-1405-v3,6,
+Sotoon,HiCap,Bourse,capacity,39000,GB/month,,,sotoon-price-1405-v3,6,
+Sotoon,HiCap,Neda,capacity,39000,GB/month,,,sotoon-price-1405-v3,6,
+Sotoon,HiCap,Sabalan,capacity,37000,GB/month,,,sotoon-price-1405-v3,6,
+Sotoon,Hiops,Bourse,capacity,210000,GB/month,,,sotoon-price-1405-v3,6,
+Sotoon,Hiops,Neda,capacity,200000,GB/month,,,sotoon-price-1405-v3,6,
+Sotoon,Hiops,Sabalan,capacity,200000,GB/month,,,sotoon-price-1405-v3,6,
+Sotoon,Archive,all,read_requests,9000,1000_requests,,,sotoon-price-1405-v3,6,Request type names transcribed from page 6
+Sotoon,Archive,all,partial_read_requests,2200,1000_requests,,,sotoon-price-1405-v3,6,Request type names transcribed from page 6
+Sotoon,HiCap,all,requests,1100,1000_requests,,,sotoon-price-1405-v3,6,Request type names transcribed from page 6
+Sotoon,Hiops,all,requests,900,1000_requests,,,sotoon-price-1405-v3,6,Request type names transcribed from page 6
+Sotoon,Archive,all,egress_band,70000,GB,,,sotoon-price-1405-v3,7,first_50_GB
+Sotoon,Archive,all,egress_band,65000,GB,,,sotoon-price-1405-v3,7,next_450_GB
+Sotoon,Archive,all,egress_band,60000,GB,,,sotoon-price-1405-v3,7,next_500_GB
+Sotoon,Archive,all,egress_band,57000,GB,,,sotoon-price-1405-v3,7,next_7_TB
+Sotoon,Archive,all,egress_band,52000,GB,,,sotoon-price-1405-v3,7,next_8_TB
+Sotoon,Archive,all,egress_band,49000,GB,,,sotoon-price-1405-v3,7,next_90_TB
+Sotoon,Archive,all,egress_band,43000,GB,,,sotoon-price-1405-v3,7,next_400_TB
+Sotoon,Archive,all,egress_band,35000,GB,,,sotoon-price-1405-v3,7,next_500_TB
+Sotoon,Archive,all,egress_band,28000,GB,,,sotoon-price-1405-v3,7,above_1_PB
+Sotoon,HiCap,all,egress_band,27000,GB,,,sotoon-price-1405-v3,7,first_50_GB
+Sotoon,HiCap,all,egress_band,25000,GB,,,sotoon-price-1405-v3,7,next_450_GB
+Sotoon,HiCap,all,egress_band,23000,GB,,,sotoon-price-1405-v3,7,next_500_GB
+Sotoon,HiCap,all,egress_band,21000,GB,,,sotoon-price-1405-v3,7,next_7_TB
+Sotoon,HiCap,all,egress_band,19500,GB,,,sotoon-price-1405-v3,7,next_8_TB
+Sotoon,HiCap,all,egress_band,18000,GB,,,sotoon-price-1405-v3,7,next_90_TB
+Sotoon,HiCap,all,egress_band,16000,GB,,,sotoon-price-1405-v3,7,next_400_TB
+Sotoon,HiCap,all,egress_band,13500,GB,,,sotoon-price-1405-v3,7,next_500_TB
+Sotoon,HiCap,all,egress_band,10500,GB,,,sotoon-price-1405-v3,7,above_1_PB
+Sotoon,Hiops,all,egress_band,25500,GB,,,sotoon-price-1405-v3,7,first_50_GB
+Sotoon,Hiops,all,egress_band,23000,GB,,,sotoon-price-1405-v3,7,next_450_GB
+Sotoon,Hiops,all,egress_band,21700,GB,,,sotoon-price-1405-v3,7,next_500_GB
+Sotoon,Hiops,all,egress_band,19000,GB,,,sotoon-price-1405-v3,7,next_7_TB
+Sotoon,Hiops,all,egress_band,18000,GB,,,sotoon-price-1405-v3,7,next_8_TB
+Sotoon,Hiops,all,egress_band,17000,GB,,,sotoon-price-1405-v3,7,next_90_TB
+Sotoon,Hiops,all,egress_band,14500,GB,,,sotoon-price-1405-v3,7,next_400_TB
+Sotoon,Hiops,all,egress_band,12000,GB,,,sotoon-price-1405-v3,7,next_500_TB
+Sotoon,Hiops,all,egress_band,10000,GB,,,sotoon-price-1405-v3,7,above_1_PB

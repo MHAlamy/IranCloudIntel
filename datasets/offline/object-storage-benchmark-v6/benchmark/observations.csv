@@ -1,0 +1,215 @@
+﻿run_id,test_date,provider,workload,metric,value,unit,aggregation,object_size,concurrency,source_id,source_pdf_page,notes
+2026-07-23-hs3-direct-v-proxy,2026-07-23,Hamravesh HS3 (direct),PUT,throughput,18.23,MiB/s,reported,512KiB,4,object-storage-benchmark-v6,3,"NETWORK PATH EXPERIMENT: same provider, direct Iran path versus international proxy; NOT separate providers"
+2026-07-23-hs3-direct-v-proxy,2026-07-23,Hamravesh HS3 (via proxy),PUT,throughput,6.83,MiB/s,reported,512KiB,4,object-storage-benchmark-v6,3,"NETWORK PATH EXPERIMENT: same provider, direct Iran path versus international proxy; NOT separate providers"
+2026-07-23-hs3-direct-v-proxy,2026-07-23,Hamravesh HS3 (direct),PUT,operation_rate,36.46,obj/s,reported,512KiB,4,object-storage-benchmark-v6,3,"NETWORK PATH EXPERIMENT: same provider, direct Iran path versus international proxy; NOT separate providers"
+2026-07-23-hs3-direct-v-proxy,2026-07-23,Hamravesh HS3 (via proxy),PUT,operation_rate,13.65,obj/s,reported,512KiB,4,object-storage-benchmark-v6,3,"NETWORK PATH EXPERIMENT: same provider, direct Iran path versus international proxy; NOT separate providers"
+2026-07-23-hs3-direct-v-proxy,2026-07-23,Hamravesh HS3 (direct),PUT,latency_p50,100,ms,reported,512KiB,4,object-storage-benchmark-v6,3,"NETWORK PATH EXPERIMENT: same provider, direct Iran path versus international proxy; NOT separate providers"
+2026-07-23-hs3-direct-v-proxy,2026-07-23,Hamravesh HS3 (via proxy),PUT,latency_p50,297,ms,reported,512KiB,4,object-storage-benchmark-v6,3,"NETWORK PATH EXPERIMENT: same provider, direct Iran path versus international proxy; NOT separate providers"
+2026-07-23-hs3-direct-v-proxy,2026-07-23,Hamravesh HS3 (direct),PUT,latency_p90,138,ms,reported,512KiB,4,object-storage-benchmark-v6,3,"NETWORK PATH EXPERIMENT: same provider, direct Iran path versus international proxy; NOT separate providers"
+2026-07-23-hs3-direct-v-proxy,2026-07-23,Hamravesh HS3 (via proxy),PUT,latency_p90,369,ms,reported,512KiB,4,object-storage-benchmark-v6,3,"NETWORK PATH EXPERIMENT: same provider, direct Iran path versus international proxy; NOT separate providers"
+2026-07-23-hs3-direct-v-proxy,2026-07-23,Hamravesh HS3 (direct),PUT,latency_p99,255,ms,reported,512KiB,4,object-storage-benchmark-v6,3,"NETWORK PATH EXPERIMENT: same provider, direct Iran path versus international proxy; NOT separate providers"
+2026-07-23-hs3-direct-v-proxy,2026-07-23,Hamravesh HS3 (via proxy),PUT,latency_p99,1329,ms,reported,512KiB,4,object-storage-benchmark-v6,3,"NETWORK PATH EXPERIMENT: same provider, direct Iran path versus international proxy; NOT separate providers"
+2026-07-23-hs3-direct-v-proxy,2026-07-23,Hamravesh HS3 (direct),PUT,latency_min,55.5,ms,reported,512KiB,4,object-storage-benchmark-v6,3,"NETWORK PATH EXPERIMENT: same provider, direct Iran path versus international proxy; NOT separate providers"
+2026-07-23-hs3-direct-v-proxy,2026-07-23,Hamravesh HS3 (via proxy),PUT,latency_min,233.7,ms,reported,512KiB,4,object-storage-benchmark-v6,3,"NETWORK PATH EXPERIMENT: same provider, direct Iran path versus international proxy; NOT separate providers"
+2026-07-23-hs3-direct-v-proxy,2026-07-23,Hamravesh HS3 (direct),PUT,ttfb_p50,94,ms,reported,512KiB,4,object-storage-benchmark-v6,3,"NETWORK PATH EXPERIMENT: same provider, direct Iran path versus international proxy; NOT separate providers"
+2026-07-23-hs3-direct-v-proxy,2026-07-23,Hamravesh HS3 (via proxy),PUT,ttfb_p50,296,ms,reported,512KiB,4,object-storage-benchmark-v6,3,"NETWORK PATH EXPERIMENT: same provider, direct Iran path versus international proxy; NOT separate providers"
+2026-07-23-hs3-direct-v-proxy,2026-07-23,Hamravesh HS3 (direct),PUT,requests_total,364,requests,reported,512KiB,4,object-storage-benchmark-v6,3,"NETWORK PATH EXPERIMENT: same provider, direct Iran path versus international proxy; NOT separate providers"
+2026-07-23-hs3-direct-v-proxy,2026-07-23,Hamravesh HS3 (via proxy),PUT,requests_total,126,requests,reported,512KiB,4,object-storage-benchmark-v6,3,"NETWORK PATH EXPERIMENT: same provider, direct Iran path versus international proxy; NOT separate providers"
+2026-08-12-put-arvan-hs3,2026-08-12,Arvan,PUT,throughput,16.43,MiB/s,median_of_three_runs_for_throughput_other_metrics_reported,512KiB,4,object-storage-benchmark-v6,4,"Same-session direct interleaved; 10s configured, 7s effective noted"
+2026-08-12-put-arvan-hs3,2026-08-12,Hamravesh,PUT,throughput,10.94,MiB/s,median_of_three_runs_for_throughput_other_metrics_reported,512KiB,4,object-storage-benchmark-v6,4,"Same-session direct interleaved; 10s configured, 7s effective noted"
+2026-08-12-put-arvan-hs3,2026-08-12,Arvan,PUT,operation_rate,32.85,obj/s,median_of_three_runs_for_throughput_other_metrics_reported,512KiB,4,object-storage-benchmark-v6,4,"Same-session direct interleaved; 10s configured, 7s effective noted"
+2026-08-12-put-arvan-hs3,2026-08-12,Hamravesh,PUT,operation_rate,21.87,obj/s,median_of_three_runs_for_throughput_other_metrics_reported,512KiB,4,object-storage-benchmark-v6,4,"Same-session direct interleaved; 10s configured, 7s effective noted"
+2026-08-12-put-arvan-hs3,2026-08-12,Arvan,PUT,latency_p50,86.9,ms,median_of_three_runs_for_throughput_other_metrics_reported,512KiB,4,object-storage-benchmark-v6,4,"Same-session direct interleaved; 10s configured, 7s effective noted"
+2026-08-12-put-arvan-hs3,2026-08-12,Hamravesh,PUT,latency_p50,219.9,ms,median_of_three_runs_for_throughput_other_metrics_reported,512KiB,4,object-storage-benchmark-v6,4,"Same-session direct interleaved; 10s configured, 7s effective noted"
+2026-08-12-put-arvan-hs3,2026-08-12,Arvan,PUT,latency_p90,182.1,ms,median_of_three_runs_for_throughput_other_metrics_reported,512KiB,4,object-storage-benchmark-v6,4,"Same-session direct interleaved; 10s configured, 7s effective noted"
+2026-08-12-put-arvan-hs3,2026-08-12,Hamravesh,PUT,latency_p90,374.4,ms,median_of_three_runs_for_throughput_other_metrics_reported,512KiB,4,object-storage-benchmark-v6,4,"Same-session direct interleaved; 10s configured, 7s effective noted"
+2026-08-12-put-arvan-hs3,2026-08-12,Arvan,PUT,latency_p99,490.5,ms,median_of_three_runs_for_throughput_other_metrics_reported,512KiB,4,object-storage-benchmark-v6,4,"Same-session direct interleaved; 10s configured, 7s effective noted"
+2026-08-12-put-arvan-hs3,2026-08-12,Hamravesh,PUT,latency_p99,740.6,ms,median_of_three_runs_for_throughput_other_metrics_reported,512KiB,4,object-storage-benchmark-v6,4,"Same-session direct interleaved; 10s configured, 7s effective noted"
+2026-08-12-put-arvan-hs3,2026-08-12,Arvan,PUT,latency_min,37.8,ms,median_of_three_runs_for_throughput_other_metrics_reported,512KiB,4,object-storage-benchmark-v6,4,"Same-session direct interleaved; 10s configured, 7s effective noted"
+2026-08-12-put-arvan-hs3,2026-08-12,Hamravesh,PUT,latency_min,71.9,ms,median_of_three_runs_for_throughput_other_metrics_reported,512KiB,4,object-storage-benchmark-v6,4,"Same-session direct interleaved; 10s configured, 7s effective noted"
+2026-08-12-put-arvan-hs3,2026-08-12,Arvan,PUT,ttfb_p50,86,ms,median_of_three_runs_for_throughput_other_metrics_reported,512KiB,4,object-storage-benchmark-v6,4,"Same-session direct interleaved; 10s configured, 7s effective noted"
+2026-08-12-put-arvan-hs3,2026-08-12,Hamravesh,PUT,ttfb_p50,219,ms,median_of_three_runs_for_throughput_other_metrics_reported,512KiB,4,object-storage-benchmark-v6,4,"Same-session direct interleaved; 10s configured, 7s effective noted"
+2026-08-12-put-arvan-hs3,2026-08-12,Arvan,PUT,requests_total,333,requests,median_of_three_runs_for_throughput_other_metrics_reported,512KiB,4,object-storage-benchmark-v6,4,"Same-session direct interleaved; 10s configured, 7s effective noted"
+2026-08-12-put-arvan-hs3,2026-08-12,Hamravesh,PUT,requests_total,207,requests,median_of_three_runs_for_throughput_other_metrics_reported,512KiB,4,object-storage-benchmark-v6,4,"Same-session direct interleaved; 10s configured, 7s effective noted"
+2026-08-12-put-arvan-hs3,2026-08-12,Arvan,PUT,throughput_run_min,16.04,MiB/s,three_run_summary,512KiB,4,object-storage-benchmark-v6,5,
+2026-08-12-put-arvan-hs3,2026-08-12,Arvan,PUT,throughput_run_median,16.43,MiB/s,three_run_summary,512KiB,4,object-storage-benchmark-v6,5,
+2026-08-12-put-arvan-hs3,2026-08-12,Arvan,PUT,throughput_run_max,16.81,MiB/s,three_run_summary,512KiB,4,object-storage-benchmark-v6,5,
+2026-08-12-put-arvan-hs3,2026-08-12,Hamravesh,PUT,throughput_run_min,9.86,MiB/s,three_run_summary,512KiB,4,object-storage-benchmark-v6,5,
+2026-08-12-put-arvan-hs3,2026-08-12,Hamravesh,PUT,throughput_run_median,10.94,MiB/s,three_run_summary,512KiB,4,object-storage-benchmark-v6,5,
+2026-08-12-put-arvan-hs3,2026-08-12,Hamravesh,PUT,throughput_run_max,11.11,MiB/s,three_run_summary,512KiB,4,object-storage-benchmark-v6,5,
+2026-08-13-arvan-hs3,2026-08-13,Arvan,GET,throughput,17.51,MiB/s,single_run,512KiB,4,object-storage-benchmark-v6,6,
+2026-08-13-arvan-hs3,2026-08-13,Hamravesh,GET,throughput,13.35,MiB/s,single_run,512KiB,4,object-storage-benchmark-v6,6,
+2026-08-13-arvan-hs3,2026-08-13,Arvan,GET,ttfb_p50,39,ms,single_run,512KiB,4,object-storage-benchmark-v6,6,
+2026-08-13-arvan-hs3,2026-08-13,Hamravesh,GET,ttfb_p50,10,ms,single_run,512KiB,4,object-storage-benchmark-v6,6,
+2026-08-13-arvan-hs3,2026-08-13,Arvan,GET,latency_p50,87.0,ms,single_run,512KiB,4,object-storage-benchmark-v6,6,
+2026-08-13-arvan-hs3,2026-08-13,Hamravesh,GET,latency_p50,123.2,ms,single_run,512KiB,4,object-storage-benchmark-v6,6,
+2026-08-13-arvan-hs3,2026-08-13,Arvan,GET,latency_p99,373.6,ms,single_run,512KiB,4,object-storage-benchmark-v6,6,
+2026-08-13-arvan-hs3,2026-08-13,Hamravesh,GET,latency_p99,497.3,ms,single_run,512KiB,4,object-storage-benchmark-v6,6,
+2026-08-13-arvan-hs3,2026-08-13,Arvan,GET,latency_max,2371.9,ms,single_run,512KiB,4,object-storage-benchmark-v6,6,
+2026-08-13-arvan-hs3,2026-08-13,Hamravesh,GET,latency_max,930.9,ms,single_run,512KiB,4,object-storage-benchmark-v6,6,
+2026-08-13-arvan-hs3,2026-08-13,Arvan,GET,ttfb_p99,225,ms,single_run,512KiB,4,object-storage-benchmark-v6,6,
+2026-08-13-arvan-hs3,2026-08-13,Hamravesh,GET,ttfb_p99,32,ms,single_run,512KiB,4,object-storage-benchmark-v6,6,
+2026-08-13-arvan-hs3,2026-08-13,Arvan,MIXED,throughput,17.74,MiB/s,single_run,512KiB,4,object-storage-benchmark-v6,6,
+2026-08-13-arvan-hs3,2026-08-13,Hamravesh,MIXED,throughput,20.93,MiB/s,single_run,512KiB,4,object-storage-benchmark-v6,6,
+2026-08-13-arvan-hs3,2026-08-13,Arvan,MIXED,operation_rate,58.66,obj/s,single_run,512KiB,4,object-storage-benchmark-v6,6,
+2026-08-13-arvan-hs3,2026-08-13,Hamravesh,MIXED,operation_rate,69.53,obj/s,single_run,512KiB,4,object-storage-benchmark-v6,6,
+2026-08-13-arvan-hs3,2026-08-13,Arvan,MIXED,put_latency_p50,108.5,ms,single_run,512KiB,4,object-storage-benchmark-v6,6,
+2026-08-13-arvan-hs3,2026-08-13,Hamravesh,MIXED,put_latency_p50,215.7,ms,single_run,512KiB,4,object-storage-benchmark-v6,6,
+2026-08-13-arvan-hs3,2026-08-13,Arvan,MIXED,delete_latency_p50,80.3,ms,single_run,512KiB,4,object-storage-benchmark-v6,6,
+2026-08-13-arvan-hs3,2026-08-13,Hamravesh,MIXED,delete_latency_p50,9.1,ms,single_run,512KiB,4,object-storage-benchmark-v6,6,
+2026-08-13-arvan-hs3,2026-08-13,Arvan,LIST,operation_rate,2711,obj/s,single_run,10KiB,4,object-storage-benchmark-v6,6,Arvan LIST: 23 SlowDown errors; throughput result NOT directly comparable
+2026-08-13-arvan-hs3,2026-08-13,Hamravesh,LIST,operation_rate,28078,obj/s,single_run,10KiB,4,object-storage-benchmark-v6,6,Arvan LIST: 23 SlowDown errors; throughput result NOT directly comparable
+2026-08-13-arvan-hs3,2026-08-13,Arvan,LIST,errors_total,23,errors,single_run,10KiB,4,object-storage-benchmark-v6,7,SlowDown / Please reduce your request rate
+2026-08-13-arvan-hs3,2026-08-13,Arvan,LIST,rate_1s_max,17543,obj/s,single_run,10KiB,4,object-storage-benchmark-v6,7,Throttling diagnostic; do not treat as normal sustained throughput
+2026-08-13-arvan-hs3,2026-08-13,Arvan,LIST,rate_1s_median,29.94,obj/s,single_run,10KiB,4,object-storage-benchmark-v6,7,Throttling diagnostic; do not treat as normal sustained throughput
+2026-08-13-arvan-hs3,2026-08-13,Arvan,LIST,rate_1s_min,0.4,obj/s,single_run,10KiB,4,object-storage-benchmark-v6,7,Throttling diagnostic; do not treat as normal sustained throughput
+2026-08-13-arvan-hs3,2026-08-13,Arvan,STAT,operation_rate,337,obj/s,single_run,10KiB,4,object-storage-benchmark-v6,6,
+2026-08-13-arvan-hs3,2026-08-13,Hamravesh,STAT,operation_rate,492,obj/s,single_run,10KiB,4,object-storage-benchmark-v6,6,
+2026-08-13-arvan-hs3,2026-08-13,Arvan,STAT,latency_p50,9.4,ms,single_run,10KiB,4,object-storage-benchmark-v6,6,
+2026-08-13-arvan-hs3,2026-08-13,Hamravesh,STAT,latency_p50,7.5,ms,single_run,10KiB,4,object-storage-benchmark-v6,6,
+2026-08-13-arvan-hs3,2026-08-13,Arvan,STAT,latency_max,5497.3,ms,single_run,10KiB,4,object-storage-benchmark-v6,6,
+2026-08-13-arvan-hs3,2026-08-13,Hamravesh,STAT,latency_max,224.2,ms,single_run,10KiB,4,object-storage-benchmark-v6,6,
+2026-08-13-arvan-hs3,2026-08-13,Arvan,DELETE,operation_rate,117,obj/s,single_run,10KiB,4,object-storage-benchmark-v6,6,
+2026-08-13-arvan-hs3,2026-08-13,Hamravesh,DELETE,operation_rate,425,obj/s,single_run,10KiB,4,object-storage-benchmark-v6,6,
+2026-08-13-arvan-hs3,2026-08-13,Arvan,DELETE,latency_p99,1895.2,ms,single_run,10KiB,4,object-storage-benchmark-v6,6,
+2026-08-13-arvan-hs3,2026-08-13,Hamravesh,DELETE,latency_p99,164.1,ms,single_run,10KiB,4,object-storage-benchmark-v6,6,
+2026-08-13-arvan-hs3,2026-08-13,Arvan,DELETE,duration_total,83,s,single_run,10KiB,4,object-storage-benchmark-v6,6,
+2026-08-13-arvan-hs3,2026-08-13,Hamravesh,DELETE,duration_total,20,s,single_run,10KiB,4,object-storage-benchmark-v6,6,
+2026-08-23-24-sotoon-hs3,2026-08-23,Sotoon,PUT,throughput,6.99,MiB/s,median_of_three_runs,512KiB,4,object-storage-benchmark-v6,8,
+2026-08-23-24-sotoon-hs3,2026-08-23,Hamravesh,PUT,throughput,4.23,MiB/s,median_of_three_runs,512KiB,4,object-storage-benchmark-v6,8,
+2026-08-23-24-sotoon-hs3,2026-08-23,Sotoon,PUT,latency_p50,257.3,ms,median_of_three_runs,512KiB,4,object-storage-benchmark-v6,8,
+2026-08-23-24-sotoon-hs3,2026-08-23,Hamravesh,PUT,latency_p50,511.5,ms,median_of_three_runs,512KiB,4,object-storage-benchmark-v6,8,
+2026-08-23-24-sotoon-hs3,2026-08-23,Sotoon,PUT,latency_p99,837.9,ms,median_of_three_runs,512KiB,4,object-storage-benchmark-v6,8,
+2026-08-23-24-sotoon-hs3,2026-08-23,Hamravesh,PUT,latency_p99,2058.9,ms,median_of_three_runs,512KiB,4,object-storage-benchmark-v6,8,
+2026-08-23-24-sotoon-hs3,2026-08-23,Sotoon,GET,throughput,17.05,MiB/s,median_of_three_runs,512KiB,4,object-storage-benchmark-v6,8,
+2026-08-23-24-sotoon-hs3,2026-08-23,Hamravesh,GET,throughput,19.64,MiB/s,median_of_three_runs,512KiB,4,object-storage-benchmark-v6,8,
+2026-08-23-24-sotoon-hs3,2026-08-23,Sotoon,GET,latency_p50,94.8,ms,median_of_three_runs,512KiB,4,object-storage-benchmark-v6,8,
+2026-08-23-24-sotoon-hs3,2026-08-23,Hamravesh,GET,latency_p50,89.1,ms,median_of_three_runs,512KiB,4,object-storage-benchmark-v6,8,
+2026-08-23-24-sotoon-hs3,2026-08-23,Sotoon,GET,latency_p99,540.8,ms,median_of_three_runs,512KiB,4,object-storage-benchmark-v6,8,
+2026-08-23-24-sotoon-hs3,2026-08-23,Hamravesh,GET,latency_p99,344.2,ms,median_of_three_runs,512KiB,4,object-storage-benchmark-v6,8,
+2026-08-23-24-sotoon-hs3,2026-08-23,Sotoon,GET,ttfb_p50,54,ms,median_of_three_runs,512KiB,4,object-storage-benchmark-v6,8,
+2026-08-23-24-sotoon-hs3,2026-08-23,Hamravesh,GET,ttfb_p50,14,ms,median_of_three_runs,512KiB,4,object-storage-benchmark-v6,8,
+2026-08-23-24-sotoon-hs3,2026-08-23,Sotoon,MIXED,throughput,8.78,MiB/s,median_of_three_runs,512KiB,4,object-storage-benchmark-v6,8,
+2026-08-23-24-sotoon-hs3,2026-08-23,Hamravesh,MIXED,throughput,11.05,MiB/s,median_of_three_runs,512KiB,4,object-storage-benchmark-v6,8,
+2026-08-23-24-sotoon-hs3,2026-08-23,Sotoon,MIXED,get_ttfb_p50,73,ms,median_of_three_runs,512KiB,4,object-storage-benchmark-v6,8,
+2026-08-23-24-sotoon-hs3,2026-08-23,Hamravesh,MIXED,get_ttfb_p50,14,ms,median_of_three_runs,512KiB,4,object-storage-benchmark-v6,8,
+2026-08-23-24-sotoon-hs3,2026-08-24,Sotoon,LIST,operation_rate,12923,obj/s,single_run,10KiB,4,object-storage-benchmark-v6,9,
+2026-08-23-24-sotoon-hs3,2026-08-24,Hamravesh,LIST,operation_rate,21637,obj/s,single_run,10KiB,4,object-storage-benchmark-v6,9,
+2026-08-23-24-sotoon-hs3,2026-08-24,Sotoon,STAT,operation_rate,633.98,obj/s,median_of_three_runs,10KiB,4,object-storage-benchmark-v6,9,
+2026-08-23-24-sotoon-hs3,2026-08-24,Hamravesh,STAT,operation_rate,420.47,obj/s,median_of_three_runs,10KiB,4,object-storage-benchmark-v6,9,
+2026-08-23-24-sotoon-hs3,2026-08-24,Sotoon,DELETE,operation_rate,64.96,obj/s,single_run,10KiB,4,object-storage-benchmark-v6,9,
+2026-08-23-24-sotoon-hs3,2026-08-24,Hamravesh,DELETE,operation_rate,338.51,obj/s,single_run,10KiB,4,object-storage-benchmark-v6,9,
+2026-08-23-24-sotoon-hs3,2026-08-23,Sotoon,PUT,throughput_run_min,4.32,MiB/s,range_of_three_runs,512KiB,4,object-storage-benchmark-v6,8,
+2026-08-23-24-sotoon-hs3,2026-08-23,Sotoon,PUT,throughput_run_max,7.72,MiB/s,range_of_three_runs,512KiB,4,object-storage-benchmark-v6,8,
+2026-08-23-24-sotoon-hs3,2026-08-23,Hamravesh,PUT,throughput_run_min,3.47,MiB/s,range_of_three_runs,512KiB,4,object-storage-benchmark-v6,8,
+2026-08-23-24-sotoon-hs3,2026-08-23,Hamravesh,PUT,throughput_run_max,5.16,MiB/s,range_of_three_runs,512KiB,4,object-storage-benchmark-v6,8,
+2026-08-23-24-sotoon-hs3,2026-08-23,Sotoon,GET,throughput_run_min,14.69,MiB/s,range_of_three_runs,512KiB,4,object-storage-benchmark-v6,8,
+2026-08-23-24-sotoon-hs3,2026-08-23,Sotoon,GET,throughput_run_max,18.48,MiB/s,range_of_three_runs,512KiB,4,object-storage-benchmark-v6,8,
+2026-08-23-24-sotoon-hs3,2026-08-23,Hamravesh,GET,throughput_run_min,18.69,MiB/s,range_of_three_runs,512KiB,4,object-storage-benchmark-v6,8,
+2026-08-23-24-sotoon-hs3,2026-08-23,Hamravesh,GET,throughput_run_max,19.64,MiB/s,range_of_three_runs,512KiB,4,object-storage-benchmark-v6,8,
+2026-08-23-24-sotoon-hs3,2026-08-23,Sotoon,MIXED,throughput_run_min,5.09,MiB/s,range_of_three_runs,512KiB,4,object-storage-benchmark-v6,8,
+2026-08-23-24-sotoon-hs3,2026-08-23,Sotoon,MIXED,throughput_run_max,10.9,MiB/s,range_of_three_runs,512KiB,4,object-storage-benchmark-v6,8,
+2026-08-23-24-sotoon-hs3,2026-08-23,Hamravesh,MIXED,throughput_run_min,10.59,MiB/s,range_of_three_runs,512KiB,4,object-storage-benchmark-v6,8,
+2026-08-23-24-sotoon-hs3,2026-08-23,Hamravesh,MIXED,throughput_run_max,11.33,MiB/s,range_of_three_runs,512KiB,4,object-storage-benchmark-v6,8,
+2026-08-23-24-sotoon-hs3,2026-08-24,Sotoon,STAT,operation_rate_run_min,624,obj/s,range_of_three_runs,10KiB,4,object-storage-benchmark-v6,9,
+2026-08-23-24-sotoon-hs3,2026-08-24,Sotoon,STAT,operation_rate_run_max,639,obj/s,range_of_three_runs,10KiB,4,object-storage-benchmark-v6,9,
+2026-08-23-24-sotoon-hs3,2026-08-24,Hamravesh,STAT,operation_rate_run_min,382,obj/s,range_of_three_runs,10KiB,4,object-storage-benchmark-v6,9,
+2026-08-23-24-sotoon-hs3,2026-08-24,Hamravesh,STAT,operation_rate_run_max,445,obj/s,range_of_three_runs,10KiB,4,object-storage-benchmark-v6,9,
+2026-08-23-24-sotoon-hs3,2026-08-23,Sotoon,MIXED,get_ttfb_first_trial,4592,ms,single_outlier_trial,,4,object-storage-benchmark-v6,9,"Other two repeats: 61,73 ms; report median 73"
+2026-08-23-24-sotoon-hs3,2026-08-23,Sotoon,MIXED,get_ttfb_other_repeat,61,ms,individual_run,,4,object-storage-benchmark-v6,9,Repeated after first outlier
+2026-08-23-24-sotoon-hs3,2026-08-23,Sotoon,MIXED,get_ttfb_other_repeat,73,ms,individual_run,,4,object-storage-benchmark-v6,9,Repeated after first outlier
+2026-08-24-put-size-sweep,2026-08-24,Sotoon,PUT,throughput,2.74,MiB/s,single_run,64KiB,4,object-storage-benchmark-v6,11,
+2026-08-24-put-size-sweep,2026-08-24,Hamravesh,PUT,throughput,0.47,MiB/s,single_run,64KiB,4,object-storage-benchmark-v6,11,
+2026-08-24-put-size-sweep,2026-08-24,Sotoon,PUT,latency_p50,73.5,ms,single_run,64KiB,4,object-storage-benchmark-v6,11,
+2026-08-24-put-size-sweep,2026-08-24,Hamravesh,PUT,latency_p50,321.6,ms,single_run,64KiB,4,object-storage-benchmark-v6,11,
+2026-08-24-put-size-sweep,2026-08-24,Sotoon,PUT,latency_p50,124.5,ms,single_run,512KiB,4,object-storage-benchmark-v6,11,
+2026-08-24-put-size-sweep,2026-08-24,Hamravesh,PUT,latency_p50,349.8,ms,single_run,512KiB,4,object-storage-benchmark-v6,11,
+2026-08-24-put-size-sweep,2026-08-24,Sotoon,PUT,latency_p50,908.2,ms,single_run,4MiB,4,object-storage-benchmark-v6,11,
+2026-08-24-put-size-sweep,2026-08-24,Hamravesh,PUT,latency_p50,1173.4,ms,single_run,4MiB,4,object-storage-benchmark-v6,11,
+2026-09-27-trio,2026-09-27,Hamravesh,PUT,throughput,6.99,MiB/s,median_of_three_runs,512KiB,4,object-storage-benchmark-v6,12,
+2026-09-27-trio,2026-09-27,Sotoon,PUT,throughput,13.12,MiB/s,median_of_three_runs,512KiB,4,object-storage-benchmark-v6,12,
+2026-09-27-trio,2026-09-27,Kubit,PUT,throughput,6.17,MiB/s,median_of_three_runs,512KiB,4,object-storage-benchmark-v6,12,
+2026-09-27-trio,2026-09-27,Hamravesh,PUT,latency_p50,207,ms,median_of_three_runs,512KiB,4,object-storage-benchmark-v6,12,
+2026-09-27-trio,2026-09-27,Sotoon,PUT,latency_p50,127,ms,median_of_three_runs,512KiB,4,object-storage-benchmark-v6,12,
+2026-09-27-trio,2026-09-27,Kubit,PUT,latency_p50,95,ms,median_of_three_runs,512KiB,4,object-storage-benchmark-v6,12,
+2026-09-27-trio,2026-09-27,Hamravesh,PUT,latency_p99,1157,ms,median_of_three_runs,512KiB,4,object-storage-benchmark-v6,12,
+2026-09-27-trio,2026-09-27,Sotoon,PUT,latency_p99,561,ms,median_of_three_runs,512KiB,4,object-storage-benchmark-v6,12,
+2026-09-27-trio,2026-09-27,Kubit,PUT,latency_p99,2957,ms,median_of_three_runs,512KiB,4,object-storage-benchmark-v6,12,
+2026-09-27-trio,2026-09-27,Hamravesh,GET,throughput,19.65,MiB/s,median_of_three_runs,512KiB,4,object-storage-benchmark-v6,13,GET throughput reaches client-side ~19.6 MiB/s ceiling for Hamravesh/Sotoon
+2026-09-27-trio,2026-09-27,Sotoon,GET,throughput,19.61,MiB/s,median_of_three_runs,512KiB,4,object-storage-benchmark-v6,13,GET throughput reaches client-side ~19.6 MiB/s ceiling for Hamravesh/Sotoon
+2026-09-27-trio,2026-09-27,Kubit,GET,throughput,12.78,MiB/s,median_of_three_runs,512KiB,4,object-storage-benchmark-v6,13,GET throughput reaches client-side ~19.6 MiB/s ceiling for Hamravesh/Sotoon
+2026-09-27-trio,2026-09-27,Hamravesh,GET,latency_p50,77,ms,median_of_three_runs,512KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Sotoon,GET,latency_p50,81,ms,median_of_three_runs,512KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Kubit,GET,latency_p50,54,ms,median_of_three_runs,512KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Hamravesh,GET,latency_p99,614,ms,median_of_three_runs,512KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Sotoon,GET,latency_p99,609,ms,median_of_three_runs,512KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Kubit,GET,latency_p99,2426,ms,median_of_three_runs,512KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Hamravesh,GET,ttfb_p50,11,ms,median_of_three_runs,512KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Sotoon,GET,ttfb_p50,17,ms,median_of_three_runs,512KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Kubit,GET,ttfb_p50,20,ms,median_of_three_runs,512KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Hamravesh,MIXED,throughput,16.34,MiB/s,median_of_three_runs,512KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Sotoon,MIXED,throughput,19.58,MiB/s,median_of_three_runs,512KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Kubit,MIXED,throughput,5.99,MiB/s,median_of_three_runs,512KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Hamravesh,LIST,operation_rate,24461,obj/s,median_of_three_runs,10KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Sotoon,LIST,operation_rate,9690,obj/s,median_of_three_runs,10KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Kubit,LIST,operation_rate,423,obj/s,median_of_three_runs,10KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Hamravesh,LIST,latency_p50,79,ms,median_of_three_runs,10KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Sotoon,LIST,latency_p50,127,ms,median_of_three_runs,10KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Kubit,LIST,latency_p50,5025,ms,median_of_three_runs,10KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Hamravesh,STAT,operation_rate,494,obj/s,median_of_three_runs,10KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Sotoon,STAT,operation_rate,836,obj/s,median_of_three_runs,10KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Kubit,STAT,operation_rate,726,obj/s,median_of_three_runs,10KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Hamravesh,STAT,latency_p50,7.1,ms,median_of_three_runs,10KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Sotoon,STAT,latency_p50,4.0,ms,median_of_three_runs,10KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Kubit,STAT,latency_p50,5.2,ms,median_of_three_runs,10KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Hamravesh,DELETE,operation_rate,358.8,obj/s,single_run,10KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Sotoon,DELETE,operation_rate,59.2,obj/s,single_run,10KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Kubit,DELETE,operation_rate,138.3,obj/s,single_run,10KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Hamravesh,DELETE,latency_p99,110,ms,single_run,10KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Sotoon,DELETE,latency_p99,1896,ms,single_run,10KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Kubit,DELETE,latency_p99,472,ms,single_run,10KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Hamravesh,PUT,throughput_run_min,6.4,MiB/s,range_of_three_runs,512KiB,4,object-storage-benchmark-v6,12,
+2026-09-27-trio,2026-09-27,Hamravesh,PUT,throughput_run_max,7.87,MiB/s,range_of_three_runs,512KiB,4,object-storage-benchmark-v6,12,
+2026-09-27-trio,2026-09-27,Sotoon,PUT,throughput_run_min,12.49,MiB/s,range_of_three_runs,512KiB,4,object-storage-benchmark-v6,12,
+2026-09-27-trio,2026-09-27,Sotoon,PUT,throughput_run_max,13.71,MiB/s,range_of_three_runs,512KiB,4,object-storage-benchmark-v6,12,
+2026-09-27-trio,2026-09-27,Kubit,PUT,throughput_run_min,5.93,MiB/s,range_of_three_runs,512KiB,4,object-storage-benchmark-v6,12,
+2026-09-27-trio,2026-09-27,Kubit,PUT,throughput_run_max,10.04,MiB/s,range_of_three_runs,512KiB,4,object-storage-benchmark-v6,12,
+2026-09-27-trio,2026-09-27,Hamravesh,GET,throughput_run_min,19.63,MiB/s,range_of_three_runs,512KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Hamravesh,GET,throughput_run_max,19.71,MiB/s,range_of_three_runs,512KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Sotoon,GET,throughput_run_min,13.33,MiB/s,range_of_three_runs,512KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Sotoon,GET,throughput_run_max,19.69,MiB/s,range_of_three_runs,512KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Kubit,GET,throughput_run_min,12.61,MiB/s,range_of_three_runs,512KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Kubit,GET,throughput_run_max,12.99,MiB/s,range_of_three_runs,512KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Hamravesh,MIXED,throughput_run_min,15.65,MiB/s,range_of_three_runs,512KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Hamravesh,MIXED,throughput_run_max,16.87,MiB/s,range_of_three_runs,512KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Sotoon,MIXED,throughput_run_min,19.05,MiB/s,range_of_three_runs,512KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Sotoon,MIXED,throughput_run_max,20.29,MiB/s,range_of_three_runs,512KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Kubit,MIXED,throughput_run_min,5.83,MiB/s,range_of_three_runs,512KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Kubit,MIXED,throughput_run_max,15.84,MiB/s,range_of_three_runs,512KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Hamravesh,LIST,operation_rate_run_min,20959,obj/s,range_of_three_runs,10KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Hamravesh,LIST,operation_rate_run_max,29596,obj/s,range_of_three_runs,10KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Sotoon,LIST,operation_rate_run_min,7301,obj/s,range_of_three_runs,10KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Sotoon,LIST,operation_rate_run_max,11263,obj/s,range_of_three_runs,10KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Kubit,LIST,operation_rate_run_min,295,obj/s,range_of_three_runs,10KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Kubit,LIST,operation_rate_run_max,469,obj/s,range_of_three_runs,10KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Hamravesh,STAT,operation_rate_run_min,487,obj/s,range_of_three_runs,10KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Hamravesh,STAT,operation_rate_run_max,544,obj/s,range_of_three_runs,10KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Sotoon,STAT,operation_rate_run_min,670,obj/s,range_of_three_runs,10KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Sotoon,STAT,operation_rate_run_max,860,obj/s,range_of_three_runs,10KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Kubit,STAT,operation_rate_run_min,714,obj/s,range_of_three_runs,10KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-trio,2026-09-27,Kubit,STAT,operation_rate_run_max,736,obj/s,range_of_three_runs,10KiB,4,object-storage-benchmark-v6,13,
+2026-09-27-put-size-sweep,2026-09-27,Hamravesh,PUT,throughput,1.12,MiB/s,single_run,64KiB,4,object-storage-benchmark-v6,14,
+2026-09-27-put-size-sweep,2026-09-27,Sotoon,PUT,throughput,2.05,MiB/s,single_run,64KiB,4,object-storage-benchmark-v6,14,
+2026-09-27-put-size-sweep,2026-09-27,Kubit,PUT,throughput,0.84,MiB/s,single_run,64KiB,4,object-storage-benchmark-v6,14,
+2026-09-27-put-size-sweep,2026-09-27,Hamravesh,PUT,latency_p50,163,ms,single_run,64KiB,4,object-storage-benchmark-v6,14,
+2026-09-27-put-size-sweep,2026-09-27,Sotoon,PUT,latency_p50,104,ms,single_run,64KiB,4,object-storage-benchmark-v6,14,
+2026-09-27-put-size-sweep,2026-09-27,Kubit,PUT,latency_p50,88,ms,single_run,64KiB,4,object-storage-benchmark-v6,14,
+2026-09-27-put-size-sweep,2026-09-27,Hamravesh,PUT,throughput,17.36,MiB/s,single_run,4MiB,4,object-storage-benchmark-v6,14,
+2026-09-27-put-size-sweep,2026-09-27,Sotoon,PUT,throughput,19.46,MiB/s,single_run,4MiB,4,object-storage-benchmark-v6,14,
+2026-09-27-put-size-sweep,2026-09-27,Kubit,PUT,throughput,11.17,MiB/s,single_run,4MiB,4,object-storage-benchmark-v6,14,
+2026-09-27-put-size-sweep,2026-09-27,Hamravesh,PUT,latency_p50,861,ms,single_run,4MiB,4,object-storage-benchmark-v6,14,
+2026-09-27-put-size-sweep,2026-09-27,Sotoon,PUT,latency_p50,827,ms,single_run,4MiB,4,object-storage-benchmark-v6,14,
+2026-09-27-put-size-sweep,2026-09-27,Kubit,PUT,latency_p50,1289,ms,single_run,4MiB,4,object-storage-benchmark-v6,14,
+2026-09-27-diagnostics,2026-09-27,Kubit,DIAGNOSTIC,put_latency_p99_64kib,3371,ms,diagnostic,,4,object-storage-benchmark-v6,14,64KiB PUT severe tail; isolated value in report narrative
+2026-09-27-diagnostics,2026-09-27,Kubit,DIAGNOSTIC,list_empty_bucket_latency_p50_low,2100,ms,diagnostic,,4,object-storage-benchmark-v6,14,2.1–2.6 s on empty bucket; not standard main benchmark
+2026-09-27-diagnostics,2026-09-27,Kubit,DIAGNOSTIC,list_empty_bucket_latency_p50_high,2600,ms,diagnostic,,4,object-storage-benchmark-v6,14,2.1–2.6 s on empty bucket; not standard main benchmark

@@ -1,0 +1,179 @@
+{
+  "format_version": "1.0",
+  "source_id": "object-storage-benchmark-v6",
+  "kind": "benchmark_report",
+  "title": "Object Storage performance benchmark, four Iranian providers",
+  "publisher": "Hamravesh (proposal document)",
+  "report_version": "6",
+  "report_month_jalali": "1405-07",
+  "reported_tool": "MinIO Warp",
+  "summary": "Consolidated observations for four providers; NOT a single simultaneously controlled experiment.",
+  "original_document": {
+    "file": "proposal-object-storage-fa (4).pdf",
+    "local_path": "_originals/proposal-object-storage-fa (4).pdf",
+    "committed": false,
+    "sha256": "9552f0098bb949975a79baa8d51b9abf10b7eefa616cd0fb635ee84fec340c6f",
+    "pages": 18,
+    "text_layer": "present but RTL-jumbled in plain extraction; tables were read layout-aware"
+  },
+  "datasets": {
+    "benchmark/observations.csv": {
+      "sha256": "47ad98eabb94590f18e0943315136bc05563eb13d15f6d8fe86e016d3f5fad25",
+      "shape": "long format; one row per run_id, provider, workload, metric, object_size, aggregation",
+      "rows": 214,
+      "source_pages": [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+    },
+    "benchmark/capabilities.csv": {
+      "sha256": "d73e1d5a90694966ae33255dc81b1a6d6403300de5263ed7eb3124e172b7e8f8",
+      "shape": "one row per provider and S3 API capability",
+      "rows": 44,
+      "source_pages": [15, 16]
+    },
+    "derived/four_provider_overview.csv": {
+      "sha256": "55a140d15fb616cc7ee11bdcb87d81afb811cc90af9a7dea8e537aa3bc41fe44",
+      "derived_from": "benchmark/observations.csv",
+      "warning": "Wide display table for manual checking and dashboard preview. Not a controlled four-way experiment; regenerate rather than edit by hand."
+    }
+  },
+  "provider_aliases": {
+    "Hamravesh": "Hamravesh HS3 / SeaweedFS",
+    "Arvan": "Arvan ir-thr-at1 / Ceph RGW",
+    "Sotoon": "Sotoon archive.thr1.sotoon.ir / Ceph RGW",
+    "Kubit": "Kubit s3.afra.kubit.cloud / Ceph RGW"
+  },
+  "metric_definitions": {
+    "throughput": "MiB/s",
+    "operation_rate": "obj/s",
+    "latency_p50": "ms",
+    "latency_p90": "ms",
+    "latency_p99": "ms",
+    "ttfb_p50": "ms",
+    "latency_min": "ms",
+    "latency_max": "ms",
+    "requests_total": "requests",
+    "errors_total": "errors",
+    "duration_total": "seconds"
+  },
+  "conditions_by_run": {
+    "2026-07-23-hs3-direct-v-proxy": {
+      "date": "2026-07-23",
+      "participants": ["Hamravesh direct", "Hamravesh international proxy"],
+      "workloads": ["PUT"],
+      "object_size": "512KiB",
+      "concurrency": 4,
+      "duration": "10s",
+      "source_pages": [3, 4],
+      "comparability": "network-path-only; exclude from cross-provider comparisons",
+      "notes": "Direct 18.23 vs proxied 6.83 MiB/s. Both originated from a domestic client, not a genuine external host."
+    },
+    "2026-08-12-put-arvan-hs3": {
+      "date": "2026-08-12",
+      "participants": ["Hamravesh", "Arvan"],
+      "workloads": ["PUT"],
+      "object_size": "512KiB",
+      "concurrency": 4,
+      "nominal_duration": "10s",
+      "actual_duration": "7s (reported correction)",
+      "network": "single Iranian client, direct no proxy, paired sequential runs",
+      "repetitions": 3,
+      "source_pages": [4, 5, 10],
+      "comparability": "within-run only; do not compare same model/provider results across dates without conditioning"
+    },
+    "2026-08-13-arvan-hs3": {
+      "date": "2026-08-13",
+      "participants": ["Hamravesh", "Arvan"],
+      "workloads": ["GET", "MIXED", "LIST", "STAT", "DELETE"],
+      "concurrency": 4,
+      "GET_MIXED": {"object_size": "512KiB", "duration": "30s", "object_count": 1000},
+      "LIST_STAT": {"object_size": "10KiB", "duration": "30s", "object_count": 2000},
+      "DELETE": {"object_size": "10KiB", "object_count": 10000, "batch_size": 10},
+      "network": "single Iranian client, direct no proxy, interleaved paired tests",
+      "repetitions": 1,
+      "source_pages": [6, 7],
+      "warnings": [
+        "LIST Arvan 23 SlowDown errors: do not rank as normal throughput",
+        "Reported text percentiles from Warp may be biased; section 9.5 retrospectively corrected some from raw traces"
+      ]
+    },
+    "2026-08-23-24-sotoon-hs3": {
+      "dates": ["2026-08-23", "2026-08-24"],
+      "participants": ["Hamravesh", "Sotoon"],
+      "workloads": ["PUT", "GET", "MIXED", "LIST", "STAT", "DELETE"],
+      "concurrency": 4,
+      "PUT_GET_MIXED": {"object_size": "512KiB", "duration": "30s", "working_set_objects": 500, "test_date": "2026-08-23"},
+      "LIST_STAT": {"object_size": "10KiB", "duration": "30s", "object_count": 2000, "test_date": "2026-08-24"},
+      "DELETE": {"object_size": "10KiB", "object_count": 5000, "batch_size": 5, "test_date": "2026-08-24"},
+      "network": "single Iranian client, direct no proxy, interleaved; slot s2130",
+      "repetitions": {"PUT_GET_MIXED_STAT": 3, "LIST_DELETE": 1},
+      "source_pages": [8, 9, 10],
+      "warnings": [
+        "Sotoon archive endpoint / main-cold bucket; cannot claim same tier as standard storage in other providers",
+        "Three-run ranges reported where available",
+        "Sotoon MIXED first trial TTFB anomalous at 4592 ms"
+      ]
+    },
+    "2026-08-24-put-size-sweep": {
+      "date": "2026-08-24",
+      "participants": ["Hamravesh", "Sotoon"],
+      "workloads": ["PUT"],
+      "sizes": ["64KiB", "512KiB", "4MiB"],
+      "concurrency": "not independently stated for this diagnostic; inherited session settings likely 4",
+      "repetitions": "diagnostic single measurements",
+      "source_pages": [11],
+      "comparability": "within size and same session only"
+    },
+    "2026-09-27-trio": {
+      "date": "2026-09-27",
+      "participants": ["Hamravesh", "Sotoon", "Kubit"],
+      "workloads": ["PUT", "GET", "MIXED", "LIST", "STAT", "DELETE"],
+      "concurrency": 4,
+      "PUT_GET_MIXED": {"object_size": "512KiB", "duration": "30s", "working_set_objects": 500},
+      "LIST_STAT": {"object_size": "10KiB", "duration": "30s", "object_count": 2000},
+      "DELETE": {"object_size": "10KiB", "object_count": 5000, "batch_size": 5},
+      "network": "same direct Iranian client, sequentially interleaved, no proxy; morning ~06:55-08:29 Tehran",
+      "repetitions": {"PUT_GET_MIXED_LIST_STAT": 3, "DELETE": 1},
+      "source_pages": [12, 13, 14],
+      "warnings": [
+        "Slot labeled s0430, but actual 06:55-08:29 Tehran; call it early morning, not 04:30",
+        "GET ~19.6 MiB/s near CLIENT-side bandwidth ceiling for Hamravesh and Sotoon",
+        "Different data and date from August pair; DO NOT merge into one same-run ranking"
+      ]
+    },
+    "2026-09-27-put-size-sweep": {
+      "date": "2026-09-27",
+      "participants": ["Hamravesh", "Sotoon", "Kubit"],
+      "workloads": ["PUT"],
+      "sizes": ["64KiB", "4MiB"],
+      "concurrency": 4,
+      "repetitions": 1,
+      "source_pages": [14],
+      "warnings": ["512KiB measurements are in 2026-09-27-trio with three-run medians; other sizes single-run"]
+    },
+    "2026-09-27-diagnostics": {
+      "date": "2026-09-27",
+      "participants": ["Kubit"],
+      "workloads": ["LIST", "PUT"],
+      "type": "investigative spot checks not equivalent to Warp scenario",
+      "source_pages": [13, 14]
+    }
+  },
+  "critical_interpretation_rules": [
+    "Comparison across all four providers is a unified DISPLAY TABLE, not a unified controlled experiment. Arvan observations are from August 12/13, Sotoon-Kubit from September 27; different conditions and infrastructure states. Filter by run_id for valid within-session rankings.",
+    "Use original source pages and status notes. Do not calculate global overall provider winners from these rows.",
+    "Beware size, concurrency, duration, object counts, request batching, endpoint/tier, topology, network path, and time of day.",
+    "Latency percentiles printed by Warp text summaries were found to be biased unless --full/raw traces reaggregated. Report section 9.5 says section 5-8 earlier figures remain original, and Arvan LIST p50 is significantly corrected (~575 instead of 3243 ms); do not treat metrics as perfectly uniform.",
+    "Sotoon test used archive-labelled endpoint and purported cold bucket, apparently behaved as standard S3 interface; comparability of storage tier unconfirmed.",
+    "Arvan had an account access restriction for later live retesting; Arvan compatibility matrix is incomplete.",
+    "Some report statements are hypotheses about backend implementation (Ceph/SeaweedFS), not independently verified provider disclosures.",
+    "Benchmark report contains numeric observations, narrative diagnostic points, and suggested tests; this dataset covers tabulated comparison measurements and selected explicit diagnostics, not every numerical observation in prose.",
+    "When provider is 'Hamravesh HS3 (direct)' or 'Hamravesh HS3 (via proxy)', these are the same provider from a network-only experiment and must not count as extra providers."
+  ],
+  "open_review_items": [
+    "The metric vocabulary mixes base metrics with run-level aggregates and one-off diagnostics: 28 labels, of which 67 rows use names such as throughput_run_min, list_empty_bucket_latency_p50_low or put_latency_p99_64kib. Normalize to a controlled vocabulary before ingestion.",
+    "Six rows have an empty object_size, and aggregation has nine distinct values; both need a defined schema before they can be observation identity keys.",
+    "Capability statuses for Arvan are mostly not_tested or blocked_by_account. Render them as unknown, never as unsupported.",
+    "derived/four_provider_overview.csv must be regenerated from observations.csv; a consistency test should guard against drift."
+  ],
+  "ingestion_guidance": "Validate (run_id,provider,workload,metric,object_size,aggregation) as an observation identity, but repeated one-off diagnostics may require an observation_sequence key; preserve source_pdf_page. Store methodology JSON by run ID; show warnings on panel.",
+  "manual_review_status": "draft_for_user_verification"
+}

@@ -62,6 +62,20 @@ Neither roadmap stage justifies extra infrastructure or autonomous production ed
   pages and source status. The product catalogue and routes are defined in
   `config/products.yaml`; enabling a product requires a real route.
 
+## Offline datasets
+
+- Data that cannot be collected live — price-list PDFs and vendor benchmark
+  reports — is transcribed into `datasets/offline/<source_id>/`, one folder per
+  source document. Each package has a `manifest.json` (document, version,
+  validity, per-file SHA-256, caveats, review status) and a `README.md`.
+- The source documents themselves stay in `datasets/offline/_originals/`, which
+  is gitignored because they may be confidential; only the transcription and its
+  checksums are committed.
+- Offline observations are not live observations. They keep `source_id` and
+  `source_pdf_page` on every row, render with their document, version and
+  validity date, and must never appear as freshly verified prices. Ingestion and
+  dashboard rendering of these packages are not implemented yet.
+
 ## Reliability and operating constraints
 
 - Record every collection attempt and preserve source evidence. Staged/failed

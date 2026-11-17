@@ -1,0 +1,25 @@
+﻿provider,component,metric,region,price_irr,unit,band_lower,band_upper,source_id,source_pdf_page,notes
+Sotoon,traffic,first_10_TB,Iran,11000,GB,0,10240,sotoon-price-1405-v3,8,"Volume band, incremental tier; verify if tariff accumulates or applies as total"
+Sotoon,traffic,first_10_TB,outside_Iran,42000,GB,0,10240,sotoon-price-1405-v3,8,"Volume band, incremental tier; verify if tariff accumulates or applies as total"
+Sotoon,traffic,next_90_TB,Iran,8200,GB,10240,102400,sotoon-price-1405-v3,8,"Volume band, incremental tier; verify if tariff accumulates or applies as total"
+Sotoon,traffic,next_90_TB,outside_Iran,33000,GB,10240,102400,sotoon-price-1405-v3,8,"Volume band, incremental tier; verify if tariff accumulates or applies as total"
+Sotoon,traffic,next_400_TB,Iran,6000,GB,102400,512000,sotoon-price-1405-v3,8,"Volume band, incremental tier; verify if tariff accumulates or applies as total"
+Sotoon,traffic,next_400_TB,outside_Iran,22000,GB,102400,512000,sotoon-price-1405-v3,8,"Volume band, incremental tier; verify if tariff accumulates or applies as total"
+Sotoon,traffic,next_500_TB,Iran,4000,GB,512000,1024000,sotoon-price-1405-v3,8,"Volume band, incremental tier; verify if tariff accumulates or applies as total"
+Sotoon,traffic,next_500_TB,outside_Iran,12000,GB,512000,1024000,sotoon-price-1405-v3,8,"Volume band, incremental tier; verify if tariff accumulates or applies as total"
+Sotoon,traffic,above_1_PB,Iran,3000,GB,1024000,,sotoon-price-1405-v3,8,"Volume band, incremental tier; verify if tariff accumulates or applies as total"
+Sotoon,traffic,above_1_PB,outside_Iran,5200,GB,1024000,,sotoon-price-1405-v3,8,"Volume band, incremental tier; verify if tariff accumulates or applies as total"
+Sotoon,requests,http_requests,Iran,480,10000_requests,,,sotoon-price-1405-v3,8,
+Sotoon,requests,http_requests,outside_Iran,960,10000_requests,,,sotoon-price-1405-v3,8,
+Sotoon,image_processing,image_size_under_2MP,all,200,100_requests,,,sotoon-price-1405-v3,8,
+Sotoon,image_processing,image_size_2_to_8MP,all,400,100_requests,,,sotoon-price-1405-v3,8,
+Sotoon,image_processing,image_size_above_8MP,all,800,100_requests,,,sotoon-price-1405-v3,8,
+Sotoon,log,under_10_billion_logs,all,9600,10000_logs,0,10000000000,sotoon-price-1405-v3,8,
+Sotoon,log,10_to_50_billion_logs,all,4800,10000_logs,10000000000,50000000000,sotoon-price-1405-v3,8,
+Sotoon,log,over_50_billion_logs,all,2400,10000_logs,50000000000,,sotoon-price-1405-v3,8,
+Sotoon,ip,each_ip,all,250000000,IP/month,,,sotoon-price-1405-v3,8,
+Sotoon,tls,certificate_per_domain,all,2000000,domain/month,,,sotoon-price-1405-v3,8,
+Sotoon,dns,dns_cloud_service,all,2000,10000_requests,,,sotoon-price-1405-v3,8,
+Sotoon,video,transcoding,all,40000,hour,,,sotoon-price-1405-v3,8,
+Sotoon,smart_routing,traffic,all,45000,GB,,,sotoon-price-1405-v3,8,
+Sotoon,smart_routing,requests,all,1000,1000_requests,,,sotoon-price-1405-v3,8,
