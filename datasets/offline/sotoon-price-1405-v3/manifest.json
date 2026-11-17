@@ -8,6 +8,7 @@
   "currency": "IRR",
   "price_unit_warning": "PDF values are in rials. DO NOT treat as tomans. Convert toman = IRR / 10.",
   "document_cover_valid_until": "end of Esfand 1405 (Jalali)",
+  "valid_until": "2027-03-20",
   "cover_note": "Despite filename Spring 1405, cover states valid until end of Esfand 1405. Confirm superseding documents independently.",
   "original_document": {
     "file": "Cloud Price List - Spring 1405-V3.pdf",

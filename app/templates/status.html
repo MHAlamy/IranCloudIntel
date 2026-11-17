@@ -14,7 +14,8 @@
     <span class="badge badge-{{ 'published' if source.enabled else 'missing' }}">
       {{ 'فعال' if source.enabled else 'غیرفعال' }}
     </span>
-    <span class="badge badge-calculated">{{ source.rates_stored|pnum }} نرخ ذخیره‌شده</span>
+    {% if source.collection_method == 'manual' %}<span class="badge badge-manual">منبع دستی</span>{% endif %}
+    {% if source.rates_stored %}<span class="badge badge-calculated">{{ source.rates_stored|pnum }} نرخ ذخیره‌شده</span>{% endif %}
   </div>
   <table class="price-table">
     <thead>

@@ -24,6 +24,23 @@ read from the rendered pages, not OCR.
 All files are UTF-8 with BOM (so Excel opens the Persian labels), one header row,
 and a `source_pdf_page` column on every row.
 
+## How the dashboard uses it
+
+`collectors/sotoon_offline.py` imports the VM file only (owner decisions
+2026-11-17):
+
+- **Neda** datacenter is the comparison region.
+- Dedicated compute compares as **Premium**, shared compute as **Standard**.
+- Only the 1 vCPU + 2 GB bundle is used, because that is the only shape the
+  price list publishes. Larger references are `unit price × vCPU`
+  (4/8 = 4 × unit, 16/32 = 16 ×, 32/64 = 32 ×).
+- Sotoon bills disk separately, so the reference disk is added at the
+  `mana_1_standard` rate. The result is labelled calculated, never published.
+- The run records this document and `valid_until` (2027-03-20, the end of
+  Esfand 1405). Re-importing unchanged data is skipped by content hash.
+
+The other four files are not imported yet.
+
 ## Read before using
 
 - **Compute is one vCPU.** C1, G1, M1 and E1 are all 1 vCPU bundles with

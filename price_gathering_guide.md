@@ -15,6 +15,10 @@ Source URLs/navigation: `config/providers.yaml`. Analyst decisions: YAML config.
 - PaaS/CNAP: Liara browser + silver plan cards, Hamravesh Darakub browser rate
   matrix, Arvan browser + deterministic PAYG rates. No LLM.
 - CDN is pending.
+- Manual (offline) documents: transcribed price lists are imported from
+  `datasets/offline/<source_id>/` under `collection_method: manual`. There is no
+  fetch and no LLM. The import records the source document and its validity, and
+  the dashboard marks those prices as manual; they never count as verified live.
 - Record source URL, navigation/configuration, timestamp, content hash and evidence.
   Keep regions, native tiers, units, inclusions, taxes and qualifiers where known.
 - LLM output is source-grounded JSON with evidence, not instructions or computed
@@ -42,6 +46,29 @@ Latest attempt and last successful verification are distinct from price observat
 or change time. Unchanged checks refresh verification; 48 hours without verification
 or a latest unsuccessful/running attempt produces stale status.
 
+## Manual (offline) sources
+
+An offline document is imported, not collected. The importer reads a versioned
+package (`manifest.json` + CSV), derives the configured reference plans, and
+publishes them through the same observation/run path as the network collectors
+(`collectors/offline_pipeline.py`). It is deterministic: no fetch, no LLM.
+
+- The run stores `source_document` and `valid_until`; every row keeps
+  `source_id` and `source_pdf_page` in its evidence.
+- Manual prices do not age like a live fetch. A manual source is stale only when
+  the document's validity date has passed, not after 48 hours.
+- Re-importing unchanged data is skipped by content/config hash. A new document
+  version is a new dataset package (new `source_id`), not an edit of the old one.
+- The dashboard shows a «دستی» badge next to the basis badge, plus the source
+  document and validity date in the row notes, the freshness panel and the plan
+  detail page.
+- Sotoon (owner decisions 2026-11-17): Neda datacenter; dedicated compute is
+  Premium and shared compute is Standard (`tiers.yaml`); larger configurations
+  are built from the 1 vCPU + 2 GB unit at `unit price × vCPU`, because the
+  price list publishes only 1-vCPU bundles. Disk is billed separately by Sotoon,
+  so the reference disk is added at the documented standard disk rate
+  (`mana_1_standard`). All of this is labelled calculated, never published.
+
 ## VM comparison
 
 - Three analyst tiers: Economy, Standard, Premium, not performance benchmarks.
@@ -56,6 +83,9 @@ or a latest unsuccessful/running attempt produces stale status.
 - ParsPack's daily x 30 x 0.95 + 150,000 IPv4 comes from owner-approved facts;
   it is an estimate. Arvan Economy's empirical 0.7 compute factor is provisional.
   Rate-based calculations and their assumptions must remain explicit.
+- Sotoon's VM rows are calculated from a manually imported price list: unit
+  price × vCPU plus the reference disk. They are compared at exact reference
+  resources, so they rank as calculated matches and carry the «دستی» badge.
 
 ## Object Storage
 
@@ -107,6 +137,9 @@ links; the rest are disabled with «به‌زودی») and a methodology summary
 notes that merely restate the reference resources are not shown; genuine
 coverage gaps (uncollected tier, foreign-only plans) remain. Mixed Persian/Latin
 labels use bidi isolation so `x vCPU + y GB` renders in the intended order.
+Manually imported prices are visually distinct from collected ones: a «دستی»
+badge plus the document and validity date, and the freshness panel reports the
+document's validity instead of a 48-hour collection window.
 
 CDN needs its own schema/scenarios for package fees, traffic geography, requests,
 quotas and overages. Agree scenarios before implementation; do not reuse VM tiers.

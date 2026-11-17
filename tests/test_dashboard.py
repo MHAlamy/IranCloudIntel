@@ -122,7 +122,7 @@ def test_parspack_rows_present_with_adjustment_note(client_tuple):
 def test_vm_provider_order_consistent_across_views(client_tuple):
     """Same canonical provider order on every (tier, size) view and the status page."""
     client, _ = client_tuple
-    expected = ["ArvanCloud", "Liara", "ParsPack", "Kubit"]
+    expected = ["ArvanCloud", "Liara", "ParsPack", "Kubit", "Sotoon"]
     orders = []
     for size in ("small", "medium", "large", "very_large"):
         text = client.get(f"/vm?tier=standard&size={size}").text
@@ -133,8 +133,10 @@ def test_vm_provider_order_consistent_across_views(client_tuple):
         assert all(pos >= 0 for pos in positions), f"missing provider on {size}"
         assert positions == sorted(positions), f"order broken on {size}"
 
+    # Sotoon has no source row in this seeded database (it is imported from an
+    # offline document), so the status page lists only the network providers.
     status = client.get("/status").text
-    positions = [status.find(name) for name in expected]
+    positions = [status.find(name) for name in expected[:-1]]
     assert positions == sorted(positions)
 
 

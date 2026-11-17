@@ -72,6 +72,7 @@
           </td>
           <td data-label="مبنا">
             <span class="badge badge-{{ row.basis }}">{{ basis_labels[row.basis] }}</span>
+            {% if row.provenance == 'manual' %}<span class="badge badge-manual">دستی</span>{% endif %}
           </td>
           <td data-label="آخرین بررسی">{{ row.observed_at|jalali_date }}</td>
         </tr>
@@ -93,6 +94,7 @@
     <span class="badge badge-published">منتشرشده</span> قیمت واقعی بسته‌ی منتشرشده ·
     <span class="badge badge-calculated">محاسبه‌شده</span> محاسبه از نرخ‌های اعلامی (فرضی) ·
     <span class="badge badge-approximate">تقریبی</span> بسته‌ی بزرگ‌تر از مرجع ·
+    <span class="badge badge-manual">دستی</span> قیمت واردشده از سند آفلاین، نه گردآوری خودکار ·
     <span class="badge badge-missing">در دسترس نیست</span> هنوز گردآوری نشده
   </section>
 

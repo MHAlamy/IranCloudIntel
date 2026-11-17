@@ -2,14 +2,21 @@
 {% block title %}جزئیات {{ offering.plan_name if offering else 'پلن' }}{% endblock %}
 {% block content %}
 {% if offering %}
+{% set latest = history[0] if history else none %}
 <section class="page-head">
   <h1>{{ offering.plan_name }} <small class="muted">({{ offering.provider_name }})</small></h1>
   <p class="muted">
     سطح: {{ offering.provider_tier_raw or '—' }} · منطقه: {{ offering.region or '—' }} ·
-    {{ offering.vcpu|pnum if offering.vcpu else '—' }} <span dir="ltr">vCPU</span> ·
-    {{ offering.ram_gb|pnum if offering.ram_gb else '—' }} گیگابایت رم ·
-    {{ offering.disk_gb|pnum if offering.disk_gb else '—' }} گیگابایت دیسک
+    {{ latest.vcpu|pnum if latest and latest.vcpu else '—' }} <span dir="ltr">vCPU</span> ·
+    {{ latest.ram_gb|pnum if latest and latest.ram_gb else '—' }} گیگابایت رم ·
+    {{ latest.disk_gb|pnum if latest and latest.disk_gb else '—' }} گیگابایت دیسک
   </p>
+  {% if history and history[0].collection_method == 'manual' %}
+  <p class="muted">
+    منبع دستی: {{ history[0].source_document or 'سند آفلاین' }}
+    {%- if history[0].valid_until %} · معتبر تا {{ history[0].valid_until|jalali_date }}{% endif %}
+  </p>
+  {% endif %}
 </section>
 
 <section class="card table-card">

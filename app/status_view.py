@@ -15,6 +15,7 @@ def build_status_view(repo: Repository) -> dict:
             "provider_slug": source["provider_slug"],
             "service_type": source["service_type"],
             "url": source["url"],
+            "collection_method": source["collection_method"],
             "enabled": bool(source["enabled"]) if "enabled" in source.keys() else True,
             "rates_stored": repo.rate_count(_provider_id(repo, source["provider_slug"]) or 0),
             "runs": [

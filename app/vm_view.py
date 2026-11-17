@@ -13,7 +13,8 @@ from comparison.rate_check import (
 )
 from config.loader import load_analyst_facts
 from config.loader import load_benchmarks, load_providers, load_tiers
-from util.format import format_toman
+from util.format import format_number, format_toman
+from util.jalali import format_jalali
 from storage.repository import Repository
 
 from app.view_common import _provider_id, _offering_id
@@ -63,6 +64,9 @@ class VmRow:
     observed_at: str
     offering_id: int | None
     notes: list[str] = field(default_factory=list)
+    provenance: str = "live"  # live | manual
+    source_document: str = ""
+    valid_until: str = ""
 
 
 def build_plan_views(repo: Repository, matcher: VMMatcher) -> list[PlanView]:
@@ -82,9 +86,31 @@ def build_plan_views(repo: Repository, matcher: VMMatcher) -> list[PlanView]:
                 price_in_toman=Decimal(row["price_in_toman"]),
                 observed_at=row["observed_at"],
                 validation_status=row["validation_status"],
+                provider_tier_raw=row["provider_tier_raw"] or "",
+                provenance="manual" if row["collection_method"] == "manual" else "live",
+                source_document=row["source_document"] or "",
+                valid_until=row["valid_until"] or "",
             )
         )
     return plans
+
+
+def _manual_source_note(source_document: str, valid_until: str) -> str:
+    """Provenance line for a price imported from an offline document."""
+    parts = []
+    if source_document:
+        parts.append(f"منبع دستی: {source_document}")
+    if valid_until:
+        parts.append(f"معتبر تا {format_jalali(valid_until, with_time=False)}")
+    return " · ".join(parts)
+
+
+def _manual_calculation_note(vcpu: int, disk_gb: Decimal, allocation: str) -> str:
+    kind = "اختصاصی" if allocation == "dedicated" else "اشتراکی"
+    return (
+        f"محاسبه: {format_number(vcpu)} برابر بسته‌ی ۱ vCPU + ۲ GB {kind} "
+        f"+ {format_number(disk_gb)} گیگابایت دیسک"
+    )
 
 
 def _provider_rate_context(repo: Repository, provider_id: int, slug: str, mapping: ProviderRateMapping):
@@ -199,7 +225,9 @@ def build_vm_view(repo: Repository, tier: str, size_key: str) -> dict:
                 plan_name: str = "", vcpu: int | None = None,
                 ram_gb: Decimal | None = None, disk_gb: Decimal | None = None,
                 rate_verification: str = "not_applicable", observed_at: str = "",
-                offering_id: int | None = None, notes: list[str] | None = None):
+                offering_id: int | None = None, notes: list[str] | None = None,
+                provenance: str = "live", source_document: str = "",
+                valid_until: str = ""):
         notes = list(notes or [])
         if offering_id:
             history = repo.offering_history(offering_id)
@@ -214,6 +242,8 @@ def build_vm_view(repo: Repository, tier: str, size_key: str) -> dict:
             disk_gb=disk_gb or Decimal(0), price_in_toman=price, basis=basis,
             rate_verification=rate_verification, observed_at=observed_at,
             offering_id=offering_id, notes=notes or [],
+            provenance=provenance, source_document=source_document,
+            valid_until=valid_until,
         ))
 
     for slug in sorted(set(collected_providers) | {p.slug for p in providers_file.providers}):
@@ -221,14 +251,20 @@ def build_vm_view(repo: Repository, tier: str, size_key: str) -> dict:
         if slug in primary_by_provider:
             for match in primary_by_provider[slug]:
                 p = match.plan
+                manual = p.provenance == "manual"
                 notes = []
                 if slug == "parspack" and parspack_facts is not None:
                     notes.append(_parspack_adjustment_note(parspack_facts))
+                if manual:
+                    notes.append(_manual_source_note(p.source_document, p.valid_until))
+                    notes.append(_manual_calculation_note(p.vcpu, p.disk_gb, p.provider_tier_raw))
                 add_row(
-                    slug, p.price_in_toman, "published", plan_name=p.plan_name,
+                    slug, p.price_in_toman, "calculated" if manual else "published",
+                    plan_name=p.plan_name,
                     vcpu=p.vcpu, ram_gb=p.ram_gb, disk_gb=p.disk_gb,
                     observed_at=p.observed_at, offering_id=_offering_id(repo, slug, p),
-                    notes=notes,
+                    notes=notes, provenance=p.provenance,
+                    source_document=p.source_document, valid_until=p.valid_until,
                 )
             continue
 
@@ -278,7 +314,8 @@ def build_vm_view(repo: Repository, tier: str, size_key: str) -> dict:
                 slug, p.price_in_toman, "approximate", plan_name=p.plan_name,
                 vcpu=p.vcpu, ram_gb=p.ram_gb, disk_gb=p.disk_gb,
                 observed_at=p.observed_at, offering_id=_offering_id(repo, slug, p),
-                notes=notes,
+                notes=notes, provenance=p.provenance,
+                source_document=p.source_document, valid_until=p.valid_until,
             )
             continue
 

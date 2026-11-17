@@ -43,6 +43,10 @@ class PlanView:
     price_in_toman: Decimal
     observed_at: str
     validation_status: str
+    provider_tier_raw: str = ""  # provider-native label, kept for display notes
+    provenance: str = "live"     # live | manual (transcribed offline document)
+    source_document: str = ""    # document behind a manual import
+    valid_until: str = ""        # document validity date (ISO) for manual imports
 
 
 @dataclass

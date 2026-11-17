@@ -47,6 +47,11 @@ def test_committed_configs_load_and_validate():
         for source in provider.sources if source.service_type == "paas"
     }
     assert paas_sources == {"arvan_paas", "hamravesh_paas", "liara_paas"}
+    # Sotoon VM prices come from a transcribed price list, not a fetched page.
+    sotoon = next(p for p in providers.providers if p.slug == "sotoon")
+    assert [s.id for s in sotoon.sources] == ["sotoon_vm_price_list"]
+    assert sotoon.sources[0].collection_method == "manual"
+    assert sotoon.sources[0].navigation["region"] == "Neda"
 
 
 def test_duplicate_provider_slug_rejected(tmp_path):
@@ -86,6 +91,10 @@ def test_tiers_file_shape():
     # Owner decision 2026-11-15: Liara and ParsPack compare under Economy.
     assert tiers.vm.providers["liara"].default == "economy"
     assert tiers.vm.providers["parspack"].default == "economy"
+    # Owner decision 2026-11-17: Sotoon dedicated = Premium, shared = Standard.
+    assert tiers.vm.providers["sotoon"].aliases == {
+        "dedicated": "premium", "shared": "standard"
+    }
 
 
 def test_product_catalog_loads():

@@ -27,7 +27,7 @@ because they are small, reviewable and belong in Git.
 
 | `source_id` | Kind | Provider(s) | Feeds |
 |---|---|---|---|
-| `sotoon-price-1405-v3` | price catalogue | Sotoon | VM, Object Storage, KaaS, DBaaS, CDN prices |
+| `sotoon-price-1405-v3` | price catalogue | Sotoon | VM prices (imported); OS, KaaS, DBaaS, CDN prices (available, not imported) |
 | `object-storage-benchmark-v6` | benchmark report | Hamravesh, Arvan, Sotoon, Kubit | Object Storage performance and capabilities |
 
 ## Layout

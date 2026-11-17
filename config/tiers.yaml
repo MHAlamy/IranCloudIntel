@@ -19,3 +19,9 @@ vm:
     liara: {default: economy}
     parspack: {default: economy}
     cloud_ir: {default: standard}
+    # Owner decision 2026-11-17: Sotoon's dedicated compute is Premium and its
+    # shared compute is Standard. Raw labels stay as printed in the price list.
+    sotoon:
+      aliases:
+        dedicated: premium
+        shared: standard

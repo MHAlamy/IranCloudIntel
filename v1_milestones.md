@@ -1,12 +1,12 @@
 # V1 milestone tracker
 
-**Status (2026-11-16):** native Windows development; four VM sources and four
-Object Storage sources implemented. PaaS/CNAP added with three sources
-(Hamravesh Darakub, Arvan PaaS, Liara silver). The homepage layered product map
-and the shared three-section product shell are implemented. CDN, production
-deployment and automation remain open. Audit actions 1-4 completed; action 5
-documentation/tooling cleanup completed. Historical detail is preserved in
-`docs/archive/2026-11-16_v1_milestones.md`.
+**Status (2026-11-17):** native Windows development; four VM sources and four
+Object Storage sources implemented, plus Sotoon VM from a manually imported price
+list. PaaS/CNAP added with three sources (Hamravesh Darakub, Arvan PaaS, Liara
+silver). The homepage layered product map and the shared three-section product
+shell are implemented. CDN, production deployment and automation remain open.
+Audit actions 1-4 completed; action 5 documentation/tooling cleanup completed.
+Historical detail is preserved in `docs/archive/2026-11-16_v1_milestones.md`.
 
 - [x] 1. Local environment: Python 3.14, `.venv`, Git, VS Code and private repository.
 - [x] 2. First collector: Arvan public VM page, evidence, LLM extraction and fixtures.
@@ -37,6 +37,9 @@ documentation/tooling cleanup completed. Historical detail is preserved in
   performance placeholders. Product pages use a centered product title.
 - [x] PaaS/CNAP comparison: four compute selections, Liara silver, Hamravesh
   Darakub and Arvan calculated from published monthly resource rates.
+- [x] Sotoon VM from an offline price list: schema v6 manual sources, Neda
+  datacenter, dedicated/shared mapped to Premium/Standard, reference sizes built
+  from the 1 vCPU + 2 GB unit, with document/validity provenance in the UI.
 
 ## Release gates
 
@@ -52,4 +55,4 @@ See `AUDIT_HANDOFF.md` for audit changes/limits and `docs/CODE_MAP.md` for code 
 
 Audit cleanup validation: 183 default tests passed (4 browser tests deselected); two synthetic browser tests passed separately. Dependency consistency check passed. No paid/provider collection or deployment performed.
 
-Current validation (2026-11-16): 202 default tests passed (4 browser tests deselected). PaaS live collection used public provider pages and no LLM calls.
+Current validation (2026-11-17): 212 default tests passed (4 browser tests deselected). Sotoon VM prices imported from the offline package with no network calls and no LLM.

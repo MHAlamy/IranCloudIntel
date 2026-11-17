@@ -43,6 +43,8 @@ from collectors.liara_plans import parse_liara_plans  # noqa: E402
 from collectors.parspack_os import run_parspack_os  # noqa: E402
 from collectors.parspack_quotes import run_parspack_quotes  # noqa: E402
 from collectors.paas_pipeline import run_paas_collection  # noqa: E402
+from collectors.offline_pipeline import run_offline_collection  # noqa: E402
+from collectors.sotoon_offline import collect_sotoon_offline  # noqa: E402
 from collectors.pipeline import fetch_source, run_collection, run_os_collection  # noqa: E402
 from comparison.rate_check import load_rate_mappings  # noqa: E402
 from extractors.llm import LLMClient  # noqa: E402
@@ -61,6 +63,11 @@ PAAS_COLLECTION = {
     "arvan": collect_arvan_paas,
     "hamravesh": collect_hamravesh_paas,
     "liara": collect_liara_paas,
+}
+
+# Manual (offline) sources: transcribed documents, no fetch and no LLM.
+OFFLINE_COLLECTION = {
+    "sotoon": collect_sotoon_offline,
 }
 
 OS_COLLECTION = {
@@ -111,7 +118,21 @@ def main() -> int:
                     if not source.enabled or (args.source and source.id != args.source):
                         continue
                     print(f"--- collecting {source.id} ---")
-                    if provider.slug == "parspack" and source.service_type == "vm":
+                    if source.collection_method == "manual":
+                        collector = OFFLINE_COLLECTION.get(provider.slug)
+                        if collector is None:
+                            print(f"    ERROR: no offline loader for {provider.slug}")
+                            exit_code = 1
+                            continue
+                        outcome = run_offline_collection(
+                            provider=provider,
+                            source=source,
+                            repo=repository,
+                            loader=collector,
+                            evidence_root=ROOT / "evidence",
+                            force=args.force,
+                        )
+                    elif provider.slug == "parspack" and source.service_type == "vm":
                         # configurable-quote provider: drive the calculator
                         outcome = run_parspack_quotes(
                             provider=provider,

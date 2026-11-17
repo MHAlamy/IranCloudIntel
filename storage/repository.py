@@ -138,6 +138,7 @@ class Repository:
     def freshness(self, service: str, max_age_hours: int = 48) -> list[dict]:
         from datetime import datetime, timezone
         result = []
+        today = datetime.now(timezone.utc).date().isoformat()
         for source in self.list_sources():
             if source['service_type'] != service:
                 continue
@@ -145,8 +146,21 @@ class Repository:
             latest = runs[0] if runs else None
             accepted = self._connection.execute("SELECT * FROM collection_runs WHERE source_id=? AND status='success' ORDER BY id DESC LIMIT 1", (source['id'],)).fetchone()
             checked = accepted['finished_at'] if accepted else None
-            stale = not checked or (datetime.now(timezone.utc)-datetime.fromisoformat(checked)).total_seconds() > max_age_hours*3600 or (latest is not None and latest['status'] != 'success')
-            result.append(dict(provider=source['provider_name'], last_checked=latest['started_at'] if latest else None, last_verified=checked, stale=stale))
+            method = source['collection_method']
+            valid_until = accepted['valid_until'] if accepted else None
+            if method == 'manual':
+                # A manual import does not age like a live fetch: it is valid
+                # while the document it came from is still in force.
+                stale = not valid_until or today > valid_until
+            else:
+                stale = not checked or (datetime.now(timezone.utc)-datetime.fromisoformat(checked)).total_seconds() > max_age_hours*3600 or (latest is not None and latest['status'] != 'success')
+            result.append(dict(
+                provider=source['provider_name'],
+                last_checked=latest['started_at'] if latest else None,
+                last_verified=checked, stale=stale,
+                collection_method=method, valid_until=valid_until,
+                source_document=accepted['source_document'] if accepted else '',
+            ))
         return result
 
     def publish_run(self, run_id: int, status: str, **metadata) -> None:
@@ -161,15 +175,18 @@ class Repository:
         evidence_path: str | None = None, model: str | None = None,
         schema_version: str | None = None, prompt_tokens: int = 0,
         completion_tokens: int = 0, error: str | None = None,
+        source_document: str | None = None, valid_until: str | None = None,
     ) -> None:
         self._connection.execute(
             """UPDATE collection_runs SET finished_at=?, status=?, http_status=?, content_hash=?,
                extractor_config_hash=?, evidence_path=?, model=?, schema_version=?,
-               prompt_tokens=?, completion_tokens=?, error=? WHERE id=?""",
+               prompt_tokens=?, completion_tokens=?, error=?,
+               source_document=COALESCE(?, source_document),
+               valid_until=COALESCE(?, valid_until) WHERE id=?""",
             (
                 utc_now_iso(), status, http_status, content_hash, extractor_config_hash,
                 evidence_path, model, schema_version, prompt_tokens, completion_tokens,
-                error, run_id,
+                error, source_document, valid_until, run_id,
             ),
         )
         self._connection.commit()
@@ -224,7 +241,10 @@ class Repository:
         query = """
             SELECT o.*, off.plan_name, off.region, off.provider_tier_raw,
                    off.product_family, off.provider_id, off.service_type,
-                   p.slug AS provider_slug, p.name AS provider_name
+                   p.slug AS provider_slug, p.name AS provider_name,
+                   s.collection_method AS collection_method,
+                   cr.source_document AS source_document,
+                   cr.valid_until AS valid_until
             FROM offerings off
             JOIN providers p ON p.id = off.provider_id
             JOIN price_observations o ON o.id = (
@@ -232,6 +252,8 @@ class Repository:
                 WHERE po.offering_id = off.id AND po.validation_status = 'valid'
                 ORDER BY po.observed_at DESC, po.id DESC LIMIT 1
             )
+            JOIN collection_runs cr ON cr.id = o.run_id
+            JOIN sources s ON s.id = cr.source_id
             WHERE (? IS NULL OR off.service_type = ?)
               AND (? IS NULL OR off.provider_id = ?)
             ORDER BY p.name, off.plan_name
@@ -240,8 +262,14 @@ class Repository:
 
     def offering_history(self, offering_id: int) -> list[sqlite3.Row]:
         return self._connection.execute(
-            """SELECT * FROM published_price_observations WHERE offering_id=?
-               ORDER BY observed_at DESC, id DESC""",
+            """SELECT o.*, cr.source_document AS source_document,
+                      cr.valid_until AS valid_until,
+                      s.collection_method AS collection_method
+               FROM published_price_observations o
+               JOIN collection_runs cr ON cr.id = o.run_id
+               JOIN sources s ON s.id = cr.source_id
+               WHERE o.offering_id=?
+               ORDER BY o.observed_at DESC, o.id DESC""",
             (offering_id,),
         ).fetchall()
 

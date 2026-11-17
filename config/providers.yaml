@@ -125,3 +125,18 @@ providers:
         enabled: true
         navigation:
           bundle_extraction: false   # free base plan + PAYG tables -> deterministic parser
+
+  - slug: sotoon
+    name: Sotoon
+    official_url: https://sotoon.ir/
+    sources:
+      - id: sotoon_vm_price_list
+        service_type: vm
+        # Manual source: `url` is the offline dataset locator, not a fetchable page.
+        url: datasets/offline/sotoon-price-1405-v3
+        collection_method: manual   # transcribed price list; no network fetch, no LLM
+        region_scope: iran
+        enabled: true
+        navigation:
+          region: Neda              # owner decision 2026-11-17: middle datacenter
+          disk_sku: mana_1_standard  # standard block storage class

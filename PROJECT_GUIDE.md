@@ -33,7 +33,8 @@ Neither roadmap stage justifies extra infrastructure or autonomous production ed
   UTC timestamps in storage. No separate frontend service or microservices.
 - Product pages share a validated catalogue (`config/products.yaml`) and a
   three-section shell; schema v5 allows `service_type='paas'` for compute-shaped
-  PaaS offerings while VM/OS keep their service-specific data rules.
+  PaaS offerings while VM/OS keep their service-specific data rules. Schema v6
+  adds manual (offline) sources with per-run document provenance.
 - Target production: one Ubuntu Arvan VM, Docker Compose, Nginx/HTTPS, protected
   access, daily collection and consistent off-VM backups to private Object Storage.
 - GitHub/Actions/GHCR are proposed release tools, subject to verified connectivity.
@@ -73,8 +74,11 @@ Neither roadmap stage justifies extra infrastructure or autonomous production ed
   checksums are committed.
 - Offline observations are not live observations. They keep `source_id` and
   `source_pdf_page` on every row, render with their document, version and
-  validity date, and must never appear as freshly verified prices. Ingestion and
-  dashboard rendering of these packages are not implemented yet.
+  validity date, and must never appear as freshly verified prices.
+- Import is deterministic and reuses the normal run/observation path
+  (`collectors/offline_pipeline.py`). Schema v6 allows `collection_method:
+  manual` and stores `source_document`/`valid_until` on the run; the VM dashboard
+  shows a «دستی» badge, the source document and the validity date for those rows.
 
 ## Reliability and operating constraints
 

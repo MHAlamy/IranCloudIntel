@@ -22,7 +22,8 @@ class SourceConfig(BaseModel):
     id: str = Field(min_length=1)
     service_type: Literal["vm", "object_storage", "cdn", "paas"]
     url: str = Field(min_length=1)
-    collection_method: Literal["http", "playwright"]
+    # "manual" = transcribed offline document; never fetched over the network.
+    collection_method: Literal["http", "playwright", "manual"]
     region_scope: str = ""
     enabled: bool = True
     navigation: dict[str, Any] = Field(default_factory=dict)

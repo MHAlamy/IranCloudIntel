@@ -115,6 +115,7 @@ body {
 .badge-calculated { background: rgba(156, 138, 255, 0.12); color: var(--brand-soft); border-color: rgba(156, 138, 255, 0.4); }
 .badge-approximate { background: rgba(255, 172, 35, 0.12); color: var(--warning); border-color: rgba(255, 172, 35, 0.4); }
 .badge-missing { background: rgba(156, 156, 201, 0.1); color: var(--muted); }
+.badge-manual { background: rgba(79, 184, 255, 0.12); color: var(--info); border-color: rgba(79, 184, 255, 0.4); }
 .badge-verified { background: rgba(71, 209, 106, 0.12); color: var(--success); border-color: rgba(71, 209, 106, 0.4); }
 .badge-mismatch { background: rgba(255, 113, 97, 0.12); color: var(--error); border-color: rgba(255, 113, 97, 0.4); }
 .badge-review { background: rgba(255, 172, 35, 0.12); color: var(--warning); border-color: rgba(255, 172, 35, 0.4); }

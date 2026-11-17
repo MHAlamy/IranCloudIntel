@@ -5,9 +5,15 @@
     {% for source in view.freshness %}
     <li>
       {{ source.provider }} ·
-      {% if source.stale %}داده قدیمی / نیازمند بررسی{% else %}به‌روز{% endif %} ·
-      آخرین تلاش: {{ source.last_checked|jalali }} ·
-      آخرین تأیید: {{ source.last_verified|jalali }}
+      {% if source.collection_method == 'manual' %}
+        منبع دستی (سند آفلاین) ·
+        {% if source.valid_until %}معتبر تا {{ source.valid_until|jalali_date }}{% else %}بدون تاریخ اعتبار{% endif %}
+        · آخرین ورود: {{ source.last_checked|jalali }}
+      {% else %}
+        {% if source.stale %}داده قدیمی / نیازمند بررسی{% else %}به‌روز{% endif %} ·
+        آخرین تلاش: {{ source.last_checked|jalali }} ·
+        آخرین تأیید: {{ source.last_verified|jalali }}
+      {% endif %}
     </li>
     {% endfor %}
   </ul>
