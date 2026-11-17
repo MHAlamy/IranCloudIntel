@@ -30,6 +30,10 @@ backups/
 evidence/
 snapshots/
 
+# PDFs and document evidence — may contain confidential material
+*.pdf
+*.PDF
+
 # Logs
 logs/
 *.log
