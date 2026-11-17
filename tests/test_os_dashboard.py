@@ -266,18 +266,22 @@ def test_os_layout_convention_chart_before_primary_table(os_client):
     assert 0 < chart_pos < table_pos
 
 
-def test_os_pricing_model_box_precedes_the_table(os_client):
+def test_os_pricing_model_box_sits_between_chart_and_table(os_client):
     """The fragmented page notes are replaced by one explanation box."""
-    from bs4 import BeautifulSoup
-
     text = os_client.get('/object-storage').text
     assert text.count('method-card') == 1
-    assert text.find('method-card') < text.find('class="card table-card"')
+    chart_pos = text.find('chart-card')
+    box_pos = text.find('method-card')
+    table_pos = text.find('class="card table-card"')
+    assert 0 < chart_pos < box_pos < table_pos
     assert "نحوه محاسبه قیمت" in text
     assert "پلن بسته‌بندی‌شده" in text
     assert "PAYG" in text
     assert "بدون مالیات بر ارزش افزوده" in text
     assert text.count("مالیات") == 1  # stated once, nowhere else
+    # the CDN and worked-example paragraphs were removed as redundant
+    assert "دو نتیجه نمایش داده می‌شود" not in text
+    assert "مثال:" not in text
     # the old warning banner is gone
     assert "banner-warning" not in text
 

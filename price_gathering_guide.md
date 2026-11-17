@@ -177,11 +177,12 @@ Manually imported prices are visually distinct from collected ones: a «دستی
 badge plus the document and validity date, and the freshness panel reports the
 document's validity instead of a 48-hour collection window.
 
-Object Storage explains its pricing model once, in a «نحوه محاسبه قیمت» box:
-the three cost elements (storage, traffic, requests), the bundled-plan versus
-PAYG distinction, the request estimate, the CDN offload and the VAT/partial-total
-caveats. Provider rows only state which model that provider uses, so the same
-caveat is not repeated in every row.
+Object Storage explains its pricing model once, in a «نحوه محاسبه قیمت» box
+between the chart and the table: the three cost elements (storage, traffic,
+requests), the bundled-plan versus PAYG distinction, the request estimate and
+the VAT/partial-total caveats. Provider rows only state which model that
+provider uses (including the CDN offload where it applies), so the same caveat
+is not repeated in every row.
 
 CDN needs its own schema/scenarios for package fees, traffic geography, requests,
 quotas and overages. Agree scenarios before implementation; do not reuse VM tiers.

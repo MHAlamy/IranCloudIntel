@@ -51,8 +51,8 @@ documentation/tooling cleanup completed. Historical detail is preserved in
   traffic (80% served through Sotoon CDN, not billed as storage egress), with
   the assumption explained in both rows.
 - [x] Object Storage page explains its pricing model once in a «نحوه محاسبه قیمت»
-  box (elements, bundled vs PAYG, requests, CDN offload, VAT); per-provider rows
-  only state their own model.
+  box between the chart and the table (elements, bundled vs PAYG, requests, VAT);
+  per-provider rows only state their own model.
 
 ## Release gates
 
