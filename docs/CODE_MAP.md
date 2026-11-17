@@ -11,6 +11,7 @@
 | Manual (offline) import | `collectors/offline_pipeline.py`, `sotoon_offline.py`, `storage/migrations/v6__manual_sources.sql` | `test_sotoon_offline.py`, `test_sotoon_os.py` |
 | Offline dataset packages | `datasets/offline/<source_id>/` (manifest + CSV) | `test_sotoon_offline.py`, `test_sotoon_os.py`, `test_benchmark_pivot.py` |
 | Benchmark pivot (display) | `comparison/benchmarks.py` (long CSV is the only stored source) | `test_benchmark_pivot.py` |
+| OS performance table | `app/benchmark_view.py`, `app/templates/os_benchmark.html` | `test_benchmark_view.py`, `test_os_dashboard.py` |
 | ParsPack interaction | `collectors/parspack_quotes.py`, `parspack_os.py`, `waits.py` | `test_waits.py` (browser cases are opt-in) |
 | Provider parsers | `collectors/{provider}*.py` | `test_liara.py`, `test_kubit.py`, `test_rates.py`, `test_os_parsers.py` |
 | Accepted history/freshness | `storage/repository.py`, `collectors/common.py` | `test_publication.py`, `test_storage.py` |

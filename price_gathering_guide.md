@@ -166,8 +166,11 @@ OS assumptions prevent treating its bars as full equivalent purchase costs.
 
 Every product page uses that standard inside a three-section shell: a centered
 product title, then «مقایسه قیمت» (the chart, provider-row table, details and
-freshness), «مقایسه قابلیت‌ها» and «مقایسه عملکرد». The latter two are explicit
-«به‌زودی» placeholders until their data models exist. The homepage is static:
+freshness), «مقایسه قابلیت‌ها» and «مقایسه عملکرد». Capability comparison is
+still a «به‌زودی» placeholder everywhere; the Object Storage performance section
+is the first implemented one — an offline benchmark table with its own
+provenance notes — while VM and PaaS keep the placeholder until their data
+models exist. The homepage is static:
 title/subtitle, a layered IaaS/CaaS/PaaS product map (implemented products are
 links; the rest are disabled with «به‌زودی») and a methodology summary. Size-miss
 notes that merely restate the reference resources are not shown; genuine

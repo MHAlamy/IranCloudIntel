@@ -298,6 +298,32 @@ def test_provider_rows_explain_their_own_model(os_client):
     assert "مالیات" not in text
 
 
+def test_os_performance_section_renders_benchmark_table(os_client):
+    from bs4 import BeautifulSoup
+
+    soup = BeautifulSoup(os_client.get('/object-storage').text, 'html.parser')
+    section = soup.select_one('#performance')
+    assert section is not None
+    text = section.get_text(" ", strip=True)
+    assert "مقایسه عملکرد" in text
+    assert "به‌زودی" not in text  # the performance placeholder is replaced
+
+    headers = [th.get_text(" ", strip=True) for th in section.select('thead th')]
+    for name in ("Hamravesh", "Arvan", "Sotoon", "Kubit"):
+        assert any(name in header for header in headers)
+
+    # one row per workload group plus the metric rows
+    assert len(section.select("tr.bench-group")) == 6
+    assert section.select(".bench-best")
+
+    assert "نکات و مشخصات این نتیجه" in text
+    assert "میانه‌ی سه اجرا" in text
+    assert "سقف پهنای باند کلاینت" in text
+
+    # the capability section is still a placeholder
+    assert "مقایسه قابلیت‌ها" in soup.get_text()
+
+
 def test_os_chart_follows_selected_scenario(os_client):
     from bs4 import BeautifulSoup
     base = os_client.get('/object-storage').text

@@ -53,6 +53,9 @@ documentation/tooling cleanup completed. Historical detail is preserved in
 - [x] Object Storage page explains its pricing model once in a «نحوه محاسبه قیمت»
   box between the chart and the table (elements, bundled vs PAYG, requests, VAT);
   per-provider rows only state their own model.
+- [x] Object Storage «مقایسه عملکرد»: one table over the offline benchmark
+  package (17 report comparison metrics, four providers, best value bold) plus a
+  notes box on sessions, aggregation and comparability traps.
 
 ## Release gates
 
@@ -68,4 +71,4 @@ See `AUDIT_HANDOFF.md` for audit changes/limits and `docs/CODE_MAP.md` for code 
 
 Audit cleanup validation: 183 default tests passed (4 browser tests deselected); two synthetic browser tests passed separately. Dependency consistency check passed. No paid/provider collection or deployment performed.
 
-Current validation (2026-11-17): 236 default tests passed (4 browser tests deselected). Sotoon VM and Object Storage prices imported from the offline package with no network calls and no LLM.
+Current validation (2026-11-17): 243 default tests passed (4 browser tests deselected). Sotoon VM and Object Storage prices imported from the offline package with no network calls and no LLM.

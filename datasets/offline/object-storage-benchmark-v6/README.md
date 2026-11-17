@@ -1,8 +1,9 @@
 # Object Storage benchmark, four Iranian providers (v6)
 
 Structured observations from a Persian benchmark report (report version 6,
-1405-07) measured with MinIO Warp. This package is the first data source for the
-Object Storage «مقایسه عملکرد» and «مقایسه قابلیت‌ها» sections.
+1405-07) measured with MinIO Warp. This package feeds the Object Storage
+«مقایسه عملکرد» table (implemented) and is the intended source for
+«مقایسه قابلیت‌ها» once that section is built.
 
 - **`source_id`**: `object-storage-benchmark-v6`
 - **Providers**: Hamravesh (HS3 / SeaweedFS), Arvan (ir-thr-at1 / Ceph RGW),

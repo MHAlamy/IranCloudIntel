@@ -1,0 +1,46 @@
+{# Object Storage performance comparison: one row per metric, one column per
+   provider. Best value per row is bold; the notes box explains provenance. #}
+<section class="product-section" id="performance">
+  <h2 class="section-title">مقایسه عملکرد</h2>
+  <p class="section-note muted">نتیجه‌ی بنچمارک آفلاین روی سرویس آبجکت استوریج؛ یک عدد برای هر سنجه و هر تأمین‌کننده</p>
+
+  <section class="card table-card bench-card">
+    <table class="price-table bench-table">
+      <thead>
+        <tr>
+          <th>سنجه</th>
+          <th>واحد</th>
+          {% for provider in benchmark.providers %}
+          <th>
+            {{ provider.name }}
+            <div class="bench-date">{{ provider.date_label }}</div>
+          </th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for group in benchmark.groups %}
+        <tr class="bench-group">
+          <td colspan="{{ 2 + benchmark.providers|length }}">{{ group.label }}</td>
+        </tr>
+        {% for row in group.rows %}
+        <tr>
+          <td data-label="سنجه">{{ row.label }} <span class="bench-key">({{ row.key }})</span></td>
+          <td data-label="واحد">{{ row.unit }}</td>
+          {% for cell in row.cells %}
+          <td data-label="{{ cell.provider }}" class="bench-value{{ ' bench-best' if cell.best else '' }}">{{ cell.text }}</td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <section class="card bench-notes">
+    <h3 class="card-title">نکات و مشخصات این نتیجه</h3>
+    <ul>
+      {% for note in benchmark.notes %}<li>{{ note }}</li>{% endfor %}
+    </ul>
+  </section>
+</section>

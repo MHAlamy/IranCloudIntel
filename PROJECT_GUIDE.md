@@ -56,9 +56,11 @@ Neither roadmap stage justifies extra infrastructure or autonomous production ed
   1. «مقایسه قیمت» — all existing price content: selectors, the shared chart,
      the provider-row table, plan/rate details, legend and freshness.
   2. «مقایسه قابلیت‌ها» — a «به‌زودی» placeholder.
-  3. «مقایسه عملکرد» — a «به‌زودی» placeholder.
-  The capability and performance sections must not fabricate data before their
-  data models exist.
+  3. «مقایسه عملکرد» — implemented for Object Storage (offline benchmark table
+     plus its provenance notes); a «به‌زودی» placeholder on the VM and PaaS
+     pages.
+  Sections without a data model stay explicit placeholders and must not
+  fabricate data.
 - The topbar brand links to the homepage; the nav links the implemented product
   pages and source status. The product catalogue and routes are defined in
   `config/products.yaml`; enabling a product requires a real route.

@@ -32,7 +32,10 @@ Production images will install `requirements.txt`; dev requirements add pytest.
   with «به‌زودی».
 - `/vm`, `/object-storage` and `/paas` share one shell: a centered product title,
   then «مقایسه قیمت» (selectors, shared chart, provider-row table, details,
-  freshness), «مقایسه قابلیت‌ها» and «مقایسه عملکرد» («به‌زودی» placeholders).
+  freshness), «مقایسه قابلیت‌ها» and «مقایسه عملکرد». Capability comparison is a
+  «به‌زودی» placeholder everywhere; Object Storage has the first performance
+  section (offline benchmark table and notes), while VM and PaaS keep the
+  placeholder.
 - `/status` shows collection health and `/plan/{id}` shows one offering's
   history. The catalogue and routes live in `config/products.yaml`; a product
   becomes a link only when it has a real page.

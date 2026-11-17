@@ -29,6 +29,7 @@ from app.data import (  # noqa: E402
     build_status_view,
     build_vm_view,
 )
+from app.benchmark_view import build_os_benchmark_view  # noqa: E402
 from storage.repository import Repository  # noqa: E402
 from util.format import format_number, format_toman  # noqa: E402
 from util.jalali import format_jalali  # noqa: E402
@@ -95,7 +96,11 @@ def create_app(db_path: str | Path | None = None) -> FastAPI:
         return templates.TemplateResponse(
             request,
             "os.html",
-            {"view": view, "basis_labels": OS_BASIS_LABELS_FA},
+            {
+                "view": view,
+                "basis_labels": OS_BASIS_LABELS_FA,
+                "benchmark": build_os_benchmark_view(),
+            },
         )
 
     @app.get("/paas", response_class=HTMLResponse)
