@@ -38,6 +38,9 @@ snapshots/
 logs/
 *.log
 
+# Semantic code index — machine-local derived state, never commit
+.opencode/index/
+
 # OS / editor noise
 Thumbs.db
 Desktop.ini
