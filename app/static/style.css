@@ -140,7 +140,7 @@ body {
   font-size: 12px; font-weight: 500; padding: 6px 10px;
 }
 .bench-value { font-variant-numeric: tabular-nums; white-space: nowrap; }
-.bench-best { font-weight: 700; }
+.bench-best { font-weight: 700; color: var(--success); }
 .bench-notes ul { margin: 4px 0 0; padding-right: 18px; }
 .bench-notes li { font-size: 13px; color: var(--muted); margin: 6px 0; }
 
