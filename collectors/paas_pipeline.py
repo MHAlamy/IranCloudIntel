@@ -8,10 +8,8 @@ monthly rates. No LLM is used for this service.
 """
 from __future__ import annotations
 
-import hashlib
 import json
 from dataclasses import dataclass, field, asdict
-from datetime import datetime, timezone
 from decimal import Decimal
 from pathlib import Path
 from typing import Callable
@@ -19,11 +17,13 @@ from typing import Callable
 from collectors.common import (
     CollectionOutcome,
     FetchError,
+    content_hash,
     fail_collection,
+    raw_and_normalized,
     start_collection,
+    write_evidence,
 )
 from config.loader import ProviderConfig, SourceConfig, load_benchmarks
-from extractors.schema import LLMPlanRow, NormalizedPlanRow
 from storage.repository import Repository
 from util.fingerprint import collection_fingerprint
 from util.format import format_toman
@@ -80,61 +80,21 @@ def _quote_payload(quotes: list[PaasQuote]) -> list[dict]:
 
 
 def collection_content_hash(quotes: list[PaasQuote]) -> str:
-    payload = json.dumps(_quote_payload(quotes), sort_keys=True, ensure_ascii=False)
-    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+    return content_hash(_quote_payload(quotes))
 
 
 def save_paas_evidence(
     root: Path, provider: str, content_hash: str, collection: PaasCollection,
 ) -> Path:
-    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
-    directory = root / provider / "paas" / f"{stamp}_{content_hash[:12]}"
-    directory.mkdir(parents=True, exist_ok=False)
+    files = dict(collection.extra_files)
     if collection.html is not None:
-        (directory / "rendered.html").write_text(collection.html, encoding="utf-8")
+        files["rendered.html"] = collection.html
     if collection.cleaned:
-        (directory / "cleaned.md").write_text(collection.cleaned, encoding="utf-8")
-    for name, text in collection.extra_files.items():
-        (directory / name).write_text(text, encoding="utf-8")
-    (directory / "quotes.json").write_text(
-        json.dumps([asdict(q) for q in collection.quotes], ensure_ascii=False, indent=2, default=str),
-        encoding="utf-8",
+        files["cleaned.md"] = collection.cleaned
+    files["quotes.json"] = json.dumps(
+        [asdict(q) for q in collection.quotes], ensure_ascii=False, indent=2, default=str
     )
-    return directory
-
-
-def _raw_and_normalized(quote: PaasQuote, source_url: str) -> tuple[LLMPlanRow, NormalizedPlanRow]:
-    raw = LLMPlanRow(
-        plan_name=quote.plan_name,
-        provider_tier_raw=quote.provider_tier_raw,
-        region=quote.region,
-        vcpu=quote.vcpu,
-        ram_gb=float(quote.ram_gb),
-        disk_gb=float(quote.disk_gb),
-        disk_type="SSD",
-        price_raw=quote.price_raw,
-        currency_raw="تومان",
-        billing_period_raw="ماهانه",
-        evidence=quote.evidence,
-    )
-    normalized = NormalizedPlanRow(
-        plan_name=quote.plan_name,
-        provider_tier_raw=quote.provider_tier_raw,
-        region=quote.region,
-        vcpu=quote.vcpu,
-        ram_gb=float(quote.ram_gb),
-        disk_gb=float(quote.disk_gb),
-        disk_type="SSD",
-        price_value=quote.price_toman,
-        currency="toman",
-        price_in_toman=quote.price_toman,
-        billing_period="monthly",
-        pricing_type=quote.pricing_type,
-        plan_url=source_url,
-        validation_status="valid",
-        validation_issues=[],
-    )
-    return raw, normalized
+    return write_evidence(root, provider, "paas", content_hash, files)
 
 
 def run_paas_collection(
@@ -179,7 +139,7 @@ def run_paas_collection(
                 provider_tier_raw=quote.provider_tier_raw,
                 region=quote.region,
             )
-            raw, normalized = _raw_and_normalized(quote, source.url)
+            raw, normalized = raw_and_normalized(quote, source.url, disk_type="SSD")
             repo.record_observation(
                 run_id, offering_id, raw, normalized, evidence=quote.evidence
             )

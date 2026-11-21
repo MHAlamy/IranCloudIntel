@@ -12,10 +12,8 @@ No LLM is used: the dataset is already structured.
 """
 from __future__ import annotations
 
-import hashlib
 import json
 from dataclasses import asdict, dataclass, field
-from datetime import datetime, timezone
 from decimal import Decimal
 from pathlib import Path
 from typing import Callable
@@ -23,11 +21,13 @@ from typing import Callable
 from collectors.common import (
     CollectionOutcome,
     FetchError,
+    content_hash,
     fail_collection,
+    raw_and_normalized,
     start_collection,
+    write_evidence,
 )
 from config.loader import ProviderConfig, SourceConfig, load_benchmarks
-from extractors.schema import LLMPlanRow, NormalizedPlanRow
 from storage.repository import Repository
 from util.fingerprint import collection_fingerprint
 
@@ -110,78 +110,33 @@ def _plan_payload(plans: list[OfflinePlan]) -> list[dict]:
 
 
 def collection_content_hash(plans: list[OfflinePlan]) -> str:
-    payload = json.dumps(_plan_payload(plans), sort_keys=True, ensure_ascii=False)
-    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
-
-
-def _write_evidence(
-    root: Path, provider: str, folder: str, content_hash: str, files: dict[str, str],
-) -> Path:
-    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
-    directory = root / provider / folder / f"{stamp}_{content_hash[:12]}"
-    directory.mkdir(parents=True, exist_ok=False)
-    for name, text in files.items():
-        if text:
-            (directory / name).write_text(text, encoding="utf-8")
-    return directory
+    return content_hash(_plan_payload(plans))
 
 
 def save_offline_evidence(
     root: Path, provider: str, service: str, content_hash: str,
     collection: OfflineCollection,
 ) -> Path:
-    files = dict(collection.extra_files)
-    files["cleaned.md"] = collection.cleaned
+    files = {name: text for name, text in collection.extra_files.items() if text}
+    if collection.cleaned:
+        files["cleaned.md"] = collection.cleaned
     files["plans.json"] = json.dumps(
         [asdict(p) for p in collection.plans], ensure_ascii=False, indent=2, default=str
     )
-    return _write_evidence(root, provider, f"{service}_offline", content_hash, files)
+    return write_evidence(root, provider, f"{service}_offline", content_hash, files)
 
 
 def save_offline_rate_evidence(
     root: Path, provider: str, service: str, content_hash: str,
     collection: OfflineRateCollection,
 ) -> Path:
-    files = dict(collection.extra_files)
-    files["cleaned.md"] = collection.cleaned
+    files = {name: text for name, text in collection.extra_files.items() if text}
+    if collection.cleaned:
+        files["cleaned.md"] = collection.cleaned
     files["rates.json"] = json.dumps(
         [asdict(r) for r in collection.rates], ensure_ascii=False, indent=2, default=str
     )
-    return _write_evidence(root, provider, f"{service}_offline", content_hash, files)
-
-
-def _raw_and_normalized(plan: OfflinePlan, source_url: str) -> tuple[LLMPlanRow, NormalizedPlanRow]:
-    raw = LLMPlanRow(
-        plan_name=plan.plan_name,
-        provider_tier_raw=plan.provider_tier_raw,
-        region=plan.region,
-        vcpu=plan.vcpu,
-        ram_gb=float(plan.ram_gb),
-        disk_gb=float(plan.disk_gb),
-        disk_type=plan.disk_type,
-        price_raw=plan.price_raw,
-        currency_raw="تومان",
-        billing_period_raw="ماهانه",
-        evidence=plan.evidence,
-    )
-    normalized = NormalizedPlanRow(
-        plan_name=plan.plan_name,
-        provider_tier_raw=plan.provider_tier_raw,
-        region=plan.region,
-        vcpu=plan.vcpu,
-        ram_gb=float(plan.ram_gb),
-        disk_gb=float(plan.disk_gb),
-        disk_type=plan.disk_type,
-        price_value=plan.price_toman,
-        currency="toman",
-        price_in_toman=plan.price_toman,
-        billing_period="monthly",
-        pricing_type=plan.pricing_type,
-        plan_url=source_url,
-        validation_status="valid",
-        validation_issues=[],
-    )
-    return raw, normalized
+    return write_evidence(root, provider, f"{service}_offline", content_hash, files)
 
 
 def run_offline_collection(
@@ -229,7 +184,7 @@ def run_offline_collection(
                 provider_tier_raw=plan.provider_tier_raw,
                 region=plan.region,
             )
-            raw, normalized = _raw_and_normalized(plan, source.url)
+            raw, normalized = raw_and_normalized(plan, source.url, disk_type=plan.disk_type)
             repo.record_observation(
                 run_id, offering_id, raw, normalized, evidence=plan.evidence
             )
@@ -275,8 +230,7 @@ def _rate_payload(rates: list[OfflineOsRate]) -> list[dict]:
 
 
 def rates_content_hash(rates: list[OfflineOsRate]) -> str:
-    payload = json.dumps(_rate_payload(rates), sort_keys=True, ensure_ascii=False)
-    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+    return content_hash(_rate_payload(rates))
 
 
 def run_offline_rates_collection(

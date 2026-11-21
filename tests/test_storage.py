@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 
 from extractors.schema import LLMPlanRow, NormalizedPlanRow
+import storage.db
 from storage.db import SCHEMA_VERSION, connect, init_db
 from storage.repository import Repository
 
@@ -50,6 +51,29 @@ def test_init_db_is_idempotent_and_records_version(tmp_path):
     version = connection.execute("SELECT MAX(version) v FROM schema_version").fetchone()["v"]
     connection.close()
     assert version == SCHEMA_VERSION
+
+
+def test_failed_migration_is_rolled_back(tmp_path, monkeypatch):
+    schema = tmp_path / "schema.sql"
+    schema.write_text("CREATE TABLE base(id INTEGER);", encoding="utf-8")
+    migrations = tmp_path / "migrations"
+    migrations.mkdir()
+    (migrations / "v2__broken.sql").write_text(
+        "CREATE TABLE added(id INTEGER);\nINSERT INTO missing_table VALUES (1);",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(storage.db, "SCHEMA_PATH", schema)
+    monkeypatch.setattr(storage.db, "MIGRATIONS_DIR", migrations)
+    with pytest.raises(sqlite3.OperationalError):
+        init_db(tmp_path / "broken.db")
+    connection = connect(tmp_path / "broken.db")
+    try:
+        tables = {row["name"] for row in connection.execute("SELECT name FROM sqlite_master")}
+        versions = [row["version"] for row in connection.execute("SELECT version FROM schema_version")]
+    finally:
+        connection.close()
+    assert "base" in tables and "added" not in tables
+    assert versions == [1]
 
 
 def test_identity_upserts_are_idempotent(repo):
@@ -141,7 +165,20 @@ def test_should_skip_extraction(repo):
     assert repo.should_skip_extraction(source, "hash-aaa", "cfg-1") is True
     assert repo.should_skip_extraction(source, "hash-bbb", "cfg-1") is False   # content changed
     assert repo.should_skip_extraction(source, "hash-aaa", "cfg-2") is False   # extractor config changed
-    assert repo.should_skip_extraction(source, "hash-aaa", "cfg-1") is False if False else True
+
+
+def test_latest_observations_ignores_unknown_price(repo):
+    arvan = repo.ensure_provider("arvan", "ArvanCloud", "https://www.arvancloud.ir/")
+    source = repo.ensure_source(arvan, "vm", "https://example.com/pricing", "playwright")
+    offering = repo.ensure_offering(
+        arvan, "vm", "eco-small4", provider_tier_raw="basic", region="ir-thr-ba1"
+    )
+    run = repo.start_run(source)
+    repo.record_observation(run, offering, make_raw(), make_normalized())
+    repo.finish_run(run, "success")
+    repo._connection.execute("UPDATE price_observations SET price_in_toman=NULL")
+    repo._connection.commit()
+    assert repo.latest_observations(service_type="vm") == []
 
 
 def test_validation_issues_stored_as_json(repo):

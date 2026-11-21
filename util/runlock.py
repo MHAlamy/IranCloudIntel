@@ -25,7 +25,10 @@ class RunLock:
     def acquire(self) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         if self.path.exists() and self._is_stale():
-            self.path.unlink()  # abandoned lock from a crashed run
+            try:
+                self.path.unlink()  # abandoned lock from a crashed run
+            except FileNotFoundError:
+                pass  # another process reclaimed it first
         try:
             handle = os.open(self.path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
         except FileExistsError as exc:
@@ -47,6 +50,8 @@ class RunLock:
             age = time.time() - self.path.stat().st_mtime
         except FileNotFoundError:
             return False
+        # shortcut: staleness is time-based, not PID-based; a run longer than
+        # stale_after_hours can be reclaimed. Refresh mtime if runs grow long.
         return age > self.stale_after_seconds
 
     def __enter__(self) -> "RunLock":

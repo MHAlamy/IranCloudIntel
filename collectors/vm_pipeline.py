@@ -211,19 +211,22 @@ def run_collection(
                     # Bundle-vs-rates verification (deterministic, zero tokens)
                     if rate_mappings and provider.slug in rate_mappings and rates_stored:
                         mapping = rate_mappings[provider.slug]
-                        tier_rates = rates_lookup.rates_for(normalized.plan_name)
-                        if not is_iranian_region(normalized.region or ""):
-                            status, detail = (
-                                "review", "non-Iranian region; not verified against Iranian rates"
-                            )
-                        elif tier_rates is not None and normalized.vcpu is not None:
-                            status, detail = verify_bundle(
-                                normalized.plan_name, normalized.vcpu,
-                                Decimal(str(normalized.ram_gb)), Decimal(str(normalized.disk_gb)),
-                                normalized.price_in_toman, tier_rates, mapping,
-                            )
+                        if rates_lookup is None:
+                            status, detail = "review", "IPv4 rate missing; bundle not verified"
                         else:
-                            status, detail = "review", "rates or resources incomplete for verification"
+                            tier_rates = rates_lookup.rates_for(normalized.plan_name)
+                            if not is_iranian_region(normalized.region or ""):
+                                status, detail = (
+                                    "review", "non-Iranian region; not verified against Iranian rates"
+                                )
+                            elif tier_rates is not None and normalized.vcpu is not None:
+                                status, detail = verify_bundle(
+                                    normalized.plan_name, normalized.vcpu,
+                                    Decimal(str(normalized.ram_gb)), Decimal(str(normalized.disk_gb)),
+                                    normalized.price_in_toman, tier_rates, mapping,
+                                )
+                            else:
+                                status, detail = "review", "rates or resources incomplete for verification"
                         repo.set_rate_verification(latest_observation_id, status, detail)
 
         if review_entries:

@@ -22,6 +22,7 @@
 | OS comparison/rendering | `app/os_view.py`, `app/templates/os_comparison.html` | `test_os_dashboard.py` |
 | Shared chart design | `app/templates/price_chart.html`, `app/static/style.css` | dashboard tests |
 | Read-only inspection | `scripts/inspect_data.py` | `test_inspect_data.py` |
+| Bounded file/log output | `scripts/peek.py` | `test_peek.py` |
 
 `app/data.py` and `collectors/pipeline.py` preserve old imports; edit the actual
 service modules. Prices, prompts and rules live in code/YAML, not historical docs.

@@ -256,6 +256,7 @@ class Repository:
             JOIN sources s ON s.id = cr.source_id
             WHERE (? IS NULL OR off.service_type = ?)
               AND (? IS NULL OR off.provider_id = ?)
+              AND o.price_in_toman IS NOT NULL
             ORDER BY p.name, off.plan_name
         """
         return self._connection.execute(query, (service_type, service_type, provider_id, provider_id)).fetchall()

@@ -28,6 +28,7 @@ def test_capacity_gb_parses_tb_with_configurable_factor():
     assert parse_capacity_gb("۵ ترابایت") == Decimal(5120)       # 5 × 1024
     assert parse_capacity_gb("۵ TB", tb_to_gb=1000) == Decimal(5000)
     assert parse_capacity_gb("۲۰ ترابایت") == Decimal(20480)
+    assert parse_capacity_gb("۱٫۵ ترابایت") == Decimal(1536)     # Persian decimal point
 
 
 def test_capacity_gb_unlimited_and_unknown_are_none():
@@ -48,6 +49,7 @@ def test_gb_bounds_parsing():
     assert parse_gb_bounds("تا ۵ گیگابایت") == (Decimal("0"), Decimal(5))
     assert parse_gb_bounds("۵ گیگابایت تا ۵ ترابایت") == (Decimal(5), Decimal(5120))
     assert parse_gb_bounds("۵ تا ۵۰ ترابایت") == (Decimal(5120), Decimal(51200))
+    assert parse_gb_bounds("۱٫۵ تا ۳ ترابایت") == (Decimal("1536"), Decimal("3072"))
     assert parse_gb_bounds("بیش از ۵۰۰ ترابایت") == (Decimal(512000), None)
     assert parse_gb_bounds("۲۰۰ ترابایت تا ۲ پتابایت") == (Decimal(204800), Decimal(2097152))
     assert parse_gb_bounds("") == (None, None)

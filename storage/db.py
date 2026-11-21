@@ -48,11 +48,24 @@ def init_db(db_path: str | Path) -> None:
         for version, path in migrations:
             if version in applied:
                 continue
-            connection.executescript(path.read_text(encoding="utf-8"))
-            connection.execute(
-                "INSERT INTO schema_version (version, applied_at) VALUES (?, ?)",
-                (version, utc_now_iso()),
-            )
-            connection.commit()
+            sql = path.read_text(encoding="utf-8")
+            # v5/v6 rebuild tables and need FK checks off; that pragma is a
+            # no-op inside a transaction, so set it outside and restore after.
+            fk_off = "foreign_keys" in sql.lower()
+            if fk_off:
+                connection.execute("PRAGMA foreign_keys=OFF")
+            try:
+                connection.executescript(
+                    "BEGIN IMMEDIATE;\n"
+                    + sql
+                    + "\nINSERT INTO schema_version (version, applied_at) VALUES "
+                    + f"({version}, '{utc_now_iso()}');\nCOMMIT;"
+                )
+            except BaseException:
+                connection.rollback()
+                raise
+            finally:
+                if fk_off:
+                    connection.execute("PRAGMA foreign_keys=ON")
     finally:
         connection.close()

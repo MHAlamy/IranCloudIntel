@@ -273,7 +273,11 @@ def build_os_view(repo: Repository, scenario_key: str | None = None) -> dict:
             price = Decimal(row["price_in_toman"]) if row["price_in_toman"] is not None else None
             return _cell(price, "published", row["plan_name"], provider_notes)
 
-        exact = [p for p in plans if _plan_storage(p) == storage_gb and _plan_traffic(p) == traffic_gb]
+        exact = [
+            p for p in plans
+            if _plan_storage(p) == storage_gb and _plan_traffic(p) == traffic_gb
+            and p["price_in_toman"] is not None
+        ]
         if exact:
             row = min(exact, key=lambda r: Decimal(r["price_in_toman"]))
             price = Decimal(row["price_in_toman"]) if row["price_in_toman"] is not None else None
@@ -295,13 +299,18 @@ def build_os_view(repo: Repository, scenario_key: str | None = None) -> dict:
             p for p in plans
             if _plan_storage(p) == storage_gb
             and p["traffic_included_gb"] is None and not p["traffic_unlimited"]
+            and p["price_in_toman"] is not None
         ]
         if storage_only:
             row = min(storage_only, key=lambda r: Decimal(r["price_in_toman"]))
             price = Decimal(row["price_in_toman"]) if row["price_in_toman"] is not None else None
             return _cell(price, "published", row["plan_name"], provider_notes)
 
-        larger = [p for p in plans if _plan_storage(p) is not None and _plan_storage(p) > storage_gb]
+        larger = [
+            p for p in plans
+            if _plan_storage(p) is not None and _plan_storage(p) > storage_gb
+            and p["price_in_toman"] is not None
+        ]
         if larger:
             nearest = min(larger, key=lambda r: Decimal(r["storage_included_gb"]))
             actual = Decimal(str(nearest["storage_included_gb"]))

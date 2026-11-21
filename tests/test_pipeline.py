@@ -7,7 +7,9 @@ from pathlib import Path
 import httpx
 import pytest
 
+from collectors.arvan_rates import RateRow
 from collectors.pipeline import CollectionOutcome, FetchResult, extractor_config_hash, run_collection
+from comparison.rate_check import ProviderRateMapping
 from config.loader import ProviderConfig, SourceConfig
 from extractors.llm import LLMClient
 from storage.repository import Repository
@@ -178,3 +180,25 @@ def test_suspect_rows_go_to_review_queue_not_history(repo, tmp_path):
     review_files = list((tmp_path / "evidence").rglob("review_queue.json"))
     assert len(review_files) == 1
     assert "mystery" in review_files[0].read_text(encoding="utf-8")
+
+
+def test_missing_ipv4_rate_marks_review_instead_of_failing(repo, tmp_path):
+    provider, source = make_source()
+    rates = [
+        RateRow("cpu", "iran", "هر vCore", "Basic", "100", ""),
+        RateRow("ram", "iran", "هر گیگابایت", "Basic", "50", ""),
+        RateRow("storage", "iran", "هر گیگابایت", "بلاک استوریج (Eco)", "10", ""),
+    ]
+    mapping = ProviderRateMapping(
+        provider_slug="arvan", families=[], calculated_price_factors={},
+    )
+    outcome = run_collection(
+        provider, source, repo, mock_llm_factory([]),
+        fetcher=fake_fetcher(), cleaner=arvan_cleaner,
+        evidence_root=tmp_path / "evidence",
+        rates_parser=lambda html: rates,
+        rate_mappings={"arvan": mapping},
+    )
+    assert outcome.status == "success"
+    latest = repo.latest_observations(service_type="vm")
+    assert latest and {row["rate_verification"] for row in latest} == {"review"}

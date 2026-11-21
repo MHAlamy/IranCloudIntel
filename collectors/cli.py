@@ -99,12 +99,12 @@ OS_COLLECTION = {
 }
 
 
-def main() -> int:
+def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description="One-shot price collection")
     parser.add_argument("--db", default=str(DATA_DIR / "cloud_intel.db"))
     parser.add_argument("--source", default=None, help="collect only this source id")
     parser.add_argument("--force", action="store_true", help="extract even when content is unchanged")
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     providers_file = load_providers()
     rate_mappings = load_rate_mappings()
@@ -115,10 +115,12 @@ def main() -> int:
         repository = Repository(args.db)
         try:
             exit_code = 0
+            matched = 0
             for provider in providers_file.providers:
                 for source in provider.sources:
                     if not source.enabled or (args.source and source.id != args.source):
                         continue
+                    matched += 1
                     print(f"--- collecting {source.id} ---")
                     if source.collection_method == "manual":
                         entry = OFFLINE_COLLECTION.get((provider.slug, source.service_type))
@@ -214,6 +216,9 @@ def main() -> int:
                     if outcome.error:
                         print(f"    ERROR: {outcome.error}")
                         exit_code = 1
+            if args.source and not matched:
+                print(f"    ERROR: no enabled source with id {args.source!r}")
+                return 1
             return exit_code
         finally:
             repository.close()

@@ -7,8 +7,6 @@
 #          + disk * storage_rate
 
 arvan:
-  ipv4_first_toman: "234000"
-  default_storage_rate_toman: "18000"   # بلاک استوریج (Eco) == (Hot-SSD)
   families:
     - prefix: "eco"
       rate_tier: basic
@@ -72,8 +70,6 @@ arvan:
 # baseline; VAT and traffic out of comparison scope. Factor is 1.0 — the
 # published rates are used as-is.
 kubit:
-  ipv4_first_toman: "173000"          # آی‌پی اینترنتی IPv4 (monthly)
-  default_storage_rate_toman: "14900"
   families: []                        # no published bundles to verify
   tier_generations:
     economy: "gen-3"

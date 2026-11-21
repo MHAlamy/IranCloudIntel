@@ -28,8 +28,6 @@ STORAGE_CLASS_LABELS = {
 @dataclass
 class ProviderRateMapping:
     provider_slug: str
-    ipv4_first_toman: Decimal
-    default_storage_rate_toman: Decimal
     families: list[dict]
     calculated_price_factors: dict[str, Decimal]
     tier_generations: dict = field(default_factory=dict)
@@ -47,8 +45,6 @@ def load_rate_mappings(path: Path = RATE_MAPPINGS_PATH) -> dict[str, ProviderRat
     for slug, cfg in data.items():
         result[slug] = ProviderRateMapping(
             provider_slug=slug,
-            ipv4_first_toman=Decimal(str(cfg["ipv4_first_toman"])),
-            default_storage_rate_toman=Decimal(str(cfg["default_storage_rate_toman"])),
             families=cfg["families"],
             calculated_price_factors={
                 tier: Decimal(str(factor))

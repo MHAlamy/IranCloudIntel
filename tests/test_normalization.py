@@ -24,6 +24,7 @@ def test_parse_price_persian_and_latin():
     assert parse_price("۱,۴۰۱,۴۸۰") == Decimal("1401480")
     assert parse_price("1,401,480") == Decimal("1401480")
     assert parse_price(" ۲۵۲٬۰۰۰ ") == Decimal("252000")
+    assert parse_price("۱٫۵") == Decimal("1.5")
 
 
 def test_parse_price_rejects_non_numbers():

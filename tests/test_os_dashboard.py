@@ -15,6 +15,7 @@ from fastapi.testclient import TestClient
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from app.main import create_app  # noqa: E402
+from app.os_view import build_os_view  # noqa: E402
 from collectors.arvan_os_rates import parse_os_rates  # noqa: E402
 from collectors.hamravesh_os import parse_hamravesh_os_plans  # noqa: E402
 from collectors.kubit_os import parse_kubit_os_rates  # noqa: E402
@@ -354,3 +355,30 @@ def test_os_chart_follows_selected_scenario(os_client):
 def test_nav_links_to_object_storage(os_client):
     text = os_client.get("/vm").text
     assert '/object-storage' in text
+
+
+def test_quote_only_plan_with_finite_capacity_does_not_crash(tmp_path):
+    repo = Repository(tmp_path / "quote.db")
+    try:
+        arvan = repo.ensure_provider("arvan", "ArvanCloud", "https://www.arvancloud.ir/")
+        source = repo.ensure_source(arvan, "object_storage", "https://example.test/os", "http")
+        run = repo.start_run(source)
+        offering = repo.ensure_offering(
+            arvan, "object_storage", "رشد", product_family="fixed_bundle"
+        )
+        raw = LLMStoragePlanRow(
+            plan_name="رشد", price_raw="ثبت درخواست",
+            storage_raw="۵۰۰ گیگابایت", traffic_raw="۲ ترابایت", evidence="e",
+        )
+        normalized = normalize_os_row(raw)
+        assert normalized.plan_status == "quote_only"
+        repo.record_os_observation(
+            run, offering, normalized, price_raw="ثبت درخواست",
+            currency_raw="", billing_period_raw="", evidence="e",
+        )
+        repo.publish_run(run, "success", content_hash="quote-only")
+        view = build_os_view(repo, "growth")
+    finally:
+        repo.close()
+    cell = next(c for c in view["comparison_rows"] if c["slug"] == "arvan")
+    assert cell["price"] is None and cell["basis"] == "missing"

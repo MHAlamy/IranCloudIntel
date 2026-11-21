@@ -9,11 +9,13 @@ from __future__ import annotations
 import re
 from decimal import Decimal, InvalidOperation
 
-# Persian and Arabic digit variants mapped to ASCII
-_DIGIT_MAP = str.maketrans("۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩", "01234567890123456789")
+# Persian and Arabic digit variants mapped to ASCII. U+066B is the Persian
+# decimal separator; keep it as '.' so "۱٫۵" parses as 1.5, not 15.
+_DIGIT_MAP = str.maketrans("۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩٫", "01234567890123456789.")
 
-# Persian/Arabic thousand separators (U+066C ARABIC THOUSANDS SEPARATOR, U+066B)
-_SEPARATORS = str.maketrans("", "", "٬،, \u066c\u066b\u200f\u200e")
+# Persian/Arabic thousands separators and bidi marks (U+066B is a decimal
+# point; see _DIGIT_MAP). Unused by parse_price today.
+_SEPARATORS = str.maketrans("", "", "٬،, \u066c\u200f\u200e")
 
 _CURRENCY_PATTERNS = {
     "toman": ("تومان", "تومان‌", "toman"),
@@ -39,7 +41,7 @@ def parse_price(text: str) -> Decimal:
     """
     latin = to_latin_digits(text)
     # Remove separators only between digits
-    cleaned = re.sub(r"(?<=\d)[٬،,\s\u066c\u066b]+(?=\d)", "", latin)
+    cleaned = re.sub(r"(?<=\d)[٬،,\s\u066c]+(?=\d)", "", latin)
     cleaned = re.sub(r"[^\d.\-]", "", cleaned)
     if not cleaned or cleaned in {"-", "."}:
         raise ValueError(f"no numeric value in {text!r}")
