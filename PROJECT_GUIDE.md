@@ -8,11 +8,13 @@ the milestone status for progress, and `docs/CODE_MAP.md` for targeted code look
 
 A personal dashboard tracking Iranian cloud prices with auditable source evidence
 and history. Equally important: learn practical VM-based DevOps while building it.
-V1 covers public VM, Object Storage, PaaS/CNAP and CDN pricing. VM, OS and
-PaaS/CNAP panels exist; CDN, deployment and operational automation remain
-unfinished. PaaS is compute-shaped and reuses the VM observation table with
-`service_type='paas'`; Liara is compared on its silver tier, while Hamravesh
-and Arvan are calculated from their published monthly resource rates.
+V1 covers public VM, Object Storage, PaaS/CNAP, DBaaS and CDN pricing. VM, OS,
+PaaS/CNAP and DBaaS panels exist; CDN, deployment and operational automation
+remain unfinished. PaaS and DBaaS are compute-shaped and reuse the VM
+observation table with `service_type='paas'` and `service_type='dbaas'`; Liara
+is compared on its silver tier, while Hamravesh and Arvan are calculated from
+their published monthly resource rates. DBaaS compares two infrastructure
+classes (local/premium and shared/network) over four shared reference sizes.
 
 V2 may expand services and add reviewed AI-assisted scraper repairs. V3 may track
 features from official documentation and later authorized read-only consoles.
@@ -34,7 +36,9 @@ Neither roadmap stage justifies extra infrastructure or autonomous production ed
 - Product pages share a validated catalogue (`config/products.yaml`) and a
   three-section shell; schema v5 allows `service_type='paas'` for compute-shaped
   PaaS offerings while VM/OS keep their service-specific data rules. Schema v6
-  adds manual (offline) sources with per-run document provenance.
+  adds manual (offline) sources with per-run document provenance. Schema v7
+  allows `service_type='dbaas'`; DBaaS stores the infrastructure class and price
+  basis in `product_family` (`dbaas_<class>_<basis>`).
 - Target production: one Ubuntu Arvan VM, Docker Compose, Nginx/HTTPS, protected
   access, daily collection and consistent off-VM backups to private Object Storage.
 - GitHub/Actions/GHCR are proposed release tools, subject to verified connectivity.
@@ -50,15 +54,16 @@ Neither roadmap stage justifies extra infrastructure or autonomous production ed
   catalogues, periodic automated performance checks, evidence and timestamps,
   unknown ≠ zero). Only products with a real page are links; all others are
   visibly disabled with «به‌زودی».
-- Product pages exist at `/vm`, `/object-storage` and `/paas`; `/status` shows
-  source collection health and `/plan/{id}` shows one offering's history.
+- Product pages exist at `/vm`, `/object-storage`, `/paas` and `/dbaas`;
+  `/status` shows source collection health and `/plan/{id}` shows one offering's
+  history.
 - Every product page has a centered product title, followed by three sections:
   1. «مقایسه قیمت» — all existing price content: selectors, the shared chart,
      the provider-row table, plan/rate details, legend and freshness.
   2. «مقایسه قابلیت‌ها» — a «به‌زودی» placeholder.
   3. «مقایسه عملکرد» — implemented for Object Storage (offline benchmark table
-     plus its provenance notes); a «به‌زودی» placeholder on the VM and PaaS
-     pages.
+     plus its provenance notes); a «به‌زودی» placeholder on the VM, PaaS and
+     DBaaS pages.
   Sections without a data model stay explicit placeholders and must not
   fabricate data.
 - The topbar brand links to the homepage; the nav links the implemented product

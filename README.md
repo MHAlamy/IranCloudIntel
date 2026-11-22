@@ -1,8 +1,8 @@
 # Iranian Cloud Intelligence Dashboard
 
 Personal public-price intelligence for Iranian cloud services, with source evidence,
-SQLite history and a Persian RTL dashboard. VM, Object Storage and PaaS/CNAP are
-implemented; CDN and production operations remain unfinished. See
+SQLite history and a Persian RTL dashboard. VM, Object Storage, PaaS/CNAP and
+DBaaS are implemented; CDN and production operations remain unfinished. See
 `v1_milestones.md` for status.
 
 ## Develop on Windows
@@ -16,8 +16,8 @@ py -3.14 -m venv .venv
 .\.venv\Scripts\python.exe -m uvicorn app.main:create_app --factory --reload --host 127.0.0.1 --port 8000
 ```
 
-Open `/` for the homepage product map, `/vm`, `/object-storage`, `/paas` or
-`/status`. Restart an already-running server before using changed Python code
+Open `/` for the homepage product map, `/vm`, `/object-storage`, `/paas`,
+`/dbaas` or `/status`. Restart an already-running server before using changed Python code
 unless it was launched with `--reload`.
 Repository initialization applies pending migrations; back up persistent data
 before running a newer release. Do not use the real database for test seeding.
@@ -27,15 +27,15 @@ Production images will install `requirements.txt`; dev requirements add pytest.
 
 - `/` is a static homepage: title «رصد بازار خدمات ابری ایران», a subtitle
   explaining the price/capabilities/performance comparison, a layered
-  IaaS/CaaS/PaaS product map, and a methodology summary. VM, Object Storage and
-  CNAP are links; CDN, GPUaaS, KaaS, DBaaS, DevOps tools and AIaaS are disabled
-  with «به‌زودی».
-- `/vm`, `/object-storage` and `/paas` share one shell: a centered product title,
+  IaaS/CaaS/PaaS product map, and a methodology summary. VM, Object Storage,
+  CNAP and DBaaS are links; CDN, GPUaaS, KaaS, DevOps tools and AIaaS are
+  disabled with «به‌زودی».
+- `/vm`, `/object-storage`, `/paas` and `/dbaas` share one shell: a centered product title,
   then «مقایسه قیمت» (selectors, shared chart, provider-row table, details,
   freshness), «مقایسه قابلیت‌ها» and «مقایسه عملکرد». Capability comparison is a
   «به‌زودی» placeholder everywhere; Object Storage has the first performance
-  section (offline benchmark table and notes), while VM and PaaS keep the
-  placeholder.
+  section (offline benchmark table and notes), while VM, PaaS and DBaaS keep
+  the placeholder.
 - `/status` shows collection health and `/plan/{id}` shows one offering's
   history. The catalogue and routes live in `config/products.yaml`; a product
   becomes a link only when it has a real page.
@@ -76,10 +76,11 @@ Do not commit secrets, evidence or databases. Use exact Decimal/text money.
 
 Accepted-run publication hides running/failed rows. Empty/incomplete results retain
 last accepted prices; source verification becomes stale after 48 hours or a failed
-latest attempt. Genuine plan removal/renaming requires review. Schema v5 adds the
-PaaS service type; schema v4 records hourly conversion hours. OS and PaaS totals
-remain partial and assumption-dependent: Liara silver is a published plan price,
-while Hamravesh Darakub and Arvan PaaS are calculated from monthly resource rates.
+latest attempt. Genuine plan removal/renaming requires review. Schema v7 adds the
+DBaaS service type; schema v5 adds PaaS; schema v4 records hourly conversion
+hours. OS, PaaS and DBaaS totals remain partial and assumption-dependent: Liara
+silver is a published plan price, while Hamravesh and Arvan are calculated from
+monthly resource rates and Sotoon comes from its offline price list.
 
 ## Documentation and visual design
 

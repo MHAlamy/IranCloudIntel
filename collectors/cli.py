@@ -32,19 +32,27 @@ from collectors.arvan_os_rates import (  # noqa: E402
 )
 from collectors.arvan_rates import parse_rates  # noqa: E402
 from collectors.arvan_paas import collect_arvan_paas  # noqa: E402
+from collectors.arvan_dbaas import collect_arvan_dbaas  # noqa: E402
 from collectors.hamravesh_os import build_hamravesh_os_markdown, parse_hamravesh_os_plans  # noqa: E402
 from collectors.hamravesh_paas import collect_hamravesh_paas  # noqa: E402
+from collectors.hamravesh_dbaas import collect_hamravesh_dbaas  # noqa: E402
 from collectors.kubit_clean import clean_kubit  # noqa: E402
 from collectors.kubit_os import clean_kubit_os, parse_kubit_os_plans, parse_kubit_os_rates  # noqa: E402
 from collectors.kubit_rates import parse_kubit_rates  # noqa: E402
 from collectors.liara_clean import clean_liara  # noqa: E402
 from collectors.liara_paas import collect_liara_paas  # noqa: E402
+from collectors.liara_dbaas import collect_liara_dbaas  # noqa: E402
 from collectors.liara_plans import parse_liara_plans  # noqa: E402
 from collectors.parspack_os import run_parspack_os  # noqa: E402
 from collectors.parspack_quotes import run_parspack_quotes  # noqa: E402
+from collectors.dbaas_pipeline import run_dbaas_collection  # noqa: E402
 from collectors.paas_pipeline import run_paas_collection  # noqa: E402
 from collectors.offline_pipeline import run_offline_collection, run_offline_rates_collection  # noqa: E402
-from collectors.sotoon_offline import collect_sotoon_offline, collect_sotoon_os_offline  # noqa: E402
+from collectors.sotoon_offline import (  # noqa: E402
+    collect_sotoon_dbaas_offline,
+    collect_sotoon_offline,
+    collect_sotoon_os_offline,
+)
 from collectors.pipeline import fetch_source, run_collection, run_os_collection  # noqa: E402
 from comparison.rate_check import load_rate_mappings  # noqa: E402
 from extractors.llm import LLMClient  # noqa: E402
@@ -65,11 +73,18 @@ PAAS_COLLECTION = {
     "liara": collect_liara_paas,
 }
 
+DBAAS_COLLECTION = {
+    "arvan": collect_arvan_dbaas,
+    "hamravesh": collect_hamravesh_dbaas,
+    "liara": collect_liara_dbaas,
+}
+
 # Manual (offline) sources: transcribed documents, no fetch and no LLM.
 # Keyed by (provider, service) because one document can feed several services.
 OFFLINE_COLLECTION = {
     ("sotoon", "vm"): (run_offline_collection, collect_sotoon_offline),
     ("sotoon", "object_storage"): (run_offline_rates_collection, collect_sotoon_os_offline),
+    ("sotoon", "dbaas"): (run_offline_collection, collect_sotoon_dbaas_offline),
 }
 
 OS_COLLECTION = {
@@ -163,6 +178,20 @@ def main(argv=None) -> int:
                             exit_code = 1
                             continue
                         outcome = run_paas_collection(
+                            provider=provider,
+                            source=source,
+                            repo=repository,
+                            collector=collector,
+                            evidence_root=ROOT / "evidence",
+                            force=args.force,
+                        )
+                    elif source.service_type == "dbaas":
+                        collector = DBAAS_COLLECTION.get(provider.slug)
+                        if collector is None:
+                            print(f"    ERROR: no DBaaS collector for {provider.slug}")
+                            exit_code = 1
+                            continue
+                        outcome = run_dbaas_collection(
                             provider=provider,
                             source=source,
                             repo=repository,

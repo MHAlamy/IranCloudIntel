@@ -41,7 +41,8 @@ layers:
         enabled: true
       - slug: dbaas
         name_fa: دیتابیس ابری (DBaaS)
-        enabled: false
+        route: /dbaas
+        enabled: true
       - slug: devops
         name_fa: ابزارهای DevOps
         enabled: false

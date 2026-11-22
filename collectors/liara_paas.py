@@ -63,24 +63,25 @@ def parse_liara_paas_cards(cards: list[str]) -> list[LiaraPaasPlan]:
     return plans
 
 
-def extract_liara_paas_cards(page_html: str) -> list[str]:
-    """Card texts from the active silver PaaS tier container.
+def extract_liara_paas_cards(page_html: str, position: str = "paas") -> list[str]:
+    """Card texts from the active silver tier container.
 
     After selection the active tier button loses its data-gtm attributes, so
-    the active state is read from the tier group itself; the PaaS group is
-    anchored by its stable «پایه» button.
+    the active state is read from the tier group itself; the group is anchored
+    by its stable «پایه» button. `position` is the page section ("paas" or
+    "dbaas"); both use the same card markup.
     """
     soup = BeautifulSoup(page_html, "html.parser")
     basic = soup.find(
         "button",
-        attrs={"data-gtm-position": "paas", "data-gtm-label": "پایه"},
+        attrs={"data-gtm-position": position, "data-gtm-label": "پایه"},
     )
     if basic is None:
-        raise FetchError("Liara PaaS tier group not found")
+        raise FetchError(f"Liara {position} tier group not found")
     tier_group = basic.parent
     active = tier_group.find("button", class_="active") if tier_group else None
     if active is None or "نقره" not in active.get_text(" ", strip=True):
-        raise FetchError("Liara PaaS silver tier was not selected")
+        raise FetchError(f"Liara {position} silver tier was not selected")
 
     container = tier_group
     items = []
@@ -92,7 +93,7 @@ def extract_liara_paas_cards(page_html: str) -> list[str]:
         if len(items) >= 7:
             break
     if len(items) < 7:
-        raise FetchError("Liara PaaS silver plan cards not found")
+        raise FetchError(f"Liara {position} silver plan cards not found")
     return [item.get_text("\n", strip=True) for item in items[:7]]
 
 

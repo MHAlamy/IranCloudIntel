@@ -59,3 +59,19 @@ paas:
     s2: {vcpu: 4,  ram_gb: 8,  disk_gb: 80}
     s3: {vcpu: 16, ram_gb: 32, disk_gb: 320}
     s4: {vcpu: 32, ram_gb: 64, disk_gb: 640}
+
+# DBaaS comparison references (owner request 2026-11-21). Both infrastructure
+# classes use the same four sizes. Providers are listed in dashboard order.
+dbaas:
+  classes:
+    local:
+      label: "محلی / پرمیوم (کلاس A)"
+      providers: [hamravesh, sotoon, arvan]
+    shared:
+      label: "اشتراکی / شبکه (کلاس B)"
+      providers: [sotoon, arvan, liara]
+  sizes:
+    small:      {vcpu: 1, ram_gb: 2,  disk_gb: 20}
+    medium:     {vcpu: 2, ram_gb: 4,  disk_gb: 40}
+    large:      {vcpu: 4, ram_gb: 8,  disk_gb: 80}
+    very_large: {vcpu: 8, ram_gb: 16, disk_gb: 160}

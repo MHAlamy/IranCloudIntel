@@ -7,8 +7,10 @@
 | OS extraction/publication | `collectors/os_pipeline.py`, `extractors/os_schema.py` | `test_os_pipeline.py`, `test_os_parsers.py` |
 | PaaS extraction/publication | `collectors/paas_pipeline.py`, `hamravesh_paas.py`, `arvan_paas.py`, `liara_paas.py` | `test_paas_pipeline.py`, `test_paas_parsers.py` |
 | PaaS comparison/rendering | `app/paas_view.py`, `app/templates/paas.html` | `test_paas_dashboard.py` |
-| Schema v5 PaaS service type | `storage/migrations/v5__paas.sql` | `test_paas_pipeline.py` |
-| Manual (offline) import | `collectors/offline_pipeline.py`, `sotoon_offline.py`, `storage/migrations/v6__manual_sources.sql` | `test_sotoon_offline.py`, `test_sotoon_os.py` |
+| DBaaS extraction/publication | `collectors/dbaas_pipeline.py`, `hamravesh_dbaas.py`, `arvan_dbaas.py`, `liara_dbaas.py`, `sotoon_offline.py` | `test_dbaas_parsers.py` |
+| DBaaS comparison/rendering | `app/dbaas_view.py`, `app/templates/dbaas.html` | `test_dbaas_dashboard.py` |
+| Schema v5 PaaS / v7 DBaaS service types | `storage/migrations/v5__paas.sql`, `v7__dbaas.sql` | `test_paas_pipeline.py`, `test_dbaas_parsers.py` |
+| Manual (offline) import | `collectors/offline_pipeline.py`, `sotoon_offline.py`, `storage/migrations/v6__manual_sources.sql` | `test_sotoon_offline.py`, `test_sotoon_os.py`, `test_dbaas_parsers.py` |
 | Offline dataset packages | `datasets/offline/<source_id>/` (manifest + CSV) | `test_sotoon_offline.py`, `test_sotoon_os.py`, `test_benchmark_pivot.py` |
 | Benchmark pivot (display) | `comparison/benchmarks.py` (long CSV is the only stored source) | `test_benchmark_pivot.py` |
 | OS performance table | `app/benchmark_view.py`, `app/templates/os_benchmark.html` | `test_benchmark_view.py`, `test_os_dashboard.py` |
@@ -17,7 +19,7 @@
 | Accepted history/freshness | `storage/repository.py`, `collectors/common.py` | `test_publication.py`, `test_storage.py` |
 | Tariff/monthly semantics | `comparison/tariffs.py`, `normalization/validate.py` | `test_price_semantics.py` |
 | Homepage/product catalogue | `config/products.yaml`, `app/templates/home.html`, `app/main.py` | `test_home.py`, `test_config.py` |
-| Product page shell | `app/templates/vm.html`, `os.html`, `paas.html`, `macros.html` | dashboard tests |
+| Product page shell | `app/templates/vm.html`, `os.html`, `paas.html`, `dbaas.html`, `macros.html` | dashboard tests |
 | VM comparison/rendering | `app/vm_view.py`, `comparison/matching.py`, `app/templates/vm.html` | `test_matching.py`, `test_dashboard.py` |
 | OS comparison/rendering | `app/os_view.py`, `app/templates/os_comparison.html` | `test_os_dashboard.py` |
 | Shared chart design | `app/templates/price_chart.html`, `app/static/style.css` | dashboard tests |

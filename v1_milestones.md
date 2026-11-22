@@ -3,9 +3,11 @@
 **Status (2026-11-17):** native Windows development; four VM sources and four
 Object Storage sources implemented, plus Sotoon VM and Object Storage (HiCap)
 from a manually imported price list. PaaS/CNAP added with three sources
-(Hamravesh Darakub, Arvan PaaS, Liara silver). The homepage layered product map
-and the shared three-section product shell are implemented. CDN, production
-deployment and automation remain open. Audit actions 1-4 completed; action 5
+(Hamravesh Darakub, Arvan PaaS, Liara silver). DBaaS added with two
+infrastructure classes and four shared reference sizes (Hamravesh, Arvan,
+Liara, Sotoon offline). The homepage layered product map and the shared
+three-section product shell are implemented. CDN, production deployment and
+automation remain open. Audit actions 1-4 completed; action 5
 documentation/tooling cleanup completed. Historical detail is preserved in
 `docs/archive/2026-11-16_v1_milestones.md`.
 
@@ -38,6 +40,10 @@ documentation/tooling cleanup completed. Historical detail is preserved in
   performance placeholders. Product pages use a centered product title.
 - [x] PaaS/CNAP comparison: four compute selections, Liara silver, Hamravesh
   Darakub and Arvan calculated from published monthly resource rates.
+- [x] DBaaS comparison: two selectable infrastructure classes (local/premium and
+  shared/network) over four reference sizes; Liara silver published plans,
+  Hamravesh managed and Arvan premium/standard rates calculated, Sotoon Gen2
+  offline bundles scaled from the 1 vCPU + 2 GB unit for all four sizes.
 - [x] Sotoon VM from an offline price list: schema v6 manual sources, Neda
   datacenter, dedicated/shared mapped to Premium/Standard, reference sizes built
   from the 1 vCPU + 2 GB unit plus the دیسک مانا نوع ۲ (premium) disk, with

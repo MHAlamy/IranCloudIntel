@@ -20,7 +20,7 @@ class SourceConfig(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     id: str = Field(min_length=1)
-    service_type: Literal["vm", "object_storage", "cdn", "paas"]
+    service_type: Literal["vm", "object_storage", "cdn", "paas", "dbaas"]
     url: str = Field(min_length=1)
     # "manual" = transcribed offline document; never fetched over the network.
     collection_method: Literal["http", "playwright", "manual"]
@@ -123,6 +123,20 @@ class PaasBenchmarks(BaseModel):
     selections: dict[str, PaasSelection] = Field(default_factory=dict)
 
 
+class DbaasClass(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    label: str = Field(min_length=1)
+    providers: list[str] = Field(min_length=1)
+
+
+class DbaasBenchmarks(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    classes: dict[str, DbaasClass] = Field(default_factory=dict)
+    sizes: dict[str, BenchmarkSize] = Field(default_factory=dict)
+
+
 class BenchmarksFile(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -131,6 +145,7 @@ class BenchmarksFile(BaseModel):
         default_factory=lambda: ObjectStorageBenchmarks()  # type: ignore[call-arg]
     )
     paas: PaasBenchmarks = Field(default_factory=PaasBenchmarks)
+    dbaas: DbaasBenchmarks = Field(default_factory=DbaasBenchmarks)
 
 
 class OSScenario(BaseModel):

@@ -376,3 +376,175 @@ def collect_sotoon_os_offline(source: SourceConfig) -> OfflineRateCollection:
         storage_class=source.navigation.get("storage_class", "HiCap"),
         tb_to_gb=benchmarks.tb_to_gb,
     )
+
+
+# -- DBaaS ------------------------------------------------------------------
+
+DBAAS_CLASSES = {
+    # Class A: dedicated CPU bundle + local disk.
+    "local": {
+        "allocation": "dedicated",
+        "disk_label": "دیسک محلی",
+        "label": "محلی/پرمیوم",
+    },
+    # Class B: shared (E-series) CPU bundle + premium network disk.
+    "shared": {
+        "allocation": "shared",
+        "disk_label": "دیسک مانا نوع ۲ (پرمیوم)",
+        "label": "اشتراکی/شبکه",
+    },
+}
+
+
+def _read_dbaas_rows(package: Path) -> list[dict]:
+    path = package / "prices" / "dbaas_gen2.csv"
+    if not path.exists():
+        raise FetchError(f"offline package has no DBaaS price file: {path}")
+    with path.open(encoding="utf-8-sig", newline="") as handle:
+        return list(csv.DictReader(handle))
+
+
+def build_dbaas_collection(
+    package: Path, region: str, local_disk_sku: str, network_disk_sku: str,
+    sizes: dict,
+) -> OfflineCollection:
+    """Derive every reference size from Sotoon's published Gen2 price list.
+
+    Sotoon publishes 1 vCPU + 2 GB DBaaS compute bundles. Larger references
+    are calculated with the owner-approved stacking rule: unit price × vCPU
+    (RAM scales at 2 GB per vCPU), plus the selected disk at its GB-month rate.
+    """
+    manifest = _read_manifest(package)
+    rows = _read_dbaas_rows(package)
+    disk_skus = {"local": local_disk_sku, "shared": network_disk_sku}
+    disk_rates = {
+        row["sku"]: (int(row["price_irr"]), int(row["source_pdf_page"]))
+        for row in rows
+        if row["component"] == "db_disk"
+    }
+    for sku in disk_skus.values():
+        if sku not in disk_rates:
+            raise FetchError(f"Sotoon DBaaS price list has no disk SKU {sku!r}")
+
+    plans: list[OfflinePlan] = []
+    for size in sizes.values():
+        for class_key, config in DBAAS_CLASSES.items():
+            bundles = [
+                row for row in rows
+                if row["component"] == "db_compute_bundle"
+                and row["region"] == region
+                and row["cpu_allocation"] == config["allocation"]
+            ]
+            exact = [
+                row for row in bundles
+                if int(row["vcpu"]) == size.vcpu
+                and int(row["ram_gb"]) == size.ram_gb
+            ]
+            if exact:
+                if len(exact) != 1:
+                    raise FetchError(
+                        f"Sotoon {region} DBaaS {size.vcpu} vCPU + {size.ram_gb} GB "
+                        f"{config['allocation']} bundles: expected 1, got {len(exact)}"
+                    )
+                compute_row = exact[0]
+                units = 1
+            else:
+                unit = [
+                    row for row in bundles
+                    if int(row["vcpu"]) == UNIT_VCPU
+                    and int(row["ram_gb"]) == UNIT_RAM_GB
+                ]
+                if not unit:
+                    continue
+                if len(unit) != 1:
+                    raise FetchError(
+                        f"Sotoon {region} DBaaS {config['allocation']} base bundle: "
+                        f"expected 1, got {len(unit)}"
+                    )
+                if size.ram_gb != UNIT_RAM_GB * size.vcpu:
+                    raise FetchError(
+                        f"reference size {size.vcpu} vCPU + {size.ram_gb} GB is not "
+                        f"a multiple of the {UNIT_VCPU} vCPU + {UNIT_RAM_GB} GB unit"
+                    )
+                compute_row = unit[0]
+                units = size.vcpu // UNIT_VCPU
+
+            disk_sku = disk_skus[class_key]
+            disk_irr, disk_page = disk_rates[disk_sku]
+            unit_irr = int(compute_row["price_irr"])
+            compute_irr = unit_irr * units
+            disk_total_irr = disk_irr * size.disk_gb
+            total_irr = compute_irr + disk_total_irr
+            price_toman = Decimal(total_irr) / IRR_PER_TOMAN
+            plans.append(
+                OfflinePlan(
+                    plan_name=(
+                        f"{size.vcpu} vCPU + {size.ram_gb} GB ({config['label']})"
+                    ),
+                    vcpu=size.vcpu,
+                    ram_gb=Decimal(size.ram_gb),
+                    disk_gb=Decimal(size.disk_gb),
+                    price_toman=price_toman,
+                    price_raw=f"{format_toman(price_toman)} (محاسبه‌شده)",
+                    provider_tier_raw=config["allocation"],
+                    region=f"ir-{region.lower()}",
+                    product_family=f"dbaas_{class_key}_calculated",
+                    pricing_type="configurable_quote",
+                    disk_type=config["disk_label"],
+                    evidence=(
+                        f"Sotoon price list v{manifest.get('catalogue_version', '?')} "
+                        f"p.{compute_row['source_pdf_page']} ({region}): "
+                        f"{compute_row['sku']} {config['allocation']} "
+                        f"{UNIT_VCPU} vCPU + {UNIT_RAM_GB} GB = {unit_irr:,} IRR"
+                        + (f" × {units} = {compute_irr:,} IRR; " if units > 1 else "; ")
+                        + f"disk p.{disk_page} {size.disk_gb} GB × {disk_irr:,} IRR "
+                        f"({disk_sku}) = {disk_total_irr:,} IRR; total {total_irr:,} IRR = "
+                        f"{format_toman(price_toman, False)} Toman/month; "
+                        f"valid until {manifest.get('document_cover_valid_until', 'unknown')}"
+                    ),
+                )
+            )
+
+    if not plans:
+        raise FetchError(f"Sotoon price list has no DBaaS bundles for {region}")
+
+    return OfflineCollection(
+        plans=plans,
+        source_document=f"Sotoon price list v{manifest.get('catalogue_version', '?')} (Spring 1405)",
+        valid_until=manifest.get("valid_until"),
+        cleaned=_dbaas_cleaned_markdown(manifest, region, plans),
+        extra_files={
+            "manifest.json": (package / "manifest.json").read_text(encoding="utf-8"),
+            "source_dbaas_gen2.csv": (
+                package / "prices" / "dbaas_gen2.csv"
+            ).read_text(encoding="utf-8-sig"),
+        },
+    )
+
+
+def _dbaas_cleaned_markdown(manifest: dict, region: str, plans: list[OfflinePlan]) -> str:
+    lines = [
+        f"# {manifest.get('title', 'Sotoon price list')} (v{manifest.get('catalogue_version', '?')})",
+        "",
+        f"DBaaS region: {region} · valid until "
+        f"{manifest.get('document_cover_valid_until', 'unknown')}",
+        "",
+        "| class | vCPU | RAM GB | disk GB | disk | monthly Toman |",
+        "| --- | --- | --- | --- | --- | --- |",
+    ]
+    for plan in plans:
+        lines.append(
+            f"| {plan.product_family} | {plan.vcpu} | {plan.ram_gb} | {plan.disk_gb} | "
+            f"{plan.disk_type} | {format_toman(plan.price_toman, False)} |"
+        )
+    return "\n".join(lines) + "\n"
+
+
+def collect_sotoon_dbaas_offline(source: SourceConfig) -> OfflineCollection:
+    return build_dbaas_collection(
+        package=ROOT / source.url,
+        region=source.navigation.get("region", "Neda"),
+        local_disk_sku=source.navigation.get("local_disk_sku", "local_disk"),
+        network_disk_sku=source.navigation.get("network_disk_sku", "mana_2_premium"),
+        sizes=load_benchmarks().dbaas.sizes,
+    )

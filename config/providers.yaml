@@ -33,6 +33,14 @@ providers:
         enabled: true
         navigation:
           ready_marker: "هر vCore"      # proves the PAYG rate cards rendered
+      - id: arvan_dbaas
+        service_type: dbaas
+        url: https://www.arvancloud.ir/fa/pricing/databases
+        collection_method: playwright   # JS challenge; CPU/RAM/disk rates parsed
+        region_scope: iran
+        enabled: true
+        navigation:
+          ready_marker: "هر vCore"      # proves the DBaaS rate accordion rendered
 
   - slug: hamravesh
     name: Hamravesh
@@ -58,6 +66,15 @@ providers:
         navigation:
           click_selector: 'li.ant-menu-item:has-text("پلتفرم ابری دارکوب")'
           ready_marker: "هزینه منابع در پلتفرم ابری دارکوب"   # Iran datacenter rate table
+      - id: hamravesh_dbaas
+        service_type: dbaas
+        url: https://hamravesh.com/pricing?service=dbaas
+        collection_method: playwright   # pricing table switches client-side
+        region_scope: iran
+        enabled: true
+        navigation:
+          click_selector: 'li.ant-menu-item:has-text("دیتابیس")'
+          ready_marker: "هر vCore پردازنده"   # managed database rate table
 
   - slug: liara
     name: Liara
@@ -81,6 +98,16 @@ providers:
         navigation:
           click_selector: 'button[data-gtm-position="paas"][data-gtm-label="نقره‌ای"]'
           ready_marker: "۹۵۰,۰۰۰"        # silver زمین price proves the tier switched
+          tier_label: "نقره‌ای"
+      - id: liara_dbaas
+        service_type: dbaas
+        url: https://liara.ir/pricing/
+        collection_method: playwright   # client-side tier switch (silver)
+        region_scope: iran
+        enabled: true
+        navigation:
+          click_selector: 'button[data-gtm-position="dbaas"][data-gtm-label="نقره‌ای"]'
+          ready_marker: "۹۵۰,۰۰۰"        # silver زمین DBaaS price proves the tier switched
           tier_label: "نقره‌ای"
 
   - slug: parspack
@@ -149,3 +176,13 @@ providers:
         navigation:
           region: Neda              # owner decision 2026-11-17: middle datacenter
           storage_class: HiCap      # owner decision 2026-11-17: HiCap class
+      - id: sotoon_dbaas_price_list
+        service_type: dbaas
+        url: datasets/offline/sotoon-price-1405-v3
+        collection_method: manual   # transcribed price list; no network fetch, no LLM
+        region_scope: iran
+        enabled: true
+        navigation:
+          region: Neda              # same middle datacenter as the other Sotoon services
+          local_disk_sku: local_disk
+          network_disk_sku: mana_2_premium

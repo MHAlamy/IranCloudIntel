@@ -14,6 +14,9 @@ Source URLs/navigation: `config/providers.yaml`. Analyst decisions: YAML config.
   PAYG, Kubit HTTP PAYG, ParsPack browser storage-only quotes.
 - PaaS/CNAP: Liara browser + silver plan cards, Hamravesh Darakub browser rate
   matrix, Arvan browser + deterministic PAYG rates. No LLM.
+- DBaaS: Liara browser + silver plan cards, Hamravesh managed browser rate
+  matrix, Arvan browser + deterministic premium/standard and local/SSD rates,
+  Sotoon offline Gen2 price list. No LLM.
 - CDN is pending.
 - Manual (offline) documents: transcribed price lists are imported from
   `datasets/offline/<source_id>/` under `collection_method: manual`. There is no
@@ -157,6 +160,34 @@ size; Liara is shown as unavailable there, not approximated.
   must say so.
 - No LLM is used. Basis badges distinguish published (Liara) from calculated
   (Hamravesh/Arvan); missing is not a zero price.
+
+## DBaaS
+
+Two infrastructure classes share the same four reference sizes (owner request
+2026-11-21): 1 vCPU + 2 GB RAM / 20 GB, 2/4/40, 4/8/80 and 8/16/160. The
+dashboard selects a class and a size; class membership lives in
+`benchmarks.yaml`.
+
+- Class A — local/premium: Hamravesh managed rates, Sotoon dedicated compute
+  with `local_disk`, Arvan Premium rates with `دیسک لوکال`.
+- Class B — shared/network: Sotoon shared (E1) compute with `mana_2_premium`,
+  Arvan Standard rates with `دیسک SSD`, and Liara silver published plans.
+- Arvan and Hamravesh publish per-resource monthly rates, so every reference
+  size is a verified calculation. Liara matches all four sizes exactly. Sotoon's
+  Gen2 price list publishes 1 vCPU + 2 GB compute bundles; larger references
+  use the owner-approved stacking rule: unit price × vCPU (RAM scales at 2 GB
+  per vCPU) plus the selected disk at its GB-month rate.
+- The class assignment is explicit, not inferred: the page must publish the
+  premium/dedicated tier and local/network disk. Hamravesh's page publishes
+  managed vs unmanaged rates and only says «SSD», so local-disk membership is
+  flagged as unverified. Liara's page likewise says only «SSD».
+- Tax, traffic, IPv4 and read replicas/standby nodes are outside the base price
+  when the page does not include them explicitly. Arvan traffic and backup are
+  free, IPv4 is separate; Hamravesh prices assume a 30-day month. Where a
+  replica or HA standby is mandatory, the displayed base price is a lower bound
+  and the row notes say so.
+- No LLM is used. `product_family` records `dbaas_<class>_<basis>`; basis badges
+  distinguish published (Liara) from calculated (Arvan, Hamravesh, Sotoon).
 
 ## Presentation and future CDN
 

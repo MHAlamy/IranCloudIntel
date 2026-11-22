@@ -51,14 +51,21 @@ def test_committed_configs_load_and_validate():
         for source in provider.sources if source.service_type == "paas"
     }
     assert paas_sources == {"arvan_paas", "hamravesh_paas", "liara_paas"}
+    # DBaaS: two classes share the same four reference sizes.
+    assert set(benchmarks.dbaas.sizes) == {"small", "medium", "large", "very_large"}
+    assert benchmarks.dbaas.sizes["very_large"].vcpu == 8
+    assert benchmarks.dbaas.classes["local"].providers == ["hamravesh", "sotoon", "arvan"]
+    assert benchmarks.dbaas.classes["shared"].providers == ["sotoon", "arvan", "liara"]
     # Sotoon VM prices come from a transcribed price list, not a fetched page.
     sotoon = next(p for p in providers.providers if p.slug == "sotoon")
     assert [(s.id, s.service_type, s.collection_method) for s in sotoon.sources] == [
         ("sotoon_vm_price_list", "vm", "manual"),
         ("sotoon_object_storage_price_list", "object_storage", "manual"),
+        ("sotoon_dbaas_price_list", "dbaas", "manual"),
     ]
     assert sotoon.sources[0].navigation["region"] == "Neda"
     assert sotoon.sources[1].navigation["storage_class"] == "HiCap"
+    assert sotoon.sources[2].navigation["network_disk_sku"] == "mana_2_premium"
 
 
 def test_duplicate_provider_slug_rejected(tmp_path):
@@ -112,7 +119,7 @@ def test_product_catalog_loads():
     assert [p.slug for p in layers["caas"].products] == ["kaas"]
     assert [p.slug for p in layers["paas"].products] == ["cnap", "dbaas", "devops", "aiaas"]
     assert {p.slug for layer in catalog.layers for p in layer.products if p.enabled} == {
-        "vm", "object_storage", "cnap"
+        "vm", "object_storage", "cnap", "dbaas"
     }
     vm = next(p for p in layers["iaas"].products if p.slug == "vm")
     assert vm.name_fa == "سرور ابری (VM)"
@@ -120,6 +127,7 @@ def test_product_catalog_loads():
     assert routes["vm"] == "/vm"
     assert routes["object_storage"] == "/object-storage"
     assert routes["cnap"] == "/paas"
+    assert routes["dbaas"] == "/dbaas"
     assert routes["cdn"] is None
     cnap = next(p for p in layers["paas"].products if p.slug == "cnap")
     assert cnap.name_fa == "پلتفرم ابری توسعه اپلیکیشن (CNAP)"

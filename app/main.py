@@ -12,7 +12,7 @@ from dotenv import load_dotenv  # noqa: E402
 ROOT = Path(__file__).resolve().parent.parent
 load_dotenv(ROOT / ".env")
 
-from fastapi import FastAPI, Request  # noqa: E402
+from fastapi import FastAPI, Query, Request  # noqa: E402
 from fastapi.responses import HTMLResponse  # noqa: E402
 from fastapi.staticfiles import StaticFiles  # noqa: E402
 from fastapi.templating import Jinja2Templates  # noqa: E402
@@ -24,6 +24,7 @@ from app.data import (  # noqa: E402
     SIZE_LABELS_FA,
     TIER_LABELS_FA,
     VERIFICATION_LABELS_FA,
+    build_dbaas_view,
     build_os_view,
     build_paas_view,
     build_status_view,
@@ -114,6 +115,24 @@ def create_app(db_path: str | Path | None = None) -> FastAPI:
         return templates.TemplateResponse(
             request,
             "paas.html",
+            {"view": view, "basis_labels": BASIS_LABELS_FA},
+        )
+
+    @app.get("/dbaas", response_class=HTMLResponse)
+    def dbaas(
+        request: Request,
+        infra_class: str = Query("local", alias="class"),
+        size: str = "small",
+    ):
+        repo = Repository(db_path)
+        try:
+            view = build_dbaas_view(repo, infra_class, size)
+            view["freshness"] = repo.freshness("dbaas")
+        finally:
+            repo.close()
+        return templates.TemplateResponse(
+            request,
+            "dbaas.html",
             {"view": view, "basis_labels": BASIS_LABELS_FA},
         )
 

@@ -8,7 +8,7 @@ from pathlib import Path
 
 SCHEMA_PATH = Path(__file__).resolve().parent / "schema.sql"
 MIGRATIONS_DIR = Path(__file__).resolve().parent / "migrations"
-SCHEMA_VERSION = 6
+SCHEMA_VERSION = 7
 
 BUSY_TIMEOUT_MS = 5000
 

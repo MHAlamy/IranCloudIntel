@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% from "macros.html" import coming_soon %}
+{% block title %}دیتابیس ابری (DBaaS) | رصد بازار خدمات ابری ایران{% endblock %}
+{% block content %}
+<header class="product-head">
+  <h1>دیتابیس ابری (DBaaS)</h1>
+</header>
+
+<section class="product-section">
+  <h2 class="section-title">مقایسه قیمت</h2>
+  <p class="section-note muted">مقایسه‌ی قیمت ماهانه‌ی دیتابیس مدیریت‌شده با منابع مرجع · {{ view.class_label }} · بدون مالیات و هزینه‌های ترافیک/IP</p>
+
+  <section class="selectors card">
+    <div class="selector-group">
+      <span class="selector-label">کلاس زیرساخت:</span>
+      <div class="pills">
+        {% for item in view.classes %}
+        <a class="pill {{ 'active' if item.key == view.class }}" href="/dbaas?class={{ item.key }}&size={{ view.size }}">{{ item.label }}</a>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="selector-group">
+      <span class="selector-label">اندازه:</span>
+      <div class="pills">
+        {% for item in view.sizes %}
+        <a class="pill {{ 'active' if item.key == view.size }}" href="/dbaas?class={{ view.class }}&size={{ item.key }}">{{ item.label }}</a>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="target">
+      مرجع: <bdi>{{ view.target.vcpu|pnum }} vCPU</bdi> · {{ view.target.ram_gb|pnum }} گیگابایت رم · {{ view.target.disk_gb|pnum }} گیگابایت ذخیره‌سازی
+    </div>
+  </section>
+
+  {% include 'price_chart.html' %}
+
+  <section class="card method-card">
+    <h3 class="card-title">نحوه محاسبه قیمت و انتخاب کلاس</h3>
+
+    <p>هر ردیف، قیمت ماهانه‌ی یک دیتابیس مدیریت‌شده با منابع مرجع (vCPU، RAM و ذخیره‌سازی) در کلاس انتخابی است. دو کلاس زیرساخت جداگانه مقایسه می‌شوند:</p>
+
+    <ul class="method-list">
+      {% for note in view.class_notes %}<li>{{ note }}</li>{% endfor %}
+    </ul>
+
+    <p>قیمت‌های محاسبه‌شده از نرخ‌های ماهانه‌ی منتشرشده‌ی همان صفحه یا سند قیمت سوتون به‌دست آمده‌اند؛ پیکربندی منتشرنشده با حدس ساخته نشده است.</p>
+
+    <p class="muted method-footnote">
+      {% for note in view.notes %}{{ note }}{% if not loop.last %}<br>{% endif %}{% endfor %}
+    </p>
+  </section>
+
+  <section class="card table-card">
+    <table class="price-table">
+      <thead>
+        <tr>
+          <th>تأمین‌کننده</th>
+          <th>پلن / توضیح</th>
+          <th>vCPU / رم / ذخیره‌سازی</th>
+          <th>قیمت (تومان/ماه)</th>
+          <th>مبنا</th>
+          <th>آخرین بررسی</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in view.rows %}
+        <tr class="basis-{{ row.basis }}">
+          <td data-label="تأمین‌کننده">{{ row.provider_name }}</td>
+          <td data-label="پلن">
+            {% if row.offering_id %}<a href="/plan/{{ row.offering_id }}" class="plan-link">{{ row.plan_name }}</a>
+            {% else %}{{ row.plan_name }}{% endif %}
+            {% if row.provider_tier_raw %}<div class="row-note">سطح: {{ row.provider_tier_raw }}</div>{% endif %}
+            {% for note in row.notes %}<div class="row-note">{{ note }}</div>{% endfor %}
+          </td>
+          <td data-label="مشخصات">
+            <bdi>{{ row.vcpu|pnum }} vCPU</bdi> · {{ row.ram_gb|pnum }} گیگابایت رم · {{ row.disk_gb|pnum }} گیگابایت
+            {% if row.disk_type %}<div class="row-note">{{ row.disk_type }}</div>{% endif %}
+          </td>
+          <td data-label="قیمت" class="price-cell">
+            {% if row.price_in_toman is not none %}{{ row.price_in_toman|toman }}{% else %}—{% endif %}
+          </td>
+          <td data-label="مبنا">
+            <span class="badge badge-{{ row.basis }}">{{ basis_labels[row.basis] }}</span>
+          </td>
+          <td data-label="آخرین بررسی">{{ row.observed_at|jalali_date }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <section class="legend card">
+    <strong>راهنما:</strong>
+    <span class="badge badge-published">منتشرشده</span> پلن منتشرشده‌ی لیارا (نقره‌ای) ·
+    <span class="badge badge-calculated">محاسبه‌شده</span> محاسبه از نرخ‌های منتشرشده‌ی هم‌روش/آروان یا سند قیمت سوتون ·
+    <span class="badge badge-missing">در دسترس نیست</span> پیکربندی منتشرنشده یا هنوز گردآوری نشده
+  </section>
+
+  {% include 'freshness.html' %}
+</section>
+
+{{ coming_soon("مقایسه قابلیت‌ها") }}
+{{ coming_soon("مقایسه عملکرد") }}
+{% endblock %}
