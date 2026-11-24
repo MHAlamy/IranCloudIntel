@@ -75,6 +75,15 @@ providers:
         navigation:
           click_selector: 'li.ant-menu-item:has-text("دیتابیس")'
           ready_marker: "هر vCore پردازنده"   # managed database rate table
+      - id: hamravesh_kaas
+        service_type: kaas
+        url: https://hamravesh.com/pricing?service=kaas
+        collection_method: playwright   # KaaS tab renders client-side
+        region_scope: iran
+        enabled: true
+        navigation:
+          click_selector: 'li.ant-menu-item:has-text("کوبرنتیز مدیریت‌شده")'
+          ready_marker: "هزینه ثابت مدیریت هر کلاستر کوبرنتیز"
 
   - slug: liara
     name: Liara
@@ -152,6 +161,13 @@ providers:
         enabled: true
         navigation:
           bundle_extraction: false   # free base plan + PAYG tables -> deterministic parser
+      - id: kubit_kaas
+        service_type: kaas
+        url: https://kubit.cloud/fa/pricing/#kaas
+        collection_method: http   # static page; KaaS ladder is in the HTML
+        region_scope: iran
+        enabled: true
+        navigation: {}
 
   - slug: sotoon
     name: Sotoon
@@ -186,3 +202,13 @@ providers:
           region: Neda              # same middle datacenter as the other Sotoon services
           local_disk_sku: local_disk
           network_disk_sku: mana_2_premium
+      - id: sotoon_kaas_price_list
+        service_type: kaas
+        url: datasets/offline/sotoon-price-1405-v3
+        collection_method: manual   # transcribed price list; no network fetch, no LLM
+        region_scope: iran
+        enabled: true
+        navigation:
+          region: Neda              # use Neda datacenter prices exclusively
+          compute_sku: C1           # 1 vCPU + 2 GB dedicated bundle
+          disk_sku: local_disk      # local SSD GB-month tariff

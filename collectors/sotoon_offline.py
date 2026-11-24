@@ -22,12 +22,14 @@ from decimal import Decimal
 from pathlib import Path
 
 from collectors.common import FetchError
+from collectors.kaas_pipeline import KaasCollection, KaasRate
 from collectors.offline_pipeline import (
     OfflineCollection,
     OfflineOsRate,
     OfflinePlan,
     OfflineRateCollection,
 )
+from comparison.kaas_pricing import irr_to_toman
 from config.loader import SourceConfig, load_benchmarks
 from util.format import format_number, format_toman
 
@@ -547,4 +549,177 @@ def collect_sotoon_dbaas_offline(source: SourceConfig) -> OfflineCollection:
         local_disk_sku=source.navigation.get("local_disk_sku", "local_disk"),
         network_disk_sku=source.navigation.get("network_disk_sku", "mana_2_premium"),
         sizes=load_benchmarks().dbaas.sizes,
+    )
+
+
+# -- Managed Kubernetes -----------------------------------------------------
+
+def _read_kaas_rows(package: Path) -> list[dict]:
+    path = package / "prices" / "k8s_gen2.csv"
+    if not path.exists():
+        raise FetchError(f"offline package has no KaaS price file: {path}")
+    with path.open(encoding="utf-8-sig", newline="") as handle:
+        return list(csv.DictReader(handle))
+
+
+def build_kaas_collection(
+    package: Path, region: str, compute_sku: str, disk_sku: str,
+) -> KaasCollection:
+    """C1 worker compute, local SSD and cluster subscription from the price list.
+
+    The C1 bundle is 1 vCPU + 2 GB. The dashboard's linear scaling assumption
+    (C1 price × total vCPU) is applied outside this loader, in the pricing
+    module, so the stored tariff remains the published unit price.
+    """
+    manifest = _read_manifest(package)
+    vm_rows = _read_rows(package)
+    kaas_rows = _read_kaas_rows(package)
+
+    compute = [
+        row for row in vm_rows
+        if row["component"] == "compute_bundle"
+        and row["region"] == region
+        and row["sku"] == compute_sku
+        and int(row["vcpu"]) == UNIT_VCPU
+        and int(row["ram_gb"]) == UNIT_RAM_GB
+    ]
+    if len(compute) != 1:
+        raise FetchError(
+            f"Sotoon {region} KaaS compute unit {compute_sku!r} "
+            f"({UNIT_VCPU} vCPU + {UNIT_RAM_GB} GB): expected 1, got {len(compute)}"
+        )
+    disk = [
+        row for row in vm_rows
+        if row["component"] == "disk"
+        and row["region"] == region
+        and row["sku"] == disk_sku
+    ]
+    if len(disk) != 1:
+        raise FetchError(
+            f"Sotoon {region} KaaS disk {disk_sku!r}: expected 1, got {len(disk)}"
+        )
+
+    compute_row, disk_row = compute[0], disk[0]
+    compute_toman = irr_to_toman(compute_row["price_irr"])
+    disk_toman = irr_to_toman(disk_row["price_irr"])
+    rates = [
+        KaasRate(
+            category="cpu",
+            unit="هر vCPU",
+            tier_label=compute_sku,
+            amount_toman=str(compute_toman),
+            evidence=(
+                f"Sotoon price list v{manifest.get('catalogue_version', '?')} "
+                f"p.{compute_row['source_pdf_page']} ({region}): {compute_sku} "
+                f"{UNIT_VCPU} vCPU + {UNIT_RAM_GB} GB = "
+                f"{int(compute_row['price_irr']):,} IRR = "
+                f"{format_toman(compute_toman, False)} Toman/month"
+            ),
+            region="iran",
+        ),
+        KaasRate(
+            category="storage",
+            unit="هر گیگابایت",
+            tier_label=disk_sku,
+            amount_toman=str(disk_toman),
+            evidence=(
+                f"Sotoon price list v{manifest.get('catalogue_version', '?')} "
+                f"p.{disk_row['source_pdf_page']} ({region}): {disk_sku} = "
+                f"{int(disk_row['price_irr']):,} IRR/GB-month = "
+                f"{format_toman(disk_toman, False)} Toman/GB-month"
+            ),
+            region="iran",
+        ),
+    ]
+
+    subscriptions = [
+        row for row in kaas_rows if row["sku"] == "cluster_subscription"
+    ]
+    for row in subscriptions:
+        family = row["family"]
+        amount = irr_to_toman(row["price_irr"])
+        rates.append(
+            KaasRate(
+                category="management_fee",
+                unit="ماهانه",
+                tier_label=family,
+                amount_toman=str(amount),
+                evidence=(
+                    f"Sotoon price list p.{row['source_pdf_page']}: {family} "
+                    f"cluster subscription = {int(row['price_irr']):,} IRR = "
+                    f"{format_toman(amount, False)} Toman/month"
+                ),
+                region="iran",
+            )
+        )
+    node_fees = [
+        row for row in kaas_rows if row["sku"] == "node_maintenance"
+    ]
+    for row in node_fees:
+        family = row["family"]
+        amount = irr_to_toman(row["price_irr"])
+        rates.append(
+            KaasRate(
+                category="management_fee",
+                unit="هر نود در ماه",
+                tier_label=f"{family}_node",
+                amount_toman=str(amount),
+                evidence=(
+                    f"Sotoon price list p.{row['source_pdf_page']}: {family} "
+                    f"per-node management fee = {int(row['price_irr']):,} IRR = "
+                    f"{format_toman(amount, False)} Toman/node-month"
+                ),
+                region="iran",
+            )
+        )
+    for label, rows_for_fee in (("subscriptions", subscriptions), ("node fees", node_fees)):
+        if {row["family"] for row in rows_for_fee} != {"standard", "premium"}:
+            raise FetchError(f"Sotoon KaaS standard/premium {label} missing")
+
+    cleaned_lines = [
+        f"# {manifest.get('title', 'Sotoon price list')} "
+        f"(v{manifest.get('catalogue_version', '?')})",
+        "",
+        f"KaaS region: {region} · worker {compute_sku} · disk {disk_sku} · "
+        f"valid until {manifest.get('document_cover_valid_until', 'unknown')}",
+        "",
+        "| category | tier | unit | monthly Toman |",
+        "| --- | --- | --- | --- |",
+    ]
+    for rate in rates:
+        cleaned_lines.append(
+            f"| {rate.category} | {rate.tier_label} | {rate.unit} | "
+            f"{format_toman(rate.amount_toman, False)} |"
+        )
+    cleaned_lines += [
+        "",
+        "Cluster management = subscription + nodes × per-node fee. Extra "
+        "control-plane-core tariffs remain excluded.",
+    ]
+
+    return KaasCollection(
+        rates=rates,
+        cleaned="\n".join(cleaned_lines) + "\n",
+        source_document=(
+            f"Sotoon price list v{manifest.get('catalogue_version', '?')} (Spring 1405)"
+        ),
+        valid_until=manifest.get("valid_until"),
+        extra_files={
+            "manifest.json": (package / "manifest.json").read_text(encoding="utf-8"),
+            "source_k8s_gen2.csv": (
+                package / "prices" / "k8s_gen2.csv"
+            ).read_text(encoding="utf-8-sig"),
+            "source_vm_gen2.csv": (
+                package / "prices" / "vm_gen2.csv"
+            ).read_text(encoding="utf-8-sig"),
+        },
+    )
+
+
+def collect_sotoon_kaas_offline(source: SourceConfig) -> KaasCollection:
+    return build_kaas_collection(
+        package=ROOT / source.url,
+        region=source.navigation.get("region", "Neda"),
+        compute_sku=source.navigation.get("compute_sku", "C1"),
+        disk_sku=source.navigation.get("disk_sku", "local_disk"),
     )

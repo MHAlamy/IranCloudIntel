@@ -29,7 +29,8 @@ layers:
     products:
       - slug: kaas
         name_fa: کوبرنتیز مدیریت‌شده (KaaS)
-        enabled: false
+        route: /kaas
+        enabled: true
 
   - id: paas
     acronym: PaaS

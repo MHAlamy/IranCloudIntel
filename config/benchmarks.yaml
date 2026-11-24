@@ -75,3 +75,37 @@ dbaas:
     medium:     {vcpu: 2, ram_gb: 4,  disk_gb: 40}
     large:      {vcpu: 4, ram_gb: 8,  disk_gb: 80}
     very_large: {vcpu: 8, ram_gb: 16, disk_gb: 160}
+
+# Managed Kubernetes comparison (owner request 2026-11-22, revised fees same
+# day). Every scenario uses 2 GB RAM and 10 GB local SSD per vCPU, 720 h/month.
+# Hamravesh v1 keeps the legacy fixed cluster-management costs; v2 uses the
+# current self-service KaaS fees (the top band's 240M is assumed for the page's
+# «ثبت درخواست» row). Both share worker rates and the 25M control plane.
+kaas:
+  monthly_hours: 720
+  ram_per_vcpu_gb: 2
+  disk_per_vcpu_gb: 10
+  sotoon_premium_min_nodes: 30
+  scenarios:
+    small:     {label: کوچک,              nodes: 6,  vcpu_per_node: 8}
+    medium:    {label: متوسط,             nodes: 12, vcpu_per_node: 16}
+    large:     {label: بزرگ,              nodes: 8,  vcpu_per_node: 32}
+    x_large:   {label: خیلی بزرگ (X-Large), nodes: 32, vcpu_per_node: 16}
+    xx_large:  {label: 2X-Large,          nodes: 40, vcpu_per_node: 24}
+    xxx_large: {label: 3X-Large,          nodes: 32, vcpu_per_node: 64}
+  control_plane_toman:
+    hamravesh_v1: 25000000
+    hamravesh_v2: 25000000
+    kubit: 10000000
+    sotoon: 0
+  management_fees:
+    hamravesh_v1:
+      - {min_vcpu: 0,    fee_toman: 70000000}
+      - {min_vcpu: 200,  fee_toman: 140000000}
+      - {min_vcpu: 800,  fee_toman: 220000000}
+      - {min_vcpu: 1500, fee_toman: 320000000}
+    hamravesh_v2:
+      - {min_vcpu: 0,    fee_toman: 30000000}
+      - {min_vcpu: 200,  fee_toman: 80000000}
+      - {min_vcpu: 800,  fee_toman: 150000000}
+      - {min_vcpu: 1500, fee_toman: 240000000}

@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+{% from "macros.html" import coming_soon, bar_chart %}
+{% block title %}کوبرنتیز مدیریت‌شده (KaaS) | رصد بازار خدمات ابری ایران{% endblock %}
+{% block content %}
+<header class="product-head">
+  <h1>کوبرنتیز مدیریت‌شده (KaaS)</h1>
+</header>
+
+<section class="product-section">
+  <h2 class="section-title">مقایسه قیمت</h2>
+  <p class="section-note muted">مقایسه‌ی قیمت ماهانه‌ی کلاستر مدیریت‌شده با سناریوهای مرجع · بدون مالیات، ترافیک، IPv4 و پشتیبانی</p>
+
+  <section class="selectors card">
+    <div class="selector-group">
+      <span class="selector-label">سناریو:</span>
+      <div class="pills">
+        {% for item in view.scenarios %}
+        <a class="pill {{ 'active' if item.key == view.scenario }}" href="/kaas?scenario={{ item.key }}">{{ item.label }}</a>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="target">
+      مرجع: {{ view.target.nodes|pnum }} نود، هر نود {{ view.target.vcpu_per_node|pnum }} <bdi>vCPU</bdi>؛
+      مجموع <bdi>{{ view.target.vcpu|pnum }} vCPU</bdi>، {{ view.target.ram_gb|pnum }} گیگابایت رم،
+      {{ view.target.disk_gb|pnum }} گیگابایت <bdi>SSD</bdi> محلی، {{ view.monthly_hours|pnum }} ساعت در ماه
+    </div>
+  </section>
+
+  {% include 'price_chart.html' %}
+
+  {% if view.fee_chart %}
+  {{ bar_chart("مقایسه هزینه مدیریت (بدون منابع کارگر و کنترل پلین)", view.fee_chart,
+     "فقط هزینه‌ی مدیریت/لایسنس هر تأمین‌کننده؛ جزئیات فرمول در کادر توضیح زیر آمده است.") }}
+  {% endif %}
+
+  <section class="card method-card">
+    <h3 class="card-title">نحوه محاسبه قیمت و فرض‌ها</h3>
+
+    <p>هزینه ماهانه هر کلاستر از سه جزء ساخته می‌شود: هزینه مدیریت + منابع کارگر + منابع کنترل پلین. هر سناریو تعداد نود و vCPU هر نود را تعیین می‌کند و برای همه‌ی تأمین‌کنندگان ۲ گیگابایت رم و ۱۰ گیگابایت SSD محلی به ازای هر vCPU و ماه ۷۲۰ ساعته فرض شده است.</p>
+
+    <ul class="method-list">
+      {% for note in view.provider_notes %}<li>{{ note }}</li>{% endfor %}
+    </ul>
+
+    <p class="muted method-footnote">
+      {% for note in view.notes %}{{ note }}{% if not loop.last %}<br>{% endif %}{% endfor %}
+    </p>
+  </section>
+
+  <section class="card table-card">
+    <table class="price-table">
+      <thead>
+        <tr>
+          <th>تأمین‌کننده</th>
+          <th>سناریو / اشتراک</th>
+          <th>منابع کارگر</th>
+          <th>هزینه مدیریت</th>
+          <th>منابع کارگر (تومان)</th>
+          <th>کنترل پلین</th>
+          <th>جمع ماهانه</th>
+          <th>مبنا</th>
+          <th>آخرین بررسی</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in view.rows %}
+        <tr class="basis-{{ row.basis }}">
+          <td data-label="تأمین‌کننده">{{ row.provider_name }}</td>
+          <td data-label="سناریو">
+            {{ view.scenario_label }} · {{ row.nodes|pnum }} نود
+            {% if row.fee_label %}<div class="row-note">اشتراک: {{ row.fee_label }}</div>{% endif %}
+            {% for note in row.notes %}<div class="row-note">{{ note }}</div>{% endfor %}
+          </td>
+          <td data-label="منابع کارگر">
+            <bdi>{{ row.vcpu|pnum }} vCPU</bdi> · {{ row.ram_gb|pnum }} گیگابایت رم · {{ row.disk_gb|pnum }} گیگابایت
+          </td>
+          <td data-label="مدیریت">{% if row.management_toman is not none %}{{ row.management_toman|toman }}{% else %}—{% endif %}</td>
+          <td data-label="کارگر">{% if row.worker_toman is not none %}{{ row.worker_toman|toman }}{% else %}—{% endif %}</td>
+          <td data-label="کنترل پلین">{% if row.control_plane_toman is not none %}{{ row.control_plane_toman|toman }}{% else %}—{% endif %}</td>
+          <td data-label="جمع" class="price-cell">{% if row.total_toman is not none %}{{ row.total_toman|toman }}{% else %}—{% endif %}</td>
+          <td data-label="مبنا">
+            <span class="badge badge-{{ row.basis }}">{{ basis_labels[row.basis] }}</span>
+            {% if row.provenance == 'manual' %}<span class="badge badge-manual">دستی</span>{% endif %}
+          </td>
+          <td data-label="آخرین بررسی">{{ row.observed_at|jalali_date }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <section class="card table-card">
+    <h3 class="card-title">همه سناریوها — جمع ماهانه (تومان)</h3>
+    <table class="price-table">
+      <thead>
+        <tr>
+          <th>تأمین‌کننده</th>
+          {% for item in view.scenarios %}<th>{{ item.label }}</th>{% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in view.matrix %}
+        <tr>
+          <td data-label="تأمین‌کننده">{{ row.provider_name }}</td>
+          {% for cell in row.cells %}
+          <td data-label="{{ cell.key }}">{% if cell.value is not none %}{{ cell.value|toman }}{% else %}—{% endif %}</td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <section class="card table-card">
+    <h3 class="card-title">مقایسه‌ی فقط هزینه مدیریت (تومان در ماه)</h3>
+    <table class="price-table">
+      <thead>
+        <tr>
+          <th>تأمین‌کننده</th>
+          {% for item in view.scenarios %}<th>{{ item.label }}</th>{% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in view.fee_matrix %}
+        <tr>
+          <td data-label="تأمین‌کننده">{{ row.provider_name }}</td>
+          {% for cell in row.cells %}
+          <td data-label="{{ cell.key }}">{% if cell.value is not none %}{{ cell.value|toman }}{% else %}—{% endif %}</td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <section class="legend card">
+    <strong>راهنما:</strong>
+    <span class="badge badge-calculated">محاسبه‌شده</span> جمع از نرخ‌ها و پلکان مدیریت محاسبه شده است ·
+    <span class="badge badge-missing">در دسترس نیست</span> پلکان منتشرنشده یا هنوز گردآوری نشده ·
+    <span class="badge badge-manual">دستی</span> منبع آفلاین ستون ·
+    هم‌روش v1 قیمت‌های قدیمی و هم‌روش v2 قیمت‌های جدید خودسرویس KaaS است.
+  </section>
+
+  {% include 'freshness.html' %}
+</section>
+
+{{ coming_soon("مقایسه قابلیت‌ها") }}
+{{ coming_soon("مقایسه عملکرد") }}
+{% endblock %}

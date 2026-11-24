@@ -16,7 +16,8 @@ def test_homepage_renders_hero_and_layers(client_tuple):
     for acronym in ("IaaS", "CaaS", "PaaS"):
         assert acronym in text
     for product in ("سرور ابری (VM)", "آبجکت استورج", "پلتفرم ابری توسعه اپلیکیشن (CNAP)",
-                    "دیتابیس ابری (DBaaS)", "ابزارهای DevOps", "AIaaS", "GPUaaS"):
+                    "دیتابیس ابری (DBaaS)", "کوبرنتیز مدیریت‌شده (KaaS)",
+                    "ابزارهای DevOps", "AIaaS", "GPUaaS"):
         assert product in text
 
 
@@ -27,7 +28,8 @@ def test_homepage_links_only_ready_products(client_tuple):
     assert 'href="/object-storage"' in text
     assert 'href="/paas"' in text
     assert 'href="/dbaas"' in text
-    for future_route in ("/cdn", "/gpu", "/kaas", "/cnap", "/devops", "/aiaas"):
+    assert 'href="/kaas"' in text
+    for future_route in ("/cdn", "/gpu", "/cnap", "/devops", "/aiaas"):
         assert f'href="{future_route}"' not in text
     assert "به‌زودی" in text
 

@@ -25,6 +25,7 @@ from app.data import (  # noqa: E402
     TIER_LABELS_FA,
     VERIFICATION_LABELS_FA,
     build_dbaas_view,
+    build_kaas_view,
     build_os_view,
     build_paas_view,
     build_status_view,
@@ -133,6 +134,20 @@ def create_app(db_path: str | Path | None = None) -> FastAPI:
         return templates.TemplateResponse(
             request,
             "dbaas.html",
+            {"view": view, "basis_labels": BASIS_LABELS_FA},
+        )
+
+    @app.get("/kaas", response_class=HTMLResponse)
+    def kaas(request: Request, scenario: str = "small"):
+        repo = Repository(db_path)
+        try:
+            view = build_kaas_view(repo, scenario)
+            view["freshness"] = repo.freshness("kaas")
+        finally:
+            repo.close()
+        return templates.TemplateResponse(
+            request,
+            "kaas.html",
             {"view": view, "basis_labels": BASIS_LABELS_FA},
         )
 

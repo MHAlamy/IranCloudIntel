@@ -26,8 +26,8 @@ and a `source_pdf_page` column on every row.
 
 ## How the dashboard uses it
 
-`collectors/sotoon_offline.py` imports two services (owner decisions
-2026-11-17).
+`collectors/sotoon_offline.py` imports four services (VM and Object Storage
+owner decisions 2026-11-17; DBaaS 2026-11-21; KaaS 2026-11-22).
 
 ### VM
 
@@ -59,13 +59,30 @@ and a `source_pdf_page` column on every row.
   tariff is a separate product and is not added.
 - Inbound traffic and tax are excluded.
 
+### KaaS
+
+- Only the **Neda** datacenter is compared. Worker compute is the **C1**
+  (1 vCPU + 2 GB, dedicated) bundle × total vCPU; storage is the **local_disk**
+  GB-month rate. Linear C1 scaling is a comparison assumption, not a verified
+  node shape.
+- The standard cluster subscription is used below 30 nodes and premium from 30
+  nodes upward (externally confirmed). Each tier also charges per node:
+  standard 3.1M and premium 3.9M Toman per node-month. These per-node fees are
+  part of cluster management and are included. Extra control-plane-core rows
+  remain optional/support charges and are excluded.
+- Local SSD (210,000 IRR/GB) is close to Ultra3 persistent storage
+  (240,000 IRR/GB), so the result is an approximate reference for either option.
+- Worker/fee rows go to `resource_rates`; the dashboard computes monthly totals
+  in `comparison/kaas_pricing.py`.
+
 ### Provenance
 
 The run records this document and `valid_until` (2027-03-20, the end of Esfand
-1405). Re-importing unchanged data is skipped by content hash. Both services
-show the manual badge, source document and validity date on the dashboard.
+1405). Re-importing unchanged data is skipped by content hash. All imported
+services show the manual badge, source document and validity date on the
+dashboard.
 
-The other three files (KaaS, DBaaS, CDN) are not imported yet.
+The remaining file (CDN) is not imported yet.
 
 ## Read before using
 

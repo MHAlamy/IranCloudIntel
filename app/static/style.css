@@ -114,6 +114,7 @@ body {
 .badge-published { background: rgba(71, 209, 106, 0.12); color: var(--success); border-color: rgba(71, 209, 106, 0.4); }
 .badge-calculated { background: rgba(156, 138, 255, 0.12); color: var(--brand-soft); border-color: rgba(156, 138, 255, 0.4); }
 .badge-approximate { background: rgba(255, 172, 35, 0.12); color: var(--warning); border-color: rgba(255, 172, 35, 0.4); }
+.badge-proposed { background: rgba(255, 172, 35, 0.12); color: var(--warning); border-color: rgba(255, 172, 35, 0.55); border-style: dashed; }
 .badge-missing { background: rgba(156, 156, 201, 0.1); color: var(--muted); }
 .badge-manual { background: rgba(79, 184, 255, 0.12); color: var(--info); border-color: rgba(79, 184, 255, 0.4); }
 .badge-verified { background: rgba(71, 209, 106, 0.12); color: var(--success); border-color: rgba(71, 209, 106, 0.4); }
@@ -200,6 +201,7 @@ body {
 .bar-published { background: var(--success); }
 .bar-calculated { background: var(--brand-soft); }
 .bar-approximate { background: var(--warning); }
+.bar-proposed { background: var(--warning); opacity: 0.6; }
 .bar-empty { width: 100%; background: transparent; border: 1px dashed var(--border); }
 .bar-price {
   flex: 0 0 110px; font-size: 13px; font-weight: 700;

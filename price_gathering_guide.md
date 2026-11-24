@@ -17,6 +17,8 @@ Source URLs/navigation: `config/providers.yaml`. Analyst decisions: YAML config.
 - DBaaS: Liara browser + silver plan cards, Hamravesh managed browser rate
   matrix, Arvan browser + deterministic premium/standard and local/SSD rates,
   Sotoon offline Gen2 price list. No LLM.
+- KaaS: Hamravesh browser resource/fee tables, Kubit HTTP licence ladder + IaaS
+  worker rates, Sotoon offline Gen2 KaaS/VM price list. No LLM.
 - CDN is pending.
 - Manual (offline) documents: transcribed price lists are imported from
   `datasets/offline/<source_id>/` under `collection_method: manual`. There is no
@@ -189,6 +191,47 @@ dashboard selects a class and a size; class membership lives in
 - No LLM is used. `product_family` records `dbaas_<class>_<basis>`; basis badges
   distinguish published (Liara) from calculated (Arvan, Hamravesh, Sotoon).
 
+## KaaS (managed Kubernetes)
+
+Six node-count scenarios (owner request 2026-11-22): 6×8, 12×16, 8×32, 32×16,
+40×24 and 32×64 vCPU, for totals of 48, 192, 256, 512, 960 and 2,048 vCPU.
+Every scenario assumes 2 GB RAM and 10 GB local SSD per vCPU and 720 hours per
+month. The monthly total is management fee + worker resources + control plane.
+
+- Four offerings, always separate in tables and charts: Hamravesh v1 (legacy
+  fee schedule), Hamravesh v2 (current self-service KaaS fee schedule), Kubit
+  and Sotoon.
+- Both Hamravesh offerings use the same collected worker rates and 25M
+  control-plane rule, but different fixed management schedules:
+  - v1 (old prices): <200 vCPU 70M, 200–799 140M, 800–1,499 220M, ≥1,500 320M
+    Toman.
+  - v2 (new self-service prices): <200 30M, 200–799 80M, 800–1,499 150M,
+    ≥1,500 240M Toman. The page's top band is «ثبت درخواست»; 240M is the
+    owner-approved assumption for that band.
+- The KaaS page's collected fee ladder is retained as evidence but the view
+  uses these configured schedules so v1 and v2 cannot collapse into one line.
+- Kubit's Kubernetes licence uses `P = 2×CPU + RAM(GB)` with the published
+  ladder; workers use the generation-4 (Standard) CPU/RAM and disk rates. The
+  `P ≥ 8,000` band is «تماس بگیرید» and stays unknown.
+- Sotoon uses Neda prices only. Worker compute is the C1 (1 vCPU + 2 GB,
+  dedicated) bundle × total vCPU; storage is the local SSD GB-month rate.
+  Cluster management is a subscription plus a per-node fee: below 30 nodes,
+  17M + 3.1M per node; from 30 nodes, 40M + 3.9M per node (externally
+  confirmed). The C1 multiplication is a comparison assumption, not a verified
+  native node shape. Local SSD is close to Ultra3 persistent storage, so the
+  result is an approximate reference for either option. Extra control-plane
+  cores remain optional/support charges and are excluded.
+- Control-plane comparison rules: Hamravesh v1/v2 25M Toman, Kubit 10M, Sotoon 0
+  (included). These are owner-provided comparison inputs, not scraped tariffs;
+  the UI says so.
+- Sotoon prints IRR; the dashboard converts to Toman by dividing by 10 and keeps
+  the source page, document and validity. Tax, traffic, IPv4, support and
+  optional add-ons are excluded.
+- No LLM is used. `collectors/kaas_pipeline.py` stores worker rows (and the
+  current page fee ladder as evidence) in `resource_rates`; the configured v1/v2
+  fee schedules live in `benchmarks.yaml`, and `comparison/kaas_pricing.py` owns
+  all arithmetic. The view only shapes the results.
+
 ## Presentation and future CDN
 
 Use the VM shared visual standard: one selected scenario, basis colors, provider
@@ -200,8 +243,8 @@ product title, then «مقایسه قیمت» (the chart, provider-row table, de
 freshness), «مقایسه قابلیت‌ها» and «مقایسه عملکرد». Capability comparison is
 still a «به‌زودی» placeholder everywhere; the Object Storage performance section
 is the first implemented one — an offline benchmark table with its own
-provenance notes — while VM and PaaS keep the placeholder until their data
-models exist. The homepage is static:
+provenance notes — while VM, PaaS, DBaaS and KaaS keep the placeholder until
+their data models exist. The homepage is static:
 title/subtitle, a layered IaaS/CaaS/PaaS product map (implemented products are
 links; the rest are disabled with «به‌زودی») and a methodology summary. Size-miss
 notes that merely restate the reference resources are not shown; genuine

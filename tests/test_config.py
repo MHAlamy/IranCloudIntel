@@ -56,16 +56,35 @@ def test_committed_configs_load_and_validate():
     assert benchmarks.dbaas.sizes["very_large"].vcpu == 8
     assert benchmarks.dbaas.classes["local"].providers == ["hamravesh", "sotoon", "arvan"]
     assert benchmarks.dbaas.classes["shared"].providers == ["sotoon", "arvan", "liara"]
+    # KaaS: six node-count scenarios, 720 hours, owner-provided control plane.
+    assert set(benchmarks.kaas.scenarios) == {
+        "small", "medium", "large", "x_large", "xx_large", "xxx_large"
+    }
+    assert benchmarks.kaas.scenarios["small"].total_vcpu == 48
+    assert benchmarks.kaas.scenarios["xxx_large"].total_vcpu == 2048
+    assert benchmarks.kaas.monthly_hours == 720
+    assert benchmarks.kaas.control_plane_toman["kubit"] == Decimal("10000000")
+    assert benchmarks.kaas.sotoon_premium_min_nodes == 30
+    assert [fee.fee_toman for fee in benchmarks.kaas.management_fees["hamravesh_v1"]] == [
+        Decimal("70000000"), Decimal("140000000"),
+        Decimal("220000000"), Decimal("320000000"),
+    ]
+    assert [fee.fee_toman for fee in benchmarks.kaas.management_fees["hamravesh_v2"]] == [
+        Decimal("30000000"), Decimal("80000000"),
+        Decimal("150000000"), Decimal("240000000"),
+    ]
     # Sotoon VM prices come from a transcribed price list, not a fetched page.
     sotoon = next(p for p in providers.providers if p.slug == "sotoon")
     assert [(s.id, s.service_type, s.collection_method) for s in sotoon.sources] == [
         ("sotoon_vm_price_list", "vm", "manual"),
         ("sotoon_object_storage_price_list", "object_storage", "manual"),
         ("sotoon_dbaas_price_list", "dbaas", "manual"),
+        ("sotoon_kaas_price_list", "kaas", "manual"),
     ]
     assert sotoon.sources[0].navigation["region"] == "Neda"
     assert sotoon.sources[1].navigation["storage_class"] == "HiCap"
     assert sotoon.sources[2].navigation["network_disk_sku"] == "mana_2_premium"
+    assert sotoon.sources[3].navigation["compute_sku"] == "C1"
 
 
 def test_duplicate_provider_slug_rejected(tmp_path):
@@ -119,7 +138,7 @@ def test_product_catalog_loads():
     assert [p.slug for p in layers["caas"].products] == ["kaas"]
     assert [p.slug for p in layers["paas"].products] == ["cnap", "dbaas", "devops", "aiaas"]
     assert {p.slug for layer in catalog.layers for p in layer.products if p.enabled} == {
-        "vm", "object_storage", "cnap", "dbaas"
+        "vm", "object_storage", "cnap", "dbaas", "kaas"
     }
     vm = next(p for p in layers["iaas"].products if p.slug == "vm")
     assert vm.name_fa == "سرور ابری (VM)"
@@ -128,6 +147,7 @@ def test_product_catalog_loads():
     assert routes["object_storage"] == "/object-storage"
     assert routes["cnap"] == "/paas"
     assert routes["dbaas"] == "/dbaas"
+    assert routes["kaas"] == "/kaas"
     assert routes["cdn"] is None
     cnap = next(p for p in layers["paas"].products if p.slug == "cnap")
     assert cnap.name_fa == "پلتفرم ابری توسعه اپلیکیشن (CNAP)"

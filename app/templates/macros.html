@@ -6,3 +6,27 @@
   <div class="coming-soon">به‌زودی</div>
 </section>
 {% endmacro %}
+
+{# Shared horizontal bar chart used by the product dashboards.
+   `bars` items need: provider_name, basis, plan_name, price, width_pct. #}
+{% macro bar_chart(title, bars, note, subtitle="") %}
+<section class="card chart-card">
+  <h3 class="card-title">{{ title }}{% if subtitle %} <span class="muted">{{ subtitle }}</span>{% endif %}</h3>
+  {% for bar in bars %}
+  <div class="bar-row">
+    <span class="bar-provider" title="{{ bar.plan_name }}">{{ bar.provider_name }}</span>
+    <div class="bar-track">
+      {% if bar.price is not none %}
+      <div class="bar-fill bar-{{ bar.basis }}" style="width: {{ bar.width_pct }}%"></div>
+      {% else %}
+      <div class="bar-fill bar-empty"></div>
+      {% endif %}
+    </div>
+    <span class="bar-price {% if bar.price is none %}bar-price-none{% endif %}">
+      {{ bar.price|toman if bar.price is not none else '—' }}
+    </span>
+  </div>
+  {% endfor %}
+  <div class="muted chart-note">{{ note }}</div>
+</section>
+{% endmacro %}

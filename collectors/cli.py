@@ -36,8 +36,11 @@ from collectors.arvan_dbaas import collect_arvan_dbaas  # noqa: E402
 from collectors.hamravesh_os import build_hamravesh_os_markdown, parse_hamravesh_os_plans  # noqa: E402
 from collectors.hamravesh_paas import collect_hamravesh_paas  # noqa: E402
 from collectors.hamravesh_dbaas import collect_hamravesh_dbaas  # noqa: E402
+from collectors.hamravesh_kaas import collect_hamravesh_kaas  # noqa: E402
 from collectors.kubit_clean import clean_kubit  # noqa: E402
 from collectors.kubit_os import clean_kubit_os, parse_kubit_os_plans, parse_kubit_os_rates  # noqa: E402
+from collectors.kubit_kaas import collect_kubit_kaas  # noqa: E402
+from collectors.kaas_pipeline import run_kaas_collection  # noqa: E402
 from collectors.kubit_rates import parse_kubit_rates  # noqa: E402
 from collectors.liara_clean import clean_liara  # noqa: E402
 from collectors.liara_paas import collect_liara_paas  # noqa: E402
@@ -50,6 +53,7 @@ from collectors.paas_pipeline import run_paas_collection  # noqa: E402
 from collectors.offline_pipeline import run_offline_collection, run_offline_rates_collection  # noqa: E402
 from collectors.sotoon_offline import (  # noqa: E402
     collect_sotoon_dbaas_offline,
+    collect_sotoon_kaas_offline,
     collect_sotoon_offline,
     collect_sotoon_os_offline,
 )
@@ -79,12 +83,18 @@ DBAAS_COLLECTION = {
     "liara": collect_liara_dbaas,
 }
 
+KAAS_COLLECTION = {
+    "hamravesh": collect_hamravesh_kaas,
+    "kubit": collect_kubit_kaas,
+}
+
 # Manual (offline) sources: transcribed documents, no fetch and no LLM.
 # Keyed by (provider, service) because one document can feed several services.
 OFFLINE_COLLECTION = {
     ("sotoon", "vm"): (run_offline_collection, collect_sotoon_offline),
     ("sotoon", "object_storage"): (run_offline_rates_collection, collect_sotoon_os_offline),
     ("sotoon", "dbaas"): (run_offline_collection, collect_sotoon_dbaas_offline),
+    ("sotoon", "kaas"): (run_kaas_collection, collect_sotoon_kaas_offline),
 }
 
 OS_COLLECTION = {
@@ -144,14 +154,24 @@ def main(argv=None) -> int:
                             exit_code = 1
                             continue
                         pipeline, loader = entry
-                        outcome = pipeline(
-                            provider=provider,
-                            source=source,
-                            repo=repository,
-                            loader=loader,
-                            evidence_root=ROOT / "evidence",
-                            force=args.force,
-                        )
+                        if source.service_type == "kaas":
+                            outcome = pipeline(
+                                provider=provider,
+                                source=source,
+                                repo=repository,
+                                collector=loader,
+                                evidence_root=ROOT / "evidence",
+                                force=args.force,
+                            )
+                        else:
+                            outcome = pipeline(
+                                provider=provider,
+                                source=source,
+                                repo=repository,
+                                loader=loader,
+                                evidence_root=ROOT / "evidence",
+                                force=args.force,
+                            )
                     elif provider.slug == "parspack" and source.service_type == "vm":
                         # configurable-quote provider: drive the calculator
                         outcome = run_parspack_quotes(
@@ -168,6 +188,20 @@ def main(argv=None) -> int:
                             provider=provider,
                             source=source,
                             repo=repository,
+                            evidence_root=ROOT / "evidence",
+                            force=args.force,
+                        )
+                    elif source.service_type == "kaas":
+                        collector = KAAS_COLLECTION.get(provider.slug)
+                        if collector is None:
+                            print(f"    ERROR: no KaaS collector for {provider.slug}")
+                            exit_code = 1
+                            continue
+                        outcome = run_kaas_collection(
+                            provider=provider,
+                            source=source,
+                            repo=repository,
+                            collector=collector,
                             evidence_root=ROOT / "evidence",
                             force=args.force,
                         )

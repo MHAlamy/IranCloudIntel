@@ -20,7 +20,7 @@ class SourceConfig(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     id: str = Field(min_length=1)
-    service_type: Literal["vm", "object_storage", "cdn", "paas", "dbaas"]
+    service_type: Literal["vm", "object_storage", "cdn", "paas", "dbaas", "kaas"]
     url: str = Field(min_length=1)
     # "manual" = transcribed offline document; never fetched over the network.
     collection_method: Literal["http", "playwright", "manual"]
@@ -137,6 +137,37 @@ class DbaasBenchmarks(BaseModel):
     sizes: dict[str, BenchmarkSize] = Field(default_factory=dict)
 
 
+class KaasScenario(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    label: str = Field(min_length=1)
+    nodes: int = Field(ge=1)
+    vcpu_per_node: int = Field(ge=1)
+
+    @property
+    def total_vcpu(self) -> int:
+        return self.nodes * self.vcpu_per_node
+
+
+class KaasProposedFee(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    min_vcpu: int = Field(ge=0)
+    fee_toman: Decimal = Field(ge=0)
+
+
+class KaasBenchmarks(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    monthly_hours: int = Field(default=720, ge=1, le=744)
+    ram_per_vcpu_gb: Decimal = Field(default=Decimal("2"), ge=0)
+    disk_per_vcpu_gb: Decimal = Field(default=Decimal("10"), ge=0)
+    sotoon_premium_min_nodes: int = Field(default=30, ge=1)
+    scenarios: dict[str, KaasScenario] = Field(default_factory=dict)
+    control_plane_toman: dict[str, Decimal] = Field(default_factory=dict)
+    management_fees: dict[str, list[KaasProposedFee]] = Field(default_factory=dict)
+
+
 class BenchmarksFile(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -146,6 +177,7 @@ class BenchmarksFile(BaseModel):
     )
     paas: PaasBenchmarks = Field(default_factory=PaasBenchmarks)
     dbaas: DbaasBenchmarks = Field(default_factory=DbaasBenchmarks)
+    kaas: KaasBenchmarks = Field(default_factory=KaasBenchmarks)
 
 
 class OSScenario(BaseModel):

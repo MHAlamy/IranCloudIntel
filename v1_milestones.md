@@ -1,13 +1,14 @@
 # V1 milestone tracker
 
-**Status (2026-11-17):** native Windows development; four VM sources and four
+**Status (2026-11-22):** native Windows development; four VM sources and four
 Object Storage sources implemented, plus Sotoon VM and Object Storage (HiCap)
 from a manually imported price list. PaaS/CNAP added with three sources
 (Hamravesh Darakub, Arvan PaaS, Liara silver). DBaaS added with two
 infrastructure classes and four shared reference sizes (Hamravesh, Arvan,
-Liara, Sotoon offline). The homepage layered product map and the shared
-three-section product shell are implemented. CDN, production deployment and
-automation remain open. Audit actions 1-4 completed; action 5
+Liara, Sotoon offline). KaaS added with four offerings over six scenarios
+(Hamravesh v1/v2, Kubit, Sotoon offline). The homepage layered product map and
+the shared three-section product shell are implemented. CDN, production
+deployment and automation remain open. Audit actions 1-4 completed; action 5
 documentation/tooling cleanup completed. Historical detail is preserved in
 `docs/archive/2026-11-16_v1_milestones.md`.
 
@@ -44,6 +45,12 @@ documentation/tooling cleanup completed. Historical detail is preserved in
   shared/network) over four reference sizes; Liara silver published plans,
   Hamravesh managed and Arvan premium/standard rates calculated, Sotoon Gen2
   offline bundles scaled from the 1 vCPU + 2 GB unit for all four sizes.
+- [x] KaaS comparison: six node-count scenarios; Hamravesh v1 (old fees) and
+  v2 (new self-service fees) kept as separate offerings over shared worker
+  tariffs; Kubit licence ladder + gen-4 workers, Sotoon Neda C1/local SSD with
+  standard/premium subscriptions plus per-node management fees at the 30-node
+  boundary. Component rates live in SQLite; all arithmetic is in
+  `comparison/kaas_pricing.py`; capability/performance stay placeholders.
 - [x] Sotoon VM from an offline price list: schema v6 manual sources, Neda
   datacenter, dedicated/shared mapped to Premium/Standard, reference sizes built
   from the 1 vCPU + 2 GB unit plus the دیسک مانا نوع ۲ (premium) disk, with
@@ -77,4 +84,4 @@ See `AUDIT_HANDOFF.md` for audit changes/limits and `docs/CODE_MAP.md` for code 
 
 Audit cleanup validation: 183 default tests passed (4 browser tests deselected); two synthetic browser tests passed separately. Dependency consistency check passed. No paid/provider collection or deployment performed.
 
-Current validation (2026-11-17): 243 default tests passed (4 browser tests deselected). Sotoon VM and Object Storage prices imported from the offline package with no network calls and no LLM.
+Current validation (2026-11-22): 289 default tests passed (4 browser tests deselected). Sotoon VM, Object Storage, DBaaS and KaaS prices imported from the offline package with no network calls and no LLM.

@@ -30,6 +30,7 @@ BASIS_LABELS_FA = {
     "published": "منتشرشده",
     "calculated": "محاسبه‌شده",
     "approximate": "تقریبی",
+    "proposed": "پیشنهادی / منتشرنشده",
     "missing": "در دسترس نیست",
 }
 VERIFICATION_LABELS_FA = {
