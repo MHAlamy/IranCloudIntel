@@ -4,7 +4,10 @@ ENV PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1 \
     PLAYWRIGHT_BROWSERS_PATH=/opt/playwright CLOUD_INTEL_DB=/app/data/cloud_intel.db
 
 COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt \
+# Playwright's bundled Node needs libatomic before it can install Chromium.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libatomic1 \
+    && pip install --no-cache-dir -r requirements.txt \
     && python -m playwright install --with-deps chromium \
     && rm -rf /var/lib/apt/lists/* \
     && useradd --uid 10001 --create-home app \
