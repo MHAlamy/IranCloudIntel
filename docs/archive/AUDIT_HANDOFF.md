@@ -1,5 +1,7 @@
 # Audit changes — agent handoff
 
+Historical record of the completed audit, not current project guidance.
+
 ## Completed
 
 - Publication/freshness (`ff52d71`): collectors publish through one accepted-run

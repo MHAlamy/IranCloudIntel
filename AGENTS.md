@@ -6,10 +6,9 @@
 - Read relevant sections only: `PROJECT_GUIDE.md` for architecture/new components;
   `price_gathering_guide.md` for data collection/comparison (overrides the master
   on methodology). Routine fixes need no full-guide onboarding.
-- Use `docs/CODE_MAP.md` for routing, `AUDIT_HANDOFF.md` for audit history;
-  archives are not current instructions. Read `v1_milestones.md` status when
-  planning/progress matters; tick completed milestones. Update only affected
-  documentation sections when behavior or architecture changes.
+- Use `docs/CODE_MAP.md` for routing. Archives are not current instructions.
+  Read `MILESTONES.md` when planning or progress matters; tick completed
+  milestones. Update only affected sections when behavior or architecture changes.
 
 ## Retrieval and context
 
@@ -39,8 +38,8 @@
 
 ## Implementation and data
 
-- Native Windows development; Linux/Docker execution waits for VM deployment.
-  Keep one VM and small maintainable patches. Reuse components; avoid unnecessary
+- Develop natively on Windows; validate the Linux container in CI and on Darkube.
+  Keep patches small and maintainable. Reuse components; avoid unnecessary
   abstractions, duplication, speculative features and unrelated refactoring.
   Explain new dependencies/paid services before introducing them.
 - Never fabricate data or treat unknown as zero. Preserve history, evidence,

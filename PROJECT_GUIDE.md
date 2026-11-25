@@ -1,18 +1,17 @@
 # Iranian Cloud Intelligence Dashboard
 
-Current architecture and scope. Supersedes the historical planning brief in
-`docs/archive/2026-11-16_PROJECT_GUIDE.md`. Read the pricing guide for data rules,
-the milestone status for progress, and `docs/CODE_MAP.md` for targeted code lookup.
+Current architecture, product scope and deployment direction. See
+[MILESTONES.md](MILESTONES.md) for progress and [the pricing guide](price_gathering_guide.md)
+for collection and comparison rules.
 
 ## Purpose and scope
 
 A personal dashboard tracking Iranian cloud prices with auditable source evidence
-and history. Equally important: learn practical VM-based DevOps while building it.
-V1 covers public VM, Object Storage, PaaS/CNAP, DBaaS, KaaS and CDN pricing. VM,
-OS, PaaS/CNAP, DBaaS and KaaS panels exist; CDN, deployment and operational
-automation remain unfinished. PaaS and DBaaS are compute-shaped and reuse the VM
-observation table with `service_type='paas'` and `service_type='dbaas'`; Liara
-is compared on its silver tier, while Hamravesh and Arvan are calculated from
+and history. VM, Object Storage, PaaS/CNAP, DBaaS and KaaS panels exist. CDN is
+planned separately and does not block the first Darkube launch. PaaS and DBaaS
+are compute-shaped and reuse the VM observation table with `service_type='paas'`
+and `service_type='dbaas'`; Liara is compared on its silver tier, while Hamravesh
+and Arvan are calculated from
 their published monthly resource rates. DBaaS compares two infrastructure
 classes (local/premium and shared/network) over four shared reference sizes.
 KaaS compares four offerings over six node-count scenarios; worker tariffs and
@@ -25,8 +24,9 @@ Neither roadmap stage justifies extra infrastructure or autonomous production ed
 
 ## Architecture
 
-- Develop natively on Windows with Python, VS Code and project `.venv`; no WSL or
-  local Docker. Test Linux/container behavior during the server deployment stage.
+- Develop natively on Windows with Python and the project `.venv`; no WSL or
+  local Docker required. Validate the Linux container on a Linux CI runner and
+  verify disk and restart behavior in a Darkube test deployment.
 - One Python application: HTTPX/BeautifulSoup for public pages, Playwright only
   where rendering or calculators require it, deterministic normalization and
   comparisons, configurable Arvan AIaaS for remaining unstructured extraction.
@@ -45,10 +45,22 @@ Neither roadmap stage justifies extra infrastructure or autonomous production ed
   `service_type='kaas'`; KaaS keeps worker/fee components in `resource_rates`
   and gets its identical-worker, separate-fee Hamravesh v1/v2 offerings from
   `benchmarks.yaml` plus the collected tariff rows.
-- Target production: one Ubuntu Arvan VM, Docker Compose, Nginx/HTTPS, protected
-  access, daily collection and consistent off-VM backups to private Object Storage.
-- GitHub/Actions/GHCR are proposed release tools, subject to verified connectivity.
-  Begin with manual deployment; test restore, health checks and rollback before CD.
+## Planned Darkube deployment
+
+- **First launch:** One app, one replica. Use Darkube for HTTPS and verify that
+  dashboard access is protected. Mount an app disk for SQLite, evidence and the
+  collection lock. The disk is persistent across redeploys but node-local and
+  not shared with a separate collector app. Expect brief downtime on updates.
+- **Recovery from day one:** Keep consistent SQLite backups and copies of the
+  evidence in private storage outside the app disk. Test restore separately from
+  release rollback; rolling back the image doesn't undo database migrations.
+- **Collect manually first:** Run the one-shot CLI from the app terminal. Then
+  test one supervised scheduler in the same app, separate from the web process,
+  using the same disk-backed lock as manual runs. Keep collection manual if the
+  scheduler isn't reliable. No Redis or Celery is needed.
+- **V2 storage:** Move collection evidence to private Object Storage. Keep SQLite
+  unless separate apps or multiple web replicas justify moving to PostgreSQL.
+  Object Storage integration is deferred; backups are not.
 
 ## Dashboard structure
 
@@ -92,8 +104,7 @@ Neither roadmap stage justifies extra infrastructure or autonomous production ed
   (`collectors/offline_pipeline.py`). Schema v6 allows `collection_method:
   manual` and stores `source_document`/`valid_until` on the run; the VM dashboard
   shows a «دستی» badge, the source document and the validity date for those rows.
-  Manual sources can import plans (VM) or Object Storage rate tables; both keep
-  the same provenance.
+  VM, Object Storage, DBaaS and KaaS imports all preserve this provenance.
 
 ## Reliability and operating constraints
 
