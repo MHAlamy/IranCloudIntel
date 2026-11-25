@@ -18,7 +18,6 @@ from extractors.llm import LLMClient  # noqa: E402
 from storage.repository import Repository  # noqa: E402
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures" / "kubit_pricing"
-ROOT = Path(__file__).resolve().parent.parent
 
 
 @pytest.fixture(scope="module")
@@ -78,8 +77,7 @@ def test_pipeline_rates_only_source_no_llm(tmp_path):
         collection_method="http", region_scope="iran",
         navigation={"tabs": ["rates"], "bundle_extraction": False},
     )
-    html = (ROOT / "evidence" / "kubit" / "vm").glob("*_pricing_http.html")
-    page_html = sorted(html)[-1].read_text(encoding="utf-8")
+    page_html = (FIXTURES / "iaas_rates.html").read_text(encoding="utf-8")
 
     llm_calls: list[int] = []
 

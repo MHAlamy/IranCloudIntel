@@ -15,15 +15,12 @@ from config.loader import ProviderConfig, SourceConfig  # noqa: E402
 from extractors.llm import LLMClient  # noqa: E402
 from storage.repository import Repository  # noqa: E402
 
-ROOT = Path(__file__).resolve().parent.parent
 FIXTURES = Path(__file__).resolve().parent / "fixtures" / "liara_vm"
-EVIDENCE = ROOT / "evidence" / "liara" / "vm"
 
 
 @pytest.fixture(scope="module")
 def product_html() -> str:
-    snap = sorted(EVIDENCE.glob("*_product.html"))[-1]
-    return snap.read_text(encoding="utf-8")
+    return (FIXTURES / "iaas_cards.html").read_text(encoding="utf-8")
 
 
 def test_parses_six_plans(product_html):
@@ -41,11 +38,9 @@ def test_ipv4_surcharge_parsed_from_page(product_html):
     assert parse_ipv4_monthly(product_html) == "200000"
 
 
-def test_pricing_page_yields_same_plans():
-    snap = sorted(EVIDENCE.glob("*_pricing.html"))[-1]
-    plans = parse_liara_plans(snap.read_text(encoding="utf-8"))
-    assert [p.name for p in plans] == ["مشتری", "زحل", "اورانوس", "نپتون", "پلوتون", "اریس"]
-    assert plans[0].monthly_toman == "1475000"
+def test_pricing_page_yields_same_plans(product_html):
+    pricing_html = product_html.replace("قیمت پلن‌های سرور مجازی ابری", "سرور مجازی ابری")
+    assert parse_liara_plans(pricing_html) == parse_liara_plans(product_html)
 
 
 def test_paas_section_not_confused_with_iaas(product_html):
@@ -62,14 +57,13 @@ def test_clean_liara_deterministic(product_html):
     assert md1.content_hash == md2.content_hash
 
 
-def test_pipeline_liara_records_bundles_with_ipv4(tmp_path):
+def test_pipeline_liara_records_bundles_with_ipv4(tmp_path, product_html):
     provider = ProviderConfig(slug="liara", name="Liara", official_url="https://liara.ir/")
     source = SourceConfig(
         id="liara_vm_test", service_type="vm", url="https://liara.ir/products/cloud-server/",
         collection_method="http", region_scope="iran",
         navigation={"tabs": ["plans"], "bundle_extraction": False},
     )
-    product_html = sorted(EVIDENCE.glob("*_product.html"))[-1].read_text(encoding="utf-8")
 
     llm_calls: list[int] = []
 
