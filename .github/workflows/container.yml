@@ -15,11 +15,56 @@ jobs:
           docker build --target test -t cloud-intel-test .
           docker run --rm --init cloud-intel-test python -m pytest
           docker run --rm --init --ipc=host cloud-intel-test python -m pytest -m browser tests/test_browser.py -k bundled
-      - name: Smoke-test production startup with mounted data
+      - name: Smoke-test production startup and persistence
         run: |
           docker build -t cloud-intel .
+          trap 'docker logs cloud-intel || true; docker rm -f cloud-intel || true; docker volume rm cloud-intel-data cloud-intel-evidence || true' EXIT
           docker volume create cloud-intel-data
-          docker run -d --name cloud-intel --mount source=cloud-intel-data,target=/app/data -p 127.0.0.1:8000:8000 cloud-intel
-          trap 'docker logs cloud-intel; docker rm -f cloud-intel; docker volume rm cloud-intel-data' EXIT
-          curl --retry 20 --retry-connrefused --retry-delay 1 --fail http://127.0.0.1:8000/ready
-          curl --fail --output /dev/null http://127.0.0.1:8000/vm
+          docker volume create cloud-intel-evidence
+
+          start_and_check() {
+            docker run -d --name cloud-intel \
+              --mount source=cloud-intel-data,target=/app/data \
+              --mount source=cloud-intel-evidence,target=/app/evidence \
+              -p 127.0.0.1:8000:8000 cloud-intel
+            local deadline=$((SECONDS + 30))
+            while (( SECONDS < deadline )); do
+              if [[ $(docker inspect -f '{{.State.Running}}' cloud-intel) != true ]]; then
+                echo 'Container exited before becoming ready' >&2
+                return 1
+              fi
+              if curl --silent --fail --max-time 2 http://127.0.0.1:8000/ready; then
+                curl --silent --show-error --fail --max-time 5 --output /dev/null http://127.0.0.1:8000/vm
+                return
+              fi
+              sleep 1
+            done
+            echo 'Timed out waiting for /ready' >&2
+            return 1
+          }
+
+          start_and_check
+          docker exec -i cloud-intel python - <<'PY'
+          import os
+          import sqlite3
+          from pathlib import Path
+
+          with sqlite3.connect(os.environ['CLOUD_INTEL_DB']) as db:
+              db.execute('INSERT INTO providers (slug, name, official_url) VALUES (?, ?, ?)',
+                         ('ci-smoke', 'CI Smoke', 'https://example.com'))
+          Path('/app/evidence/ci-smoke.txt').write_text('CI evidence', encoding='utf-8')
+          PY
+          docker stop cloud-intel
+          docker rm cloud-intel
+          start_and_check
+          docker exec -i cloud-intel python - <<'PY'
+          import os
+          import sqlite3
+          from pathlib import Path
+
+          with sqlite3.connect(os.environ['CLOUD_INTEL_DB']) as db:
+              assert db.execute('SELECT name FROM providers WHERE slug = ?',
+                                ('ci-smoke',)).fetchone() == ('CI Smoke',)
+          assert Path('/app/evidence/ci-smoke.txt').read_text(encoding='utf-8') == 'CI evidence'
+          print('Mounted SQLite and evidence survived container replacement')
+          PY

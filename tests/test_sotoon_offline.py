@@ -164,12 +164,16 @@ def test_view_premium_uses_the_dedicated_unit(imported):
     assert row.plan_name == "4 vCPU + 8 GB (dedicated)"
 
 
-def test_freshness_reports_document_validity_instead_of_staleness(imported):
+@pytest.mark.parametrize(("day", "stale"), [(20, False), (21, True)])
+def test_freshness_respects_document_expiry(imported, day, stale):
+    from datetime import datetime, timezone
+
     repo, _, _, _ = imported
-    entry = next(e for e in repo.freshness("vm") if e["provider"] == "Sotoon")
+    now = datetime(2027, 3, day, tzinfo=timezone.utc)
+    entry = next(e for e in repo.freshness("vm", now=now) if e["provider"] == "Sotoon")
     assert entry["collection_method"] == "manual"
     assert entry["valid_until"] == "2027-03-20"
-    assert entry["stale"] is False  # document still in force
+    assert entry["stale"] is stale
 
 
 def test_dashboard_renders_sotoon_with_manual_badge(imported):

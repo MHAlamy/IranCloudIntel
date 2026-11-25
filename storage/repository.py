@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
+from datetime import datetime, timezone
 from decimal import Decimal
 from pathlib import Path
 
@@ -136,10 +137,10 @@ class Repository:
             if old - new:
                 raise ValueError(f'incomplete {table}: previously accepted identities missing; review required')
 
-    def freshness(self, service: str, max_age_hours: int = 48) -> list[dict]:
-        from datetime import datetime, timezone
+    def freshness(self, service: str, max_age_hours: int = 48, *, now: datetime | None = None) -> list[dict]:
         result = []
-        today = datetime.now(timezone.utc).date().isoformat()
+        now = datetime.now(timezone.utc) if now is None else now.astimezone(timezone.utc)
+        today = now.date().isoformat()
         for source in self.list_sources():
             if source['service_type'] != service:
                 continue
@@ -154,7 +155,7 @@ class Repository:
                 # while the document it came from is still in force.
                 stale = not valid_until or today > valid_until
             else:
-                stale = not checked or (datetime.now(timezone.utc)-datetime.fromisoformat(checked)).total_seconds() > max_age_hours*3600 or (latest is not None and latest['status'] != 'success')
+                stale = not checked or (now-datetime.fromisoformat(checked)).total_seconds() > max_age_hours*3600 or (latest is not None and latest['status'] != 'success')
             result.append(dict(
                 provider=source['provider_name'],
                 last_checked=latest['started_at'] if latest else None,
