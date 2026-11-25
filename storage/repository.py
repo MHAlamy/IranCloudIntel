@@ -27,8 +27,9 @@ _REVIEW_ONLY_OS_RATE_SQL = "(" + ", ".join(
 
 
 class Repository:
-    def __init__(self, db_path: str | Path):
-        init_db(db_path)
+    def __init__(self, db_path: str | Path, *, initialize: bool = True):
+        if initialize:
+            init_db(db_path)
         self._connection = connect(db_path)
         for table in ('price_observations', 'os_observations', 'resource_rates', 'os_rates'):
             self._connection.execute(f"CREATE TEMP VIEW published_{table} AS SELECT t.* FROM main.{table} t JOIN collection_runs cr ON cr.id=t.run_id WHERE cr.status='success'")

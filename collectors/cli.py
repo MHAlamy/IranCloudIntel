@@ -11,6 +11,7 @@ Usage (from the repository root):
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 from pathlib import Path
 
@@ -126,7 +127,8 @@ OS_COLLECTION = {
 
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description="One-shot price collection")
-    parser.add_argument("--db", default=str(DATA_DIR / "cloud_intel.db"))
+    parser.add_argument("--db", type=Path,
+                        default=os.getenv("CLOUD_INTEL_DB", str(DATA_DIR / "cloud_intel.db")))
     parser.add_argument("--source", default=None, help="collect only this source id")
     parser.add_argument("--force", action="store_true", help="extract even when content is unchanged")
     args = parser.parse_args(argv)
@@ -134,9 +136,9 @@ def main(argv=None) -> int:
     providers_file = load_providers()
     rate_mappings = load_rate_mappings()
     os_benchmarks = load_benchmarks().object_storage
-    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    args.db.parent.mkdir(parents=True, exist_ok=True)
 
-    with RunLock(DATA_DIR / ".collection.lock"):
+    with RunLock(args.db.parent / ".collection.lock"):
         repository = Repository(args.db)
         try:
             exit_code = 0

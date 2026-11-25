@@ -1,0 +1,25 @@
+name: Linux container checks
+on: [push, pull_request, workflow_dispatch]
+
+permissions:
+  contents: read
+
+jobs:
+  container:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test inside Linux image
+        run: |
+          docker build --target test -t cloud-intel-test .
+          docker run --rm --init cloud-intel-test python -m pytest
+          docker run --rm --init --ipc=host cloud-intel-test python -m pytest -m browser tests/test_browser.py -k bundled
+      - name: Smoke-test production startup with mounted data
+        run: |
+          docker build -t cloud-intel .
+          docker volume create cloud-intel-data
+          docker run -d --name cloud-intel --mount source=cloud-intel-data,target=/app/data -p 127.0.0.1:8000:8000 cloud-intel
+          trap 'docker logs cloud-intel; docker rm -f cloud-intel; docker volume rm cloud-intel-data' EXIT
+          curl --retry 20 --retry-connrefused --retry-delay 1 --fail http://127.0.0.1:8000/ready
+          curl --fail --output /dev/null http://127.0.0.1:8000/vm

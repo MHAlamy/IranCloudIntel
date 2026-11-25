@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import os
+import sqlite3
 import sys
+from contextlib import asynccontextmanager, closing
 from pathlib import Path
 
 
@@ -13,7 +15,7 @@ ROOT = Path(__file__).resolve().parent.parent
 load_dotenv(ROOT / ".env")
 
 from fastapi import FastAPI, Query, Request  # noqa: E402
-from fastapi.responses import HTMLResponse  # noqa: E402
+from fastapi.responses import HTMLResponse, JSONResponse  # noqa: E402
 from fastapi.staticfiles import StaticFiles  # noqa: E402
 from fastapi.templating import Jinja2Templates  # noqa: E402
 
@@ -33,6 +35,7 @@ from app.data import (  # noqa: E402
 )
 from app.benchmark_view import build_os_benchmark_view  # noqa: E402
 from storage.repository import Repository  # noqa: E402
+from storage.db import SCHEMA_VERSION, init_db  # noqa: E402
 from util.format import format_number, format_toman  # noqa: E402
 from util.jalali import format_jalali  # noqa: E402
 
@@ -50,12 +53,31 @@ templates.env.filters["jalali_date"] = lambda v: format_jalali(v, with_time=Fals
 
 def create_app(db_path: str | Path | None = None) -> FastAPI:
     db_path = Path(db_path or os.getenv("CLOUD_INTEL_DB", DEFAULT_DB))
-    app = FastAPI(title="Cloud Intelligence", docs_url=None, redoc_url=None)
+
+    @asynccontextmanager
+    async def lifespan(_app):
+        db_path.parent.mkdir(parents=True, exist_ok=True)
+        init_db(db_path)
+        yield
+
+    app = FastAPI(title="Cloud Intelligence", docs_url=None, redoc_url=None, lifespan=lifespan)
     app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
     @app.get("/health")
     def health():
         return {"status": "ok"}
+
+    @app.get("/ready")
+    def ready():
+        try:
+            uri = db_path.resolve().as_uri() + "?mode=ro"
+            with closing(sqlite3.connect(uri, uri=True, timeout=1)) as db:
+                version = db.execute("SELECT MAX(version) FROM schema_version").fetchone()[0]
+                if version == SCHEMA_VERSION:
+                    return {"status": "ready"}
+        except sqlite3.Error:
+            pass
+        return JSONResponse({"status": "not ready"}, status_code=503)
 
     @app.get("/", response_class=HTMLResponse)
     def index(request: Request):
@@ -69,7 +91,7 @@ def create_app(db_path: str | Path | None = None) -> FastAPI:
             tier = "standard"
         if size not in SIZE_LABELS_FA:
             size = "medium"
-        repo = Repository(db_path)
+        repo = Repository(db_path, initialize=False)
         try:
             view = build_vm_view(repo, tier, size)
             view["freshness"] = repo.freshness("vm")
@@ -89,7 +111,7 @@ def create_app(db_path: str | Path | None = None) -> FastAPI:
 
     @app.get("/object-storage", response_class=HTMLResponse)
     def object_storage(request: Request, scenario: str | None = None):
-        repo = Repository(db_path)
+        repo = Repository(db_path, initialize=False)
         try:
             view = build_os_view(repo, scenario)
             view["freshness"] = repo.freshness("object_storage")
@@ -107,7 +129,7 @@ def create_app(db_path: str | Path | None = None) -> FastAPI:
 
     @app.get("/paas", response_class=HTMLResponse)
     def paas(request: Request, size: str = "s1"):
-        repo = Repository(db_path)
+        repo = Repository(db_path, initialize=False)
         try:
             view = build_paas_view(repo, size)
             view["freshness"] = repo.freshness("paas")
@@ -125,7 +147,7 @@ def create_app(db_path: str | Path | None = None) -> FastAPI:
         infra_class: str = Query("local", alias="class"),
         size: str = "small",
     ):
-        repo = Repository(db_path)
+        repo = Repository(db_path, initialize=False)
         try:
             view = build_dbaas_view(repo, infra_class, size)
             view["freshness"] = repo.freshness("dbaas")
@@ -139,7 +161,7 @@ def create_app(db_path: str | Path | None = None) -> FastAPI:
 
     @app.get("/kaas", response_class=HTMLResponse)
     def kaas(request: Request, scenario: str = "small"):
-        repo = Repository(db_path)
+        repo = Repository(db_path, initialize=False)
         try:
             view = build_kaas_view(repo, scenario)
             view["freshness"] = repo.freshness("kaas")
@@ -153,7 +175,7 @@ def create_app(db_path: str | Path | None = None) -> FastAPI:
 
     @app.get("/plan/{offering_id}", response_class=HTMLResponse)
     def plan(request: Request, offering_id: int):
-        repo = Repository(db_path)
+        repo = Repository(db_path, initialize=False)
         try:
             offering = repo.get_offering(offering_id)
             history = repo.offering_history(offering_id)
@@ -168,7 +190,7 @@ def create_app(db_path: str | Path | None = None) -> FastAPI:
 
     @app.get("/status", response_class=HTMLResponse)
     def status(request: Request):
-        repo = Repository(db_path)
+        repo = Repository(db_path, initialize=False)
         try:
             view = build_status_view(repo)
         finally:

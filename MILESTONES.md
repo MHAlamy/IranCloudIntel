@@ -7,12 +7,17 @@ are not yet implemented.
 
 ## 1. Prepare the container
 
-- [ ] Add a production Dockerfile and exclude secrets, databases, evidence and
+- [x] Add a production Dockerfile and exclude secrets, databases, evidence and
   backups from the build context.
 - [ ] On a Linux CI runner, run the offline tests and a synthetic Chromium smoke
   test against the container. No change to the Windows development setup.
-- [ ] Make the web app and collector use the intended persistent paths. Run
+- [x] Make the web app and collector use the intended persistent paths. Run
   migrations before serving traffic and add a database-aware readiness check.
+
+Container settings for Darkube: HTTP port `8000`, readiness path `/ready`, and
+disk mounts at `/app/data` and `/app/evidence`. Both mounts must be writable
+by the container user (UID `10001`). Linux CI and actual Darkube mounts still
+need verification.
 
 ## 2. Launch on Darkube with manual collection
 
